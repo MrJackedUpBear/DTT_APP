@@ -28,8 +28,7 @@ public class QuizServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		String requestURI = request.getRequestURI();
-		Database.getInstance();
-		response.getWriter().append("Served at: ").append(requestURI);
+		response.getWriter().append("Served at: " + Database.getInstance().getRandomQuestions(2));
 	}
 
 	/**
