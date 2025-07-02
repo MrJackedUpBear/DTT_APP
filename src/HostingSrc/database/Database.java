@@ -20,7 +20,8 @@ public class Database {
 	    }
 	}
 	
-	//Possible Need to dos: Fix the JSON formatter to ensure that if a prompt or answer contains "", that we give the correct escape sequence to avoid issues.
+	//This function accesses the question and wrong answer table to get complete questions. First it checks how many questions are in the database, then it
+	//shuffles the question id's to get a random set of questions to return back as a JSON String
 	public String getRandomQuestions(int numQuestions) {
 		//Initializes our questions variable and the possible questions from the database
 		ArrayList<HashMap<String, String>> questions = new ArrayList<>();
@@ -77,19 +78,26 @@ public class Database {
 			json += "\"" + String.valueOf(i) + "\"";
 			json += ":{";
 			HashMap<String, String> question = questions.get(i);
-			json += "\"Prompt\":\"" + question.get("Prompt") + "\"";
-			json += ",\"Correct Answer\":\"" + question.get("Correct Answer") + "\"";
+			
+			String prompt = question.get("Prompt").contains("\"")? escapeQuote(question.get("Prompt")): question.get("Prompt");
+			json += "\"Prompt\":\"" + prompt + "\"";
+			
+			String correctAnswer = question.get("Correct Answer").contains("\"")? escapeQuote(question.get("Correct Answer")): question.get("Correct Answer");
+			json += ",\"Correct Answer\":\"" + correctAnswer + "\"";
+			
 			json += ",\"Wrong Answers\":{";
 			String wrong = question.get("Wrong Answers");
 			
 			//Splits the wrong string into a list to get all of the wrong answers
 			String[] wrongAnswers = wrong.split(", ");
+			String wrongAnswer = "";
 			
 			//Loops through the list and appends it to the JSON String
 			for (int j = 0; j < wrongAnswers.length; j++) {
 				//Checks for the first elements and appends the first wrong answer to the JSON String and increments j
 				if (j == 0) {
-					json += "\"" + j + "\":\"" + wrongAnswers[j] + "\"";
+					wrongAnswer = wrongAnswers[j].contains("\"")? escapeQuote(wrongAnswers[j]): wrongAnswers[j];
+					json += "\"" + j + "\":\"" + wrongAnswer + "\"";
 					j++;
 				}
 				
@@ -99,9 +107,11 @@ public class Database {
 				if (j == wrongAnswers.length) {
 					json += "}";
 				}else if (j == wrongAnswers.length - 1){
-					json += ",\"" + j + "\":\"" + wrongAnswers[j] + "\"}";
+					wrongAnswer = wrongAnswers[j].contains("\"")? escapeQuote(wrongAnswers[j]): wrongAnswers[j];
+					json += ",\"" + j + "\":\"" + wrongAnswer + "\"}";
 				}else {
-					json += ",\"" + j + "\":\"" + wrongAnswers[j] + "\"";
+					wrongAnswer = wrongAnswers[j].contains("\"")? escapeQuote(wrongAnswers[j]): wrongAnswers[j];
+					json += ",\"" + j + "\":\"" + wrongAnswer + "\"";
 				}
 			}
 			
@@ -118,4 +128,173 @@ public class Database {
 		
 		return json;
 	}
+	
+	public void addQuestion(String prompt, String correctAnswer, ArrayList<String> wrongAnswers) {
+		Question.getInstance().createQuestion(prompt, correctAnswer);
+		int questionId = Question.getInstance().getQuestionId(prompt);
+		
+		if (questionId == -1) {
+			return;
+		}
+		
+		addWrongAnswers(wrongAnswers, questionId);
+	}
+	
+	public void deleteQuestion(String prompt) {
+		int questionId = Question.getInstance().getQuestionId(prompt);
+		
+		if (questionId == -1) {
+			return;
+		}
+		
+		Question.getInstance().deleteQuestion(questionId);
+		deleteAllWrongAnswers(questionId);
+	}
+	
+	public void updateQuestionPrompt(String oldPrompt, String prompt) {
+		int questionId = Question.getInstance().getQuestionId(oldPrompt);
+		
+		if (questionId == -1){
+			return;
+		}
+		
+		Question.getInstance().updateQuestionPrompt(questionId, prompt);
+	}
+	
+	public void updateQuestionAnswer(String prompt, String answer) {
+		int questionId = Question.getInstance().getQuestionId(prompt);
+		
+		if (questionId == -1) {
+			return;
+		}
+		
+		Question.getInstance().updateQuestionAnswer(questionId, answer);
+	}
+	
+	public String getQuestion(String prompt) {
+		int questionId = Question.getInstance().getQuestionId(prompt);
+		
+		HashMap<String, String> question = Question.getInstance().getQuestion(questionId);
+		
+		if (question == null || question.isEmpty()) {
+			return "{}";
+		}
+		
+		return formatQuestionAsJson(question, 0, questionId);
+	}
+	
+	public void addWrongAnswers(ArrayList<String> wrongAnswers, int questionId) {
+		int val = 0;
+		for (String wrongAnswer : wrongAnswers) {
+			WrongAnswer.getInstance().addWrongAnswer(val, wrongAnswer, questionId);
+			val++;
+		}
+	}
+	
+	public void addWrongAnswer(String answer, int questionId) {
+		ArrayList<Integer> wrongAnswerIds = WrongAnswer.getInstance().getWrongAnswerId(questionId);
+		
+		int maxVal = 0;
+		
+		for (int wrongAnswerId : wrongAnswerIds) {
+			if (wrongAnswerId > maxVal && wrongAnswerId - maxVal == 1) {
+				maxVal = wrongAnswerId;
+			}else {
+				maxVal++;
+				break;
+			}
+		}
+		
+		WrongAnswer.getInstance().addWrongAnswer(maxVal, answer, questionId);
+	}
+	
+	public void deleteWrongAnswer(int answerId, int questionId) {
+		WrongAnswer.getInstance().deleteWrongAnswer(answerId, questionId);
+	}
+	
+	public void deleteAllWrongAnswers(int questionId) {
+		ArrayList<Integer> wrongAnswerIds = WrongAnswer.getInstance().getWrongAnswerId(questionId);
+		
+		for (int wrongAnswerId: wrongAnswerIds) {
+			deleteWrongAnswer(wrongAnswerId, questionId);
+		}
+	}
+	
+	public void updateWrongAnswer(int answerId, String wrongAnswer, int questionId) {
+		WrongAnswer.getInstance().updateWrongAnswer(answerId, wrongAnswer, questionId);
+	}
+	
+	private String escapeQuote(String input) {
+		return input.replace("\"", "\\\"");
+	}
+	
+	private String formatQuestionAsJson(HashMap<String, String> question, int questionNum, int questionId) {
+		ArrayList<String> temp = WrongAnswer.getInstance().getWrongAnswers(questionId);
+		
+		String answers = "";
+		for (String wrongAnswer : temp) {
+			if (wrongAnswer.equals(temp.get(temp.size() - 1))) {
+				answers += wrongAnswer;
+			}else {
+				answers += wrongAnswer + ", ";
+			}
+		}
+		
+		question.put("Wrong Answers", answers);
+		String json = "";
+		
+		//This adds the question number to the start of the JSON and gets the Prompt and correct answer appended.
+		json += "\"" + String.valueOf(questionNum) + "\"";
+		json += ":{";
+		
+		String prompt = question.get("Prompt").contains("\"")? escapeQuote(question.get("Prompt")): question.get("Prompt");
+		json += "\"Prompt\":\"" + prompt + "\"";
+		
+		String correctAnswer = question.get("Correct Answer").contains("\"")? escapeQuote(question.get("Correct Answer")): question.get("Correct Answer");
+		json += ",\"Correct Answer\":\"" + correctAnswer + "\"";
+		
+		json += ",\"Wrong Answers\":{";
+		String wrong = question.get("Wrong Answers");
+		
+		//Splits the wrong string into a list to get all of the wrong answers
+		String[] wrongAnswers = wrong.split(", ");
+		String wrongAnswer = "";
+		
+		//Loops through the list and appends it to the JSON String
+		for (int j = 0; j < wrongAnswers.length; j++) {
+			//Checks for the first elements and appends the first wrong answer to the JSON String and increments j
+			if (j == 0) {
+				wrongAnswer = wrongAnswers[j].contains("\"")? escapeQuote(wrongAnswers[j]): wrongAnswers[j];
+				json += "\"" + j + "\":\"" + wrongAnswer + "\"";
+				j++;
+			}
+			
+			//Checks if we have are outside of the array after incrementing j. If so, we just add the ending bracket to finish off the wrong answers
+			//list. Then checks if we are at the end of the array and appends the last answer and the curly bracket.
+			//Otherwise, the JSON String appends a comma space and the next wrong answer.
+			if (j == wrongAnswers.length) {
+				json += "}";
+			}else if (j == wrongAnswers.length - 1){
+				wrongAnswer = wrongAnswers[j].contains("\"")? escapeQuote(wrongAnswers[j]): wrongAnswers[j];
+				json += ",\"" + j + "\":\"" + wrongAnswer + "\"}";
+			}else {
+				wrongAnswer = wrongAnswers[j].contains("\"")? escapeQuote(wrongAnswers[j]): wrongAnswers[j];
+				json += ",\"" + j + "\":\"" + wrongAnswer + "\"";
+			}
+		}
+		
+		//Checks if we have reached the last question. If so, we add the curly bracket to close out the JSON
+		//Otherwise, a curly bracket is added with a comma to continue on with the next question.
+		json += "}";
+		//Appends the final curly bracket to close out the JSON String
+		json += "}";
+		
+		return json;
+	}
+	
+//private ArrayList<String> parseCSV(String csv) {
+//	ArrayList<String> list = new ArrayList<>();
+//	
+//	return list;
+//}
 }
