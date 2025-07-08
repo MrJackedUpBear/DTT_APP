@@ -1,0 +1,3 @@
+Mariadb install
+J-Connector
+mrjackedupbear user with password: TempPass
