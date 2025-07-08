@@ -1,0 +1,6 @@
+Below are the instructions to deploy the API to a Tomcat server from Eclipse.
+
+Right-click on your project and choose Export > WAR file. 
+Specify the destination and filename for the WAR file. 
+To deploy the WAR file, copy it to the webapps directory of your standalone Tomcat installation. 
+Restart the Tomcat server to deploy the application
