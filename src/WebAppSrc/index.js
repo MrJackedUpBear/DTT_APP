@@ -1,10 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+import * as app from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, createBrowserRouter, RouterProvider } from 'react-router-dom';
 import * as quiz from './Quiz';
+import * as qfend from './QuestionsFrontEnd';
 
  const router = createBrowserRouter([
     {
@@ -18,7 +19,23 @@ import * as quiz from './Quiz';
     {
       path: 'Quiz/SameQuestion',
       element: <quiz.WrongAnswer />
-    }
+    },
+    {
+      path:'Questions',
+      element:<qfend.EditQuestions />
+    },
+    {
+      path:'Questions/Add',
+      element:<qfend.AddQuestions />,
+    },
+    {
+      path: 'Questions/Add/Submit',
+      element:<qfend.SubmitAddQuestions/>,
+    },
+    {
+      path: '',
+      element:<app.MainPage/>,
+    },
   ]);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

@@ -71,6 +71,13 @@ export class question{
 	}
 }
 
+const baseURL = "http://localhost:8080/DTT_APP/QuizServlet/";
+const getRandomQuestionsURL = "RandomQuestions";
+const getSpecificQuestionURL = "SpecificQuestion";
+const getQuestionTotalURL = "QuestionTotal";
+
+const addQuestionsURL = "AddQuestions";
+
 let users = new Map();
 let questions = [];
 
@@ -97,25 +104,6 @@ export function getUserInfo(id){
 
 	return userInfo;
 }
-
-let quest = new question();
-quest.setCorrectAnswer('4');
-quest.addWrongAnswer('99');
-quest.addWrongAnswer('12');
-quest.addWrongAnswer('3');
-quest.addWrongAnswer('21');
-quest.setQuestion('What is 2+2?');
-
-questions.push(quest);
-
-let que = new question();
-que.removeWrongAnswers();
-que.setQuestion('How old are you?');
-que.setCorrectAnswer('2');
-que.addWrongAnswer('53');
-que.addWrongAnswer('10');
-que.addWrongAnswer('5');
-questions.push(que);
 
 export function getQuestionInfo(userQuestion){
 	let questionInfo = new question();
@@ -149,21 +137,110 @@ export function setUserInfo(id, userInfo){
 	}
 }
 
-export function setQuestions(q){
-	if (typeof q !== 'object' || q.size !== 5){
-		return;
+export async function addQuestions(questionsToAdd){
+	try{
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+		const response = await fetch(baseURL + addQuestionsURL, {
+			headers:myHeaders,
+			method: "POST",
+			body: JSON.stringify({Questions: questionsToAdd}),
+		});
+
+		console.log(response.status);
+	}catch(error) {
+		console.log("Error Adding: " + error);
 	}
 }
 
-export function getQuestions(numQuest){
+export async function getQuestions(numQuest){
 	let questionSet = [];
-	if (numQuest > questions.length){
-		numQuest = questions.length;
-		alert('Too many questions requested. There are ' + numQuest + ' questions.');
-	}
-	for (let i = 0; i < numQuest; i++){
-		questionSet.push(questions[i]);
-	}
+	let JSON = "";
+	const params = new URLSearchParams();
+	params.append("NumQuestions", numQuest);
 
+	try{
+		const response = await fetch(baseURL + getRandomQuestionsURL + '?' + params);
+		if (!response.ok){
+			console.log("Bad response: " + response.status);
+			return;
+		}
+
+		JSON = await response.text();
+		questionSet = parseQuestions(JSON, numQuest);
+		return questionSet;
+	}catch{
+		alert("Error connecting to database.");
+	}
+}
+
+export async function getNumberQuestions(){
+	let numQuestions = 0;
+	let JSON = "";
+	try{
+		const response = await fetch(baseURL + getQuestionTotalURL);
+		if (!response.ok){
+			console.log("Bad response: " + response.status);
+			return;
+		}
+
+		JSON = await response.text();
+
+		let split = JSON.split("{\"Question Total\":\"")[1];
+
+		let stringNum = split.split("\"}")[0];
+
+		numQuestions = parseInt(stringNum);
+	}catch{
+		alert("Error connecting to the database.");
+	}
+	return numQuestions;
+}
+
+function parseQuestions(jsonInput, numQuest){
+	let questionInfo = jsonInput.split("}},");
+	let questionSet = [];
+
+	for (let i = 0; i < numQuest; i++){
+		let q = new question();
+		
+		let wrongAnswers = questionInfo[i].split("\",\"Wrong Answers\":{")[1];
+		questionInfo[i] = questionInfo[i].split("\",\"Wrong Answers\":")[0];
+
+		let correctAnswer = questionInfo[i].split("\",\"Correct Answer\":\"")[1];
+		questionInfo[i] = questionInfo[i].split("\",\"Correct Answer\":")[0];
+
+		let prompt = questionInfo[i].split(":{\"Prompt\":\"")[1];
+
+		wrongAnswers = wrongAnswers.split(",")
+		let numWrongAnswers = wrongAnswers.length;
+
+		for (let j = 0; j < numWrongAnswers; j++){
+			let hasQuote = false;
+			if (wrongAnswers[j].includes("\\\"")){
+				wrongAnswers[j] = wrongAnswers[j].replaceAll("\\\"", "-99191299");
+				hasQuote = true;
+			}
+
+			if (wrongAnswers[j].includes("}")){
+				wrongAnswers[j] = wrongAnswers[j].replaceAll("}", "");
+			}
+			wrongAnswers[j] = wrongAnswers[j].split(":\"")[1];
+			wrongAnswers[j] = wrongAnswers[j].split("\",")[0];
+
+			wrongAnswers[j] = wrongAnswers[j].replaceAll('"', '');
+
+			if (hasQuote){
+				wrongAnswers[j] = wrongAnswers[j].replaceAll("-99191299", "\"");
+			}
+
+			q.addWrongAnswer(wrongAnswers[j]);
+		}
+
+		q.setCorrectAnswer(correctAnswer);
+		q.setQuestion(prompt);
+
+		questionSet.push(q);
+	}
 	return questionSet;
 }

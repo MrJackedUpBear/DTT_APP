@@ -5,6 +5,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import database.Database;
 
@@ -27,6 +29,7 @@ public class QuizServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		response.setHeader("Access-Control-Allow-Origin", "*");
 		String requestURI = request.getRequestURI();
 		String infoRequest = requestURI.substring("/DTT_APP/QuizServlet/".length());
 		
@@ -48,6 +51,8 @@ public class QuizServlet extends HttpServlet {
 			}
 			
 			response.getOutputStream().print(Database.getInstance().getQuestion(prompt));
+		}else if (infoRequest.equals("QuestionTotal")) {
+			response.getOutputStream().print(Database.getInstance().getTotalQuestions());
 		}else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
@@ -58,8 +63,44 @@ public class QuizServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		String postRequest = request.getRequestURI().substring("/DTT_APP/QuizServlet/".length());
+		
+		if (postRequest.equals("AddQuestions")) {
+			StringBuilder stringRequest = new StringBuilder();
+			
+			try (BufferedReader reader = request.getReader()){
+				String line = "";
+				
+				while ((line = reader.readLine()) != null) {
+					stringRequest.append(line);
+				}
+			}
+			
+			String questionJson = stringRequest.toString();
+			questionJson = questionJson.substring("{\"Questions\":\"".length(), questionJson.length() - 2);
+			
+			if (questionJson == null) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+			
+			if (!questionJson.contains("}}}") || !questionJson.contains("Prompt")|| !questionJson.contains("Correct Answer") || 
+					!questionJson.contains("Wrong Answers")) {
+				response.sendError(HttpServletResponse.SC_UNPROCESSABLE_CONTENT);
+				return;
+			}
+			
+			if (!Database.getInstance().addQuestions(questionJson)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+		}else {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+		
+		
 	}
 
 	private boolean isNum(String num) {

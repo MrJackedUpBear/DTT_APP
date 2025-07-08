@@ -20,6 +20,15 @@ public class Database {
 	    }
 	}
 	
+	public String getTotalQuestions() {
+		ArrayList<Integer> questions = Question.getInstance().getAvailableQuestions();
+		
+		int totalQuestions = questions.size();
+		
+		String json = "{\"Question Total\":\"" + totalQuestions + "\"}";
+		return json;
+	}
+	
 	//This function accesses the question and wrong answer table to get complete questions. First it checks how many questions are in the database, then it
 	//shuffles the question id's to get a random set of questions to return back as a JSON String
 	public String getRandomQuestions(int numQuestions) {
@@ -129,6 +138,29 @@ public class Database {
 		return json;
 	}
 	
+	public Boolean addQuestions(String questionsJson) {
+		ArrayList<HashMap<String, String>> questions = getQuestionsFromJson(questionsJson);
+		String prompt = "";
+		String correctAnswer = "";
+		ArrayList<String> wrongAnswers = new ArrayList<>();
+		
+		for (HashMap<String, String> question : questions) {
+			prompt = question.get("Prompt");
+			correctAnswer = question.get("Correct Answer");
+			String wrongAnswersString = question.get("Wrong Answers");
+			
+			String[] wrongAnswersSplit = wrongAnswersString.split(", ");
+			
+			for (String wrongAnswer : wrongAnswersSplit) {
+				wrongAnswers.add(wrongAnswer);
+			}
+			if (!prompt.isEmpty() && !correctAnswer.isEmpty() && !wrongAnswers.isEmpty()) {
+				addQuestion(prompt, correctAnswer, wrongAnswers);
+			}
+		}
+		return true;
+	}
+	
 	public void addQuestion(String prompt, String correctAnswer, ArrayList<String> wrongAnswers) {
 		Question.getInstance().createQuestion(prompt, correctAnswer);
 		int questionId = Question.getInstance().getQuestionId(prompt);
@@ -226,6 +258,64 @@ public class Database {
 	
 	private String escapeQuote(String input) {
 		return input.replace("\"", "\\\"");
+	}
+	
+	private ArrayList<HashMap<String, String>> getQuestionsFromJson(String questionsJson){
+		ArrayList<HashMap<String, String>> questions = new ArrayList<>();
+		
+		String[] questionInfo = questionsJson.split("}},");
+		
+		for (String question : questionInfo) {
+			HashMap<String, String> questionVal = new HashMap<>();
+			String tempWrongAnswers = question.split(",Wrong Answers:\\{")[1];
+			question = question.split(",Wrong Answers:\\{")[0];
+			
+			String correctAnswer = question.split(",Correct Answer:")[1];
+			question = question.split(",Correct Answer:")[0];
+			
+			String prompt = question.split(":\\{Prompt:")[1];
+			
+			String[] wrongAnswers = tempWrongAnswers.split(",");
+			
+			String wrongAnswersCSV = "";
+			int i = 0;
+			for (String wrongAnswer : wrongAnswers) {
+				Boolean hasQuote = false;
+				
+				if (wrongAnswer.contains("\\\"")) {
+					wrongAnswer = wrongAnswer.replaceAll("\\\"", "-9919299");
+					hasQuote = true;
+				}
+				
+				if (wrongAnswer.contains("}")) {
+					wrongAnswer = wrongAnswer.replaceAll("}", "");
+				}
+				
+				wrongAnswer = wrongAnswer.split(":")[1];
+				wrongAnswer = wrongAnswer.split(",")[0];
+				
+				wrongAnswer = wrongAnswer.replaceAll("\"", "");
+				
+				if (hasQuote) {
+					wrongAnswer = wrongAnswer.replaceAll("-9919299", "\\\"");
+				}
+				
+				if (i == 0) {
+					wrongAnswersCSV += wrongAnswer;
+				}else {
+					wrongAnswersCSV += ", " + wrongAnswer;
+				}
+				i++;
+			}
+			
+			questionVal.put("Wrong Answers", wrongAnswersCSV);
+			questionVal.put("Prompt", prompt);
+			questionVal.put("Correct Answer", correctAnswer);
+			
+			questions.add(questionVal);
+		}
+		
+		return questions;
 	}
 	
 	private String formatQuestionAsJson(HashMap<String, String> question, int questionNum, int questionId) {
