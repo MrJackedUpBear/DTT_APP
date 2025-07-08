@@ -3,10 +3,6 @@ import * as questions from './Questions.js';
 import {useEffect, useState} from 'react';
 import {useLocation, Form} from 'react-router-dom';
 
-let prompts = [];
-let wrongAnswers = [];
-let correctAnswers = [];
-
 export function EditQuestions(){
     return (<div className='App'>
         <header className="App-header">
@@ -55,6 +51,10 @@ export function AddQuestions(){
 }
 
 export async function QuestionsSubmittedPage(formData){
+    let prompts = [];
+    let wrongAnswers = [];
+    let correctAnswers = [];
+
     let prompt = formData.get("prompt").trim();
     let correctAnswer = formData.get("correctAnswer").trim();
     let wrongAnswer1 = formData.get("wrongAnswer1").trim();

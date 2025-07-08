@@ -144,11 +144,12 @@ export async function addQuestions(questionsToAdd){
 		const response = await fetch(baseURL + addQuestionsURL, {
 			headers:myHeaders,
 			method: "POST",
-			body: JSON.stringify({Questions: questionsToAdd}),
+			body: JSON.stringify(questionsToAdd),
 		});
 
 		console.log(response.status);
 	}catch(error) {
+		alert("Error Adding" + error);
 		console.log("Error Adding: " + error);
 	}
 }

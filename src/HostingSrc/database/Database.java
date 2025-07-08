@@ -262,18 +262,19 @@ public class Database {
 	
 	private ArrayList<HashMap<String, String>> getQuestionsFromJson(String questionsJson){
 		ArrayList<HashMap<String, String>> questions = new ArrayList<>();
+		System.out.println(questionsJson);
 		
 		String[] questionInfo = questionsJson.split("}},");
 		
 		for (String question : questionInfo) {
 			HashMap<String, String> questionVal = new HashMap<>();
-			String tempWrongAnswers = question.split(",Wrong Answers:\\{")[1];
-			question = question.split(",Wrong Answers:\\{")[0];
+			String tempWrongAnswers = question.split("\",\"Wrong Answers\":\\[\"")[1];
+			question = question.split("\",\"Wrong Answers\":\\[\"")[0];
 			
-			String correctAnswer = question.split(",Correct Answer:")[1];
-			question = question.split(",Correct Answer:")[0];
+			String correctAnswer = question.split("\",\"Correct Answer\":\"")[1];
+			question = question.split("\",\"Correct Answer\":\"")[0];
 			
-			String prompt = question.split(":\\{Prompt:")[1];
+			String prompt = question.split("\\{\"Prompt\":\"")[1];
 			
 			String[] wrongAnswers = tempWrongAnswers.split(",");
 			
@@ -287,12 +288,9 @@ public class Database {
 					hasQuote = true;
 				}
 				
-				if (wrongAnswer.contains("}")) {
-					wrongAnswer = wrongAnswer.replaceAll("}", "");
+				if (wrongAnswer.contains("]")) {
+					wrongAnswer = wrongAnswer.replaceAll("]", "");
 				}
-				
-				wrongAnswer = wrongAnswer.split(":")[1];
-				wrongAnswer = wrongAnswer.split(",")[0];
 				
 				wrongAnswer = wrongAnswer.replaceAll("\"", "");
 				

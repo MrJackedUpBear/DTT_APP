@@ -78,14 +78,14 @@ public class QuizServlet extends HttpServlet {
 			}
 			
 			String questionJson = stringRequest.toString();
-			questionJson = questionJson.substring("{\"Questions\":\"".length(), questionJson.length() - 2);
+			questionJson = questionJson.substring("{\"Questions\":".length(), questionJson.length() - 1);
 			
 			if (questionJson == null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
 			
-			if (!questionJson.contains("}}}") || !questionJson.contains("Prompt")|| !questionJson.contains("Correct Answer") || 
+			if (!questionJson.contains("]}]") || !questionJson.contains("Prompt")|| !questionJson.contains("Correct Answer") || 
 					!questionJson.contains("Wrong Answers")) {
 				response.sendError(HttpServletResponse.SC_UNPROCESSABLE_CONTENT);
 				return;
