@@ -108,32 +108,12 @@ public class QuizServlet extends HttpServlet {
 			return false;
 		}
 		
-		for (char c : num.toCharArray()) {
-			switch(c) {
-				case '1':
-					break;
-				case '2':
-					break;
-				case '3':
-					break;
-				case '4':
-					break;
-				case '5':
-					break;
-				case '6':
-					break;
-				case '7':
-					break;
-				case '8':
-					break;
-				case '9':
-					break;
-				default:
-					return false;
-			}
+		try {
+			Integer.parseInt(num);
+			return true;
+		}catch (Exception e) {
+			return false;
 		}
 	
-		
-		return true;
 	}
 }

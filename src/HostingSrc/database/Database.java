@@ -66,7 +66,7 @@ public class Database {
 				
 				//Checks to make sure that j is not equal to the size of the ArrayList and adds a comma with a space before the next wrong answer.
 				if (j != temp.size()) {
-					wrongAnswers += ", " + temp.get(j);
+					wrongAnswers += "\", " + temp.get(j);
 				}
 			}
 			
@@ -98,7 +98,7 @@ public class Database {
 			String wrong = question.get("Wrong Answers");
 			
 			//Splits the wrong string into a list to get all of the wrong answers
-			String[] wrongAnswers = wrong.split(", ");
+			String[] wrongAnswers = wrong.split("\", ");
 			String wrongAnswer = "";
 			
 			//Loops through the list and appends it to the JSON String
@@ -149,7 +149,7 @@ public class Database {
 			correctAnswer = question.get("Correct Answer");
 			String wrongAnswersString = question.get("Wrong Answers");
 			
-			String[] wrongAnswersSplit = wrongAnswersString.split(", ");
+			String[] wrongAnswersSplit = wrongAnswersString.split("\", ");
 			
 			for (String wrongAnswer : wrongAnswersSplit) {
 				wrongAnswers.add(wrongAnswer);
@@ -268,7 +268,7 @@ public class Database {
 		
 		for (String question : questionInfo) {
 			HashMap<String, String> questionVal = new HashMap<>();
-			String tempWrongAnswers = question.split("\",\"Wrong Answers\":\\[\"")[1];
+			String tempWrongAnswers = question.split("\",\"Wrong Answers\":\\[")[1];
 			question = question.split("\",\"Wrong Answers\":\\[\"")[0];
 			
 			String correctAnswer = question.split("\",\"Correct Answer\":\"")[1];
@@ -276,12 +276,13 @@ public class Database {
 			
 			String prompt = question.split("\\{\"Prompt\":\"")[1];
 			
-			String[] wrongAnswers = tempWrongAnswers.split(",");
+			String[] wrongAnswers = tempWrongAnswers.split(",\"");
 			
 			String wrongAnswersCSV = "";
 			int i = 0;
 			for (String wrongAnswer : wrongAnswers) {
 				Boolean hasQuote = false;
+				System.out.println(wrongAnswer);
 				
 				if (wrongAnswer.contains("\\\"")) {
 					wrongAnswer = wrongAnswer.replaceAll("\\\"", "-9919299");
@@ -290,6 +291,10 @@ public class Database {
 				
 				if (wrongAnswer.contains("]")) {
 					wrongAnswer = wrongAnswer.replaceAll("]", "");
+				}
+				
+				if (wrongAnswer.contains("}")) {
+					wrongAnswer = wrongAnswer.replaceAll("}", "");
 				}
 				
 				wrongAnswer = wrongAnswer.replaceAll("\"", "");
@@ -301,11 +306,12 @@ public class Database {
 				if (i == 0) {
 					wrongAnswersCSV += wrongAnswer;
 				}else {
-					wrongAnswersCSV += ", " + wrongAnswer;
+					wrongAnswersCSV += "\", " + wrongAnswer;
 				}
 				i++;
 			}
 			
+			System.out.println(wrongAnswersCSV);
 			questionVal.put("Wrong Answers", wrongAnswersCSV);
 			questionVal.put("Prompt", prompt);
 			questionVal.put("Correct Answer", correctAnswer);
@@ -324,7 +330,7 @@ public class Database {
 			if (wrongAnswer.equals(temp.get(temp.size() - 1))) {
 				answers += wrongAnswer;
 			}else {
-				answers += wrongAnswer + ", ";
+				answers += wrongAnswer + "\", ";
 			}
 		}
 		
@@ -345,9 +351,10 @@ public class Database {
 		String wrong = question.get("Wrong Answers");
 		
 		//Splits the wrong string into a list to get all of the wrong answers
-		String[] wrongAnswers = wrong.split(", ");
+		String[] wrongAnswers = wrong.split("\", ");
 		String wrongAnswer = "";
 		
+		System.out.println(wrongAnswers);
 		//Loops through the list and appends it to the JSON String
 		for (int j = 0; j < wrongAnswers.length; j++) {
 			//Checks for the first elements and appends the first wrong answer to the JSON String and increments j

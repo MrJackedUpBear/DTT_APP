@@ -213,7 +213,7 @@ function parseQuestions(jsonInput, numQuest){
 
 		let prompt = questionInfo[i].split(":{\"Prompt\":\"")[1];
 
-		wrongAnswers = wrongAnswers.split(",")
+		wrongAnswers = wrongAnswers.split('",')
 		let numWrongAnswers = wrongAnswers.length;
 
 		for (let j = 0; j < numWrongAnswers; j++){

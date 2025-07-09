@@ -37,6 +37,24 @@ export function getInfo(){
 }
 
 export function StartQuiz() {
+  return (
+    <div className="App">
+      <header className="App-header">
+        <button onClick={() => router.navigate("/")}>Home</button>
+        DTT Quiz 
+        <br></br>
+        Time Left:
+      </header>
+      <div className="Question" style={{wordWrap: 'break-word'}}>
+        {ShowCurrentQuestion()}
+      </div>
+        {GetAnswerChoices()}
+    </div>
+  );
+} 
+
+
+function Countdown(){
   const CountdownTimer = ({initialSeconds}) =>{
     const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
 
@@ -62,22 +80,8 @@ export function StartQuiz() {
     )
   };
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <button onClick={() => router.navigate("/")}>Home</button>
-        DTT Quiz 
-        <br></br>
-        Time Left: <CountdownTimer initialSeconds={totalTime}/>
-      </header>
-      <div className="Question" style={{wordWrap: 'break-word'}}>
-        {ShowCurrentQuestion()}
-      </div>
-        {GetAnswerChoices()}
-    </div>
-  );
-} 
-
+  return <div><CountdownTimer initialSeconds={totalTime} /></div>
+}
 //Below this is where the actual functions for quiz start
 
 export function CorrectAnswer(){
@@ -140,7 +144,7 @@ function ShowCurrentQuestion(){
         if (totalQuestions > qTotal && qTotal !== -1){
           alert("Could not find " + totalQuestions + " questions. Could only find " + qTotal + " questions.");
           totalQuestions = qTotal;
-          await getCurrentQuestion(qTotal);
+          await getCurrentQuestion(totalQuestions);
         }else{
           await getCurrentQuestion(totalQuestions);
         }
@@ -164,6 +168,7 @@ function ShowCurrentQuestion(){
         <View style={{justifyContent: 'center', alignItems: 'center', flexShrink: 1}}> 
           <Text style={{flex: 1, flexWrap: 'wrap', fontSize: 30, flexShrink: 1}}> 
             {data.getQuestion()}
+            {Countdown()}
           </Text>
         </View>
         </div>
