@@ -156,7 +156,7 @@ export async function addQuestions(questionsToAdd){
 
 export async function getQuestions(numQuest){
 	let questionSet = [];
-	let JSON = "";
+	let Json = "";
 	const params = new URLSearchParams();
 	params.append("NumQuestions", numQuest);
 
@@ -167,8 +167,11 @@ export async function getQuestions(numQuest){
 			return;
 		}
 
-		JSON = await response.text();
-		questionSet = parseQuestions(JSON, numQuest);
+		Json = await response.text();
+		//questionSet = parseQuestions(JSON, numQuest);
+		Json = await JSON.parse(Json);
+
+		questionSet = parseQuestions(Json, numQuest);
 		return questionSet;
 	}catch{
 		alert("Error connecting to database.");
@@ -199,47 +202,19 @@ export async function getNumberQuestions(){
 }
 
 function parseQuestions(jsonInput, numQuest){
-	let questionInfo = jsonInput.split("}},");
 	let questionSet = [];
 
 	for (let i = 0; i < numQuest; i++){
 		let q = new question();
 		
-		let wrongAnswers = questionInfo[i].split("\",\"Wrong Answers\":{")[1];
-		questionInfo[i] = questionInfo[i].split("\",\"Wrong Answers\":")[0];
+		q.setQuestion(jsonInput["Questions"][i]["Prompt"]);
+		q.setCorrectAnswer(jsonInput["Questions"][i]["Correct Answer"]);
 
-		let correctAnswer = questionInfo[i].split("\",\"Correct Answer\":\"")[1];
-		questionInfo[i] = questionInfo[i].split("\",\"Correct Answer\":")[0];
+		let numWrongQuestions = jsonInput["Questions"][i]["Wrong Answers"].length;
 
-		let prompt = questionInfo[i].split(":{\"Prompt\":\"")[1];
-
-		wrongAnswers = wrongAnswers.split('",')
-		let numWrongAnswers = wrongAnswers.length;
-
-		for (let j = 0; j < numWrongAnswers; j++){
-			let hasQuote = false;
-			if (wrongAnswers[j].includes("\\\"")){
-				wrongAnswers[j] = wrongAnswers[j].replaceAll("\\\"", "-99191299");
-				hasQuote = true;
-			}
-
-			if (wrongAnswers[j].includes("}")){
-				wrongAnswers[j] = wrongAnswers[j].replaceAll("}", "");
-			}
-			wrongAnswers[j] = wrongAnswers[j].split(":\"")[1];
-			wrongAnswers[j] = wrongAnswers[j].split("\",")[0];
-
-			wrongAnswers[j] = wrongAnswers[j].replaceAll('"', '');
-
-			if (hasQuote){
-				wrongAnswers[j] = wrongAnswers[j].replaceAll("-99191299", "\"");
-			}
-
-			q.addWrongAnswer(wrongAnswers[j]);
+		for (let j = 0; j < numWrongQuestions; j++){
+			q.addWrongAnswer(jsonInput["Questions"][i]["Wrong Answers"][j]);
 		}
-
-		q.setCorrectAnswer(correctAnswer);
-		q.setQuestion(prompt);
 
 		questionSet.push(q);
 	}

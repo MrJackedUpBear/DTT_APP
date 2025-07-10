@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import database.Database;
 
+
 /**
  * Servlet implementation class QuizServlet
  */
@@ -78,7 +79,6 @@ public class QuizServlet extends HttpServlet {
 			}
 			
 			String questionJson = stringRequest.toString();
-			questionJson = questionJson.substring("{\"Questions\":".length(), questionJson.length() - 1);
 			
 			if (questionJson == null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -86,10 +86,12 @@ public class QuizServlet extends HttpServlet {
 			}
 			
 			if (!questionJson.contains("]}]") || !questionJson.contains("Prompt")|| !questionJson.contains("Correct Answer") || 
-					!questionJson.contains("Wrong Answers")) {
+					!questionJson.contains("Wrong Answers") || !questionJson.contains("Questions")){
 				response.sendError(HttpServletResponse.SC_UNPROCESSABLE_CONTENT);
 				return;
 			}
+			
+			questionJson = questionJson.substring("{\"Questions\":".length(), questionJson.length() - 1);
 			
 			if (!Database.getInstance().addQuestions(questionJson)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
