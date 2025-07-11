@@ -17,6 +17,7 @@ let totalQuestions = 1;
 let totalTime = 15;
 let wrongChoice = false;
 let correctChoice = false;
+let totalCorrect = 0;
 
 export function getInfo(){
   const tempNumQuestions = prompt("Enter number of questions.");
@@ -32,6 +33,7 @@ export function getInfo(){
   wrongChoice = false;
   correctChoice = false;
   currentQuestionNum = 1;
+  totalCorrect = 0;
 
   router.navigate("/Quiz");
 }
@@ -93,12 +95,20 @@ export function CorrectAnswer(){
 
   currentQuestionNum++;
 
+  
+  if (!wrongChoice && correctChoice){
+    totalCorrect++;
+  }
+
+  wrongChoice = false;
+  correctChoice = false;
+
   if (currentQuestionNum > totalQuestions){
     currentQuestionNum = 1;
     wrongChoice = false;
     correctChoice = false;
     return (<h1>
-      Well done! <br />
+      Well done! You got {totalCorrect} out of {totalQuestions}<br />
       <button onClick={() => router.navigate("/")}>Return Home</button>
       <button onClick={() => getInfo()}>Take Another Quiz</button>
     </h1>)
