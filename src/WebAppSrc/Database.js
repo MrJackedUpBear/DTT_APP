@@ -77,6 +77,9 @@ const getSpecificQuestionURL = "SpecificQuestion";
 const getQuestionTotalURL = "QuestionTotal";
 const getQuestionsFromURL = "QuestionsFrom";
 const deleteQuestionURL = "DeleteQuestion"
+const updateQuestionPromptURL = "UpdateQuestionPrompt";
+const updateCorrectAnswerURL = "UpdateQuestionAnswer";
+const updateWrongAnswerURL = "UpdateWrongAnswer";
 
 const addQuestionsURL = "AddQuestions";
 
@@ -245,6 +248,65 @@ export async function deleteQuestion(prompt){
 		console.log(response.status);
 	}catch(error){
 		alert("Error adding: " + error);
+	}
+}
+
+export async function updatePrompt(oldPrompt, newPrompt){
+	try{
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+
+		const response = await fetch(baseURL + updateQuestionPromptURL,{
+			headers:myHeaders,
+			method:"POST",
+			body: JSON.stringify({"Prompts":[oldPrompt, newPrompt]}),
+		})
+
+		if (!response.ok){
+			console.log(response);
+		}
+	}catch(error){
+		alert("Error updating: " + error);
+	}
+}
+
+export async function updateCorrectAnswer(oldCorrectAnswer, newCorrectAnswer){
+	try{
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+
+		const response = await fetch(baseURL + updateCorrectAnswerURL,{
+			headers:myHeaders,
+			method:"POST",
+			body: JSON.stringify({"Prompt and Answer":[oldCorrectAnswer, newCorrectAnswer]}),
+		})
+
+		if (!response.ok){
+			console.log(response);
+		}
+
+	}catch(error){
+		alert("Error updating: " + error);
+	}
+}
+
+export async function updateWrongAnswer(prompt, wrongAnswer, questionId){
+	try{
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+
+		const response = await fetch(baseURL + updateWrongAnswerURL,{
+			headers:myHeaders,
+			method:"POST",
+			body: JSON.stringify({"Prompt":prompt, "Wrong Answer":wrongAnswer, "Question Id":questionId}),
+		})
+
+		if (!response.ok){
+			console.log(response);
+		}
+
+	}catch(error){
+		alert("Error updating: " + error);
 	}
 }
 

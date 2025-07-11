@@ -124,3 +124,15 @@ export async function getQuestionsFrom(start, end){
 export async function deleteQuestion(prompt){
 	await db.deleteQuestion(prompt);
 }
+
+export async function updatePrompt(oldPrompt, newPrompt){
+	await db.updatePrompt(oldPrompt, newPrompt);
+}
+
+export async function updateCorrectAnswer(oldCorrectAnswer, newCorrectAnswer){
+	await db.updateCorrectAnswer(oldCorrectAnswer, newCorrectAnswer);
+}
+
+export async function updateWrongAnswer(prompt, wrongAnswer, questionId){
+	await db.updateWrongAnswer(prompt, wrongAnswer, questionId);
+}

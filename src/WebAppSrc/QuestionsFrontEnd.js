@@ -9,6 +9,8 @@ let numOnPage = 15;
 let end = 0;
 let start = 0;
 let questionPrompt = "";
+let allQuestions = [];
+let questionNum = -1;
 
 export function EditQuestions(){
     return (<div className='App'>
@@ -185,31 +187,32 @@ function LoadQuestions(){
 }
 
 function showQuestions(data){
-    let questions = [];
-
-    const handleClick = (event, prompt) => {
+    allQuestions = data;
+    let questionPrompts = [];
+    const handleClick = (event, prompt, index) => {
         const className = event.target.className;
 
-        setQuestionPrompt(className, prompt);
+        setQuestionPrompt(className, prompt, index);
     }
 
     let numQuestions = data.length;
 
     for (let i = 0; i < numQuestions; i++){
-        questions.push(data[i].getQuestion());
+        questionPrompts.push(data[i].getQuestion());
     }
 
     return (<div>
-        {questions.map((item, index) =>(
+        {questionPrompts.map((item, index) =>(
             <li style={{border: '1px solid black', padding: '8px'}}>{index + 1}: {item}<br/>
-            <button className="Edit" onClick={(e) => handleClick(e, item)}>Edit</button>
-            <button className='Delete' onClick={(e) => handleClick(e, item)}>Delete</button></li>
+            <button className="Edit" onClick={(e) => handleClick(e, item, index)}>Edit</button>
+            <button className='Delete' onClick={(e) => handleClick(e, item, index)}>Delete</button></li>
         ))}
     </div>)
 }
 
-function setQuestionPrompt(className, prompt){
+function setQuestionPrompt(className, prompt, index){
     questionPrompt = prompt;
+    questionNum = index;
 
     if (className === 'Edit'){
         router.navigate('Edit');
@@ -231,34 +234,105 @@ function setQuestionPrompt(className, prompt){
 }
 
 export function Edit(){
+    let wrongAnswers = allQuestions[questionNum].getWrongAnswers();
     return (<div>
         <header className="App-header">
             <button onClick={() => router.navigate("/")}>Home</button>
             <button onClick={() => router.navigate("/Questions/Update")}>Back</button>
             {questionPrompt}
         </header>
-        <h1>Sorry! Currently, this is unavailable. Come back later!</h1>
+        <button onClick={() => router.navigate('Prompt')}>Edit Prompt</button>: "{allQuestions[questionNum].getQuestion()}" <br/>
+        <button onClick={() => router.navigate('CorrectAnswer')}>Edit Correct Answer</button>: "{allQuestions[questionNum].getCorrectAnswer()}" <br />
+        <button onClick={() => router.navigate('WrongAnswers')}>Edit Wrong Answers</button>: {wrongAnswers.map((item, index) =>
+            <div key={index}>"{item}"</div>
+        )}
     </div>);
+}
 
-    /*
-        <Form>
-            <div>
-                <label>
-                    Prompt: 
-                    <input type="text" id="prompt" name="prompt"/>
-                </label>
-                <label>
-                    Correct Answer:
-                    <input type="text" id="correctAnswer" name="correctAnswer"/>
-                </label>
-                <label>
-                    Wrong Answers:
-                    <input type="text" id="wrongAnswer1" name="wrongAnswer1"/>
-                    <input type="text" id="wrongAnswer2" name="wrongAnswer2"/>
-                    <input type="text" id="wrongAnswer3" name="wrongAnswer3"/>
-                </label>
-                <input type="submit" value="Submit"/>
-            </div>
+export function EditPrompt(){
+    const handleSubmit = async (event) => {
+        const formData = new FormData(event.target);
+
+        let newPrompt = formData.get('newPrompt').trim();
+        let oldPrompt = allQuestions[questionNum].getQuestion();
+
+        await questions.updatePrompt(oldPrompt, newPrompt);
+
+        router.navigate('/Questions/Update')
+    }
+
+    return (<div>
+        <button onClick={() => router.navigate("/")}>Home</button>
+        <button onClick={() => router.navigate("/Questions/Update")}>Back</button>
+        <Form onSubmit={handleSubmit}>
+            <label>Enter new prompt: </label>
+            <input type='text' id='newPrompt' name='newPrompt'/>
+            <input type='submit'/>
         </Form>
-    */
+    </div>);
+}
+
+export function EditCorrectAnswer(){
+    const handleSubmit = async (event) => {
+        const formData = new FormData(event.target);
+
+        let newCorrectAnswer = formData.get('newCorrectAnswer').trim();
+        let oldCorrectAnswer = allQuestions[questionNum].getQuestion();
+
+        await questions.updateCorrectAnswer(oldCorrectAnswer, newCorrectAnswer);
+
+        router.navigate('/Questions/Update')
+    }
+
+    return (<div>
+        <button onClick={() => router.navigate("/")}>Home</button>
+        <button onClick={() => router.navigate("/Questions/Update")}>Back</button>
+        <Form onSubmit={handleSubmit}>
+            <label>Enter new correct answer: </label>
+            <input type='text' id='newCorrectAnswer' name='newCorrectAnswer'/>
+            <input type='submit'/>
+        </Form>
+    </div>);
+}
+
+export function EditWrongAnswers(){
+    const handleSubmit = async (event) => {
+        const formData = new FormData(event.target);
+
+        let wrongAnswer = formData.get('newWrongAnswer').trim();
+        let prompt = allQuestions[questionNum].getQuestion();
+        let questionId = -1;
+
+        let oldWrongAnswer = formData.get('oldWrongAnswer').trim();
+
+        for (let i = 0; i < allQuestions[questionNum].getWrongAnswers().length; i++){
+            if (oldWrongAnswer === allQuestions[questionNum].getWrongAnswers()[i]){
+                questionId = i;
+                i = allQuestions[questionNum].getWrongAnswers().length;
+            }
+        }
+
+        if (questionId === -1){
+            return;
+        }
+
+        await questions.updateWrongAnswer(prompt, wrongAnswer, questionId);
+
+        router.navigate('/Questions/Update')
+    }
+
+    return (<div>
+        <button onClick={() => router.navigate("/")}>Home</button>
+        <button onClick={() => router.navigate("/Questions/Update")}>Back</button>
+        <Form onSubmit={handleSubmit}>
+            <select id='oldWrongAnswer' name='oldWrongAnswer' value={allQuestions[questionNum].getWrongAnswers[0]}>
+                {allQuestions[questionNum].getWrongAnswers().map((value, index) => (
+                    <option key={index}>{value}</option>
+                ))}
+            </select>
+            <label>Enter new wrongAnswer: </label>
+            <input type='text' id='newWrongAnswer' name='newWrongAnswer'/>
+            <input type='submit'/>
+        </Form>
+    </div>);
 }

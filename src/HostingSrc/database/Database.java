@@ -219,8 +219,20 @@ public class Database {
 		}
 	}
 	
-	public void updateWrongAnswer(int answerId, String wrongAnswer, int questionId) {
+	public Boolean updateWrongAnswer(String prompt, String wrongAnswer, int answerId) {
+		int questionId = -1;
+		
+		questionId = Question.getInstance().getQuestionId(prompt);
+		
+		if (answerId == -1) {
+			return false;
+		}
+		
+		
+		System.out.println(answerId);
 		WrongAnswer.getInstance().updateWrongAnswer(answerId, wrongAnswer, questionId);
+		
+		return true;
 	}
 	
 	private String escapeQuote(String input) {

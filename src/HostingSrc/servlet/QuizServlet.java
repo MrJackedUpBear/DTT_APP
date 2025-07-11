@@ -179,7 +179,7 @@ public class QuizServlet extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
-		}else if (postRequest.equals("UpdateWrongAnswers")) {
+		}else if (postRequest.equals("UpdateWrongAnswer")) {
 			StringBuilder stringRequest = new StringBuilder();
 			
 			try (BufferedReader reader = request.getReader()){
@@ -190,7 +190,30 @@ public class QuizServlet extends HttpServlet {
 				}
 			}
 			
-			response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+			String req = stringRequest.toString();
+			
+			String tempQuestionId = req.split("\"Question Id\":")[1];
+			req = req.split("\"Question Id\":")[0];
+			tempQuestionId = tempQuestionId.replaceAll("}", "");
+			
+			if (!isNum(tempQuestionId)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+			
+			int questionId = Integer.parseInt(tempQuestionId);
+			
+			String wrongAnswer = req.split("\"Wrong Answer\":\"")[1];
+			wrongAnswer = wrongAnswer.split("\",")[0];
+			req = req.split("\"Wrong Answer\":\"")[0];
+			
+			String prompt = req.split("\"Prompt\":\"")[1];
+			prompt = prompt.split("\",")[0];
+			
+			if (!Database.getInstance().updateWrongAnswer(prompt, wrongAnswer, questionId)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			}
+			
 		}
 		else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);

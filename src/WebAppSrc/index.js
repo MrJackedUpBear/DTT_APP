@@ -51,6 +51,18 @@ import * as qfend from './QuestionsFrontEnd';
     {
       path: 'Questions/Update/Edit',
       element:<qfend.Edit/>
+    },
+    {
+      path: 'Questions/Update/Edit/Prompt',
+      element:<qfend.EditPrompt/>
+    },
+    {
+      path: 'Questions/Update/Edit/CorrectAnswer',
+      element:<qfend.EditCorrectAnswer/>
+    },
+    {
+      path: 'Questions/Update/Edit/WrongAnswers',
+      element:<qfend.EditWrongAnswers/>
     }
   ]);
 
