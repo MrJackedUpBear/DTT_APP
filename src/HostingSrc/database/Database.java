@@ -67,6 +67,38 @@ public class Database {
 		return json;
 	}
 	
+	public String getQuestionsFrom(int start, int end) {
+		String json = "{\"Questions\":[";
+		
+		ArrayList<Integer> possibleQuestions = Question.getInstance().getAvailableQuestions();
+				
+		//If there are no possible questions, return.
+		if (possibleQuestions.size() == 0) {
+			return "";
+		} else if (end > possibleQuestions.size()) {
+			return "";
+		}
+		
+		for (int i = start; i < end; i++) {
+			//Initializes a question variable that is obtained by getting questions from the question table with the id provided from the possible questions
+			//ArrayList
+			HashMap<String, String> question = Question.getInstance().getQuestion(possibleQuestions.get(i));
+			//Creates a temporary variable that will hold an ArrayList of the wrong answers; this also initializes the wrong answers string to put in the question
+			//HashMap.
+			ArrayList<String> wrongAnswers = WrongAnswer.getInstance().getWrongAnswers(possibleQuestions.get(i));
+			
+			if (i != start){
+				json += ", ";
+			}
+			
+			json += formatQuestionAsJson(question, wrongAnswers);
+		}
+		
+		json += "]}";
+		
+		return json;
+	}
+	
 	public Boolean addQuestions(String questionsJson) {
 		ArrayList<HashMap<String, String>> questions = getQuestionsFromJson(questionsJson);
 		String prompt = "";
@@ -101,35 +133,41 @@ public class Database {
 		addWrongAnswers(wrongAnswers, questionId);
 	}
 	
-	public void deleteQuestion(String prompt) {
+	public Boolean deleteQuestion(String prompt) {
 		int questionId = Question.getInstance().getQuestionId(prompt);
 		
 		if (questionId == -1) {
-			return;
+			return false;
 		}
 		
 		Question.getInstance().deleteQuestion(questionId);
 		deleteAllWrongAnswers(questionId);
+		
+		return true;
 	}
 	
-	public void updateQuestionPrompt(String oldPrompt, String prompt) {
+	public Boolean updateQuestionPrompt(String oldPrompt, String prompt) {
 		int questionId = Question.getInstance().getQuestionId(oldPrompt);
 		
 		if (questionId == -1){
-			return;
+			return false;
 		}
 		
 		Question.getInstance().updateQuestionPrompt(questionId, prompt);
+		
+		return true;
 	}
 	
-	public void updateQuestionAnswer(String prompt, String answer) {
+	public Boolean updateQuestionAnswer(String prompt, String answer) {
 		int questionId = Question.getInstance().getQuestionId(prompt);
 		
 		if (questionId == -1) {
-			return;
+			return false;
 		}
 		
 		Question.getInstance().updateQuestionAnswer(questionId, answer);
+		
+		return true;
 	}
 	
 	public String getQuestion(String prompt) {

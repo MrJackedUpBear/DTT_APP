@@ -54,6 +54,19 @@ public class QuizServlet extends HttpServlet {
 			response.getOutputStream().print(Database.getInstance().getQuestion(prompt));
 		}else if (infoRequest.equals("QuestionTotal")) {
 			response.getOutputStream().print(Database.getInstance().getTotalQuestions());
+		}else if (infoRequest.equals("QuestionsFrom")) {
+			String temp1 = request.getParameter("Start");
+			String temp2 = request.getParameter("End");
+			
+			if (!isNum(temp1) || !isNum(temp2)) {
+				response.sendError(HttpServletResponse.SC_UNPROCESSABLE_CONTENT);
+				return;
+			}
+			
+			int start = Integer.parseInt(temp1);
+			int end = Integer.parseInt(temp2);
+			
+			response.getOutputStream().print(Database.getInstance().getQuestionsFrom(start, end));
 		}else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
@@ -97,12 +110,92 @@ public class QuizServlet extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
-		}else {
+		}else if (postRequest.equals("UpdateQuestionPrompt")) {
+			StringBuilder stringRequest = new StringBuilder();
+			
+			try (BufferedReader reader = request.getReader()){
+				String line = "";
+				
+				while ((line = reader.readLine()) != null) {
+					stringRequest.append(line);
+				}
+			}
+			
+			String prompts = stringRequest.toString();
+			
+			prompts = prompts.split("\"Prompts\":\\[\"")[1];
+			
+			String oldPrompt = prompts.split("\",")[0];
+			String newPrompt = prompts.split(",\"")[1];
+			
+			newPrompt = newPrompt.replaceAll("\"\\]\\}", "");
+			
+			if (!Database.getInstance().updateQuestionPrompt(oldPrompt, newPrompt)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+			
+		}else if (postRequest.equals("UpdateQuestionAnswer")) {
+			StringBuilder stringRequest = new StringBuilder();
+			
+			try (BufferedReader reader = request.getReader()){
+				String line = "";
+				
+				while ((line = reader.readLine()) != null) {
+					stringRequest.append(line);
+				}
+			}
+			
+			String promptAnswer = stringRequest.toString();
+			
+			promptAnswer = promptAnswer.split("\"Prompt and Answer\":\\[\"")[1];
+			
+			String prompt = promptAnswer.split("\",")[0];
+			String answer = promptAnswer.split(",\"")[1];
+			
+			answer = answer.replaceAll("\"\\]\\}", "");
+			
+			if (!Database.getInstance().updateQuestionAnswer(prompt, answer)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+		}else if (postRequest.equals("DeleteQuestion")) {
+			StringBuilder stringRequest = new StringBuilder();
+			
+			try (BufferedReader reader = request.getReader()){
+				String line = "";
+				
+				while ((line = reader.readLine()) != null) {
+					stringRequest.append(line);
+				}
+			}
+			
+			String prompt = stringRequest.toString();
+			
+			prompt = prompt.split("\"Prompt\":\"")[1];
+			prompt = prompt.split("\"\\}")[0];
+			
+			if (!Database.getInstance().deleteQuestion(prompt)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+		}else if (postRequest.equals("UpdateWrongAnswers")) {
+			StringBuilder stringRequest = new StringBuilder();
+			
+			try (BufferedReader reader = request.getReader()){
+				String line = "";
+				
+				while ((line = reader.readLine()) != null) {
+					stringRequest.append(line);
+				}
+			}
+			
+			response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+		}
+		else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
-		
-		
 	}
 
 	private boolean isNum(String num) {

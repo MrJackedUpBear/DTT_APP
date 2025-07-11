@@ -36,6 +36,22 @@ import * as qfend from './QuestionsFrontEnd';
       path: '',
       element:<app.MainPage/>,
     },
+    {
+      path: 'Questions/Update',
+      element:<qfend.ViewAndUpdate/>
+    },
+    {
+      path: 'Questions/Update/Next',
+      element:<qfend.Next/>
+    },
+    {
+      path: 'Questions/Update/Back',
+      element:<qfend.Back/>
+    },
+    {
+      path: 'Questions/Update/Edit',
+      element:<qfend.Edit/>
+    }
   ]);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

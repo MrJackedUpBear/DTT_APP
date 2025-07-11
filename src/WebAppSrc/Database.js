@@ -75,6 +75,8 @@ const baseURL = "http://localhost:8080/DTT_APP/QuizServlet/";
 const getRandomQuestionsURL = "RandomQuestions";
 const getSpecificQuestionURL = "SpecificQuestion";
 const getQuestionTotalURL = "QuestionTotal";
+const getQuestionsFromURL = "QuestionsFrom";
+const deleteQuestionURL = "DeleteQuestion"
 
 const addQuestionsURL = "AddQuestions";
 
@@ -199,6 +201,51 @@ export async function getNumberQuestions(){
 		alert("Error connecting to the database.");
 	}
 	return numQuestions;
+}
+
+export async function getQuestionsFrom(start, end){
+	let Json = "";
+	let questionSet = [];
+	
+	const params = new URLSearchParams();
+	params.append("Start", start);
+	params.append("End", end);
+
+	try{
+		const response = await fetch(baseURL + getQuestionsFromURL + '?' + params);
+
+		if (!response.ok){
+			console.log("Bad response: " + response.status);
+			return;
+		}
+
+		Json = await response.text();
+		Json = await JSON.parse(Json);
+
+		let numQuest = end - start;
+		questionSet = parseQuestions(Json, numQuest);
+
+		return questionSet;
+
+	}catch (error){
+		alert("Error connecting to database: " + error);
+	}
+}
+
+export async function deleteQuestion(prompt){
+	try{
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+		const response = await fetch(baseURL + deleteQuestionURL,{
+			headers:myHeaders,
+			method:"POST",
+			body: JSON.stringify({"Prompt":prompt}),
+		});
+
+		console.log(response.status);
+	}catch(error){
+		alert("Error adding: " + error);
+	}
 }
 
 function parseQuestions(jsonInput, numQuest){

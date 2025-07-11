@@ -115,3 +115,12 @@ export async function addQuestions(prompts, correctAnswers, wrongAnswers){
 	questions = JSON.parse(questions);
 	await db.addQuestions(questions);
 }
+
+export async function getQuestionsFrom(start, end){
+	let questionsFrom = await db.getQuestionsFrom(start, end);
+	return questionsFrom;
+}
+
+export async function deleteQuestion(prompt){
+	await db.deleteQuestion(prompt);
+}
