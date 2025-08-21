@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import database.Database;
+import mail.Mail;
 
 
 /**
@@ -214,8 +215,27 @@ public class QuizServlet extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			}
 			
-		}
-		else {
+		}else if (postRequest.equals("Email")) {
+			StringBuilder stringRequest = new StringBuilder();
+			
+			try (BufferedReader reader = request.getReader()){
+				String line = "";
+				
+				while ((line = reader.readLine()) != null) {
+					stringRequest.append(line);
+				}
+			}
+			
+			String req = stringRequest.toString();
+			
+			String message = req.split("\"Message\":")[1];
+			req = req.split("\"Message\":")[0];
+			message = message.replaceAll("}", "");
+			
+			Runnable run = new Mail(message);
+			
+			new Thread(run).run();
+		}else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}

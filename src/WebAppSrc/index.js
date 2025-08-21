@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import * as app from './App';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter, createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import * as quiz from './Quiz';
 import * as qfend from './QuestionsFrontEnd';
+import * as suggestions from './Suggestions';
 
  const router = createBrowserRouter([
     {
@@ -63,6 +64,14 @@ import * as qfend from './QuestionsFrontEnd';
     {
       path: 'Questions/Update/Edit/WrongAnswers',
       element:<qfend.EditWrongAnswers/>
+    },
+    {
+      path:'Suggestions',
+      element:<suggestions.Suggestions/>
+    },
+    {
+      path:'Suggestions/Sent',
+      element:<suggestions.Sent/>
     }
   ]);
 

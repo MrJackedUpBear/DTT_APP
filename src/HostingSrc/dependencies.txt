@@ -1,3 +1,5 @@
 Mariadb install
 J-Connector
 mrjackedupbear user with password: TempPass
+javax.activation.jar
+javax.mail.jar

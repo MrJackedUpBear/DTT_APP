@@ -142,6 +142,10 @@ export function setUserInfo(id, userInfo){
 	}
 }
 
+export function getBaseURL(){
+	return baseURL;
+}
+
 export async function addQuestions(questionsToAdd){
 	try{
 		const myHeaders = new Headers();
