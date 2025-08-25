@@ -69,21 +69,22 @@ export async function getNumberQuestions(){
 //prompts is an array, correctAnswers is an array, and wrongAnswers is a nested array(ie. [[1, 2],['yes', 'no']])
 export async function addQuestions(prompts, correctAnswers, wrongAnswers){
 	let numQuestions = prompts.length;
-	let questions = '{"Questions": [{';
+	let questions = '{"Questions": [';
+
+	if (prompts.length !== correctAnswers.length || correctAnswers.length !== wrongAnswers.length){
+		alert("Prompts Length: " + prompts.length + "\nCorrect Answer: " + correctAnswers.length + "\nWrong Answers: " + wrongAnswers.length);
+		return;
+	}
 
 	for (let i = 0; i < numQuestions; i++){
 		if (correctAnswers[i].includes('"')){
 			correctAnswers[i] = correctAnswers[i].replaceAll('"', '\\"');
 		}
 		if (prompts[i].includes('"')){
-
-
 			prompts[i] = prompts[i].replaceAll('"', '\\"');
-
-
 		}
 
-		questions += '"Prompt":"' + prompts[i] + '",';
+		questions += '{"Prompt":"' + prompts[i] + '",';
 		questions += '"Correct Answer":"' + correctAnswers[i] + '",';
 		questions += '"Wrong Answers":[';
 		let wrongAnswerSet = wrongAnswers[i];
@@ -91,6 +92,9 @@ export async function addQuestions(prompts, correctAnswers, wrongAnswers){
 
 		for (let j = 0; j < numWrongAnswers; j++){
 			if (j === 0){
+				if (wrongAnswerSet[j].includes('"')){
+					wrongAnswerSet[j] = wrongAnswerSet[j].replaceAll('"', '\\"');
+				}
 				questions += '"' + wrongAnswerSet[j] + '"';
 				j++;
 			}
@@ -98,8 +102,14 @@ export async function addQuestions(prompts, correctAnswers, wrongAnswers){
 			if (j === numWrongAnswers){
 				questions += "]";
 			}else if (j === numWrongAnswers - 1){
+				if (wrongAnswerSet[j].includes('"')){
+					wrongAnswerSet[j] = wrongAnswerSet[j].replaceAll('"', '\\"');
+				}
 				questions += ',"' + wrongAnswerSet[j] + '"]';
 			}else{
+				if (wrongAnswerSet[j].includes('"')){
+					wrongAnswerSet[j] = wrongAnswerSet[j].replaceAll('"', '\\"');
+				}
 				questions += ',"' + wrongAnswerSet[j] + '"';
 			}
 		}

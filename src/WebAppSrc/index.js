@@ -23,7 +23,7 @@ import * as suggestions from './Suggestions';
     },
     {
       path:'Questions',
-      element:<qfend.EditQuestions />
+      element:<qfend.ViewAndUpdate/>
     },
     {
       path:'Questions/Add',
@@ -38,31 +38,27 @@ import * as suggestions from './Suggestions';
       element:<app.MainPage/>,
     },
     {
-      path: 'Questions/Update',
-      element:<qfend.ViewAndUpdate/>
-    },
-    {
-      path: 'Questions/Update/Next',
+      path: 'Questions/Next',
       element:<qfend.Next/>
     },
     {
-      path: 'Questions/Update/Back',
+      path: 'Questions/Back',
       element:<qfend.Back/>
     },
     {
-      path: 'Questions/Update/Edit',
+      path: 'Questions/Edit',
       element:<qfend.Edit/>
     },
     {
-      path: 'Questions/Update/Edit/Prompt',
+      path: 'Questions/Edit/Prompt',
       element:<qfend.EditPrompt/>
     },
     {
-      path: 'Questions/Update/Edit/CorrectAnswer',
+      path: 'Questions/Edit/CorrectAnswer',
       element:<qfend.EditCorrectAnswer/>
     },
     {
-      path: 'Questions/Update/Edit/WrongAnswers',
+      path: 'Questions/Edit/WrongAnswers',
       element:<qfend.EditWrongAnswers/>
     },
     {
@@ -72,6 +68,30 @@ import * as suggestions from './Suggestions';
     {
       path:'Suggestions/Sent',
       element:<suggestions.Sent/>
+    },
+    {
+      path:'Questions/Add/Verify',
+      element:<qfend.VerifyQuestions/>
+    },
+    {
+      path:'Questions/Add/Verify/Edit',
+      element:<qfend.Edit/>
+    },
+    {
+      path:'Questions/Add/Verify/Edit/Prompt',
+      element:<qfend.EditPrompt/>
+    },
+    {
+      path:'Questions/Add/Verify/Edit/CorrectAnswer',
+      element:<qfend.EditCorrectAnswer/>
+    },
+    {
+      path:'Questions/Add/Verify/Edit/WrongAnswers',
+      element:<qfend.EditWrongAnswers/>
+    },
+    {
+      path:'Questions/Add/Verify/Back',
+      element:<qfend.Back/>
     }
   ]);
 

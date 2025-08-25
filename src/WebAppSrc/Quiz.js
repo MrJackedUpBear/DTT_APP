@@ -2,8 +2,6 @@ import './App.css';
 import * as user from './User.js';
 import * as questions from './Questions.js';
 import * as db from './Database.js';
-import correctAnswerGraphic from './correct.jpg';
-import wrongAnswerGraphic from './incorrect.png';
 import router from './index.js';
 import React, { useState, useEffect } from 'react';
 import { Text, View } from 'react-native';
@@ -39,11 +37,14 @@ export function getInfo(){
 }
 
 export function StartQuiz() {
+    document.body.style = 'background: white;';
   return (
     <div className="App">
       <header className="App-header">
         <button onClick={() => router.navigate("/")}>Home</button>
         DTT Quiz 
+        <br></br>
+        Question: {currentQuestionNum} of {totalQuestions}
         <br></br>
         Time Left:
       </header>
@@ -93,6 +94,8 @@ export function CorrectAnswer(){
     </h1>);
   }
 
+  document.body.style = 'background: green;';
+
   currentQuestionNum++;
 
   
@@ -114,7 +117,7 @@ export function CorrectAnswer(){
     </h1>)
   }
 
-  return (<h1>
+  return (<h1 className="correct">
     <button onClick={() => router.navigate("/")}>Return Home</button>
     <button onClick={() => router.navigate('/Quiz')}>Correct! Next Question</button>
     </h1>);
@@ -127,6 +130,7 @@ export function WrongAnswer(){
     </h1>);
   }
 
+  document.body.style = 'background: red;';
   return (<h1>
     <button onClick={() => router.navigate("/")}>Return Home</button>
     <button onClick={() => router.navigate('/Quiz')}>Incorrect. Try Again. Try {currentQuestion.getCorrectAnswer()}</button>

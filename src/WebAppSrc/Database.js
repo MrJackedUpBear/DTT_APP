@@ -69,6 +69,10 @@ export class question{
 	removeWrongAnswers(){
 		this.wrongAnswers = [];
 	}
+
+	setWrongAnswer(answer, id){
+		this.wrongAnswers[id] = answer;
+	}
 }
 
 const baseURL = "http://localhost:8080/DTT_APP/QuizServlet/";
@@ -80,6 +84,7 @@ const deleteQuestionURL = "DeleteQuestion"
 const updateQuestionPromptURL = "UpdateQuestionPrompt";
 const updateCorrectAnswerURL = "UpdateQuestionAnswer";
 const updateWrongAnswerURL = "UpdateWrongAnswer";
+const fileUploadURL = "ReadPDF";
 
 const addQuestionsURL = "AddQuestions";
 
@@ -314,19 +319,40 @@ export async function updateWrongAnswer(prompt, wrongAnswer, questionId){
 	}
 }
 
+export async function uploadFile(formData){
+	try{
+		const resp = await fetch(baseURL + fileUploadURL, {
+			method: 'POST',
+			body: formData
+		});
+
+		if (!resp.ok){
+			console.log(resp);
+		}
+
+		let json = await resp.text();
+
+		let file = JSON.parse(json);
+
+		return parseQuestions(file, file["Questions"].length);
+	}catch(e){
+		alert("Error uploading: " + e);
+	}
+}
+
 function parseQuestions(jsonInput, numQuest){
 	let questionSet = [];
 
 	for (let i = 0; i < numQuest; i++){
 		let q = new question();
 		
-		q.setQuestion(jsonInput["Questions"][i]["Prompt"]);
-		q.setCorrectAnswer(jsonInput["Questions"][i]["Correct Answer"]);
+		q.setQuestion(jsonInput["Questions"][i]["prompt"]);
+		q.setCorrectAnswer(jsonInput["Questions"][i]["correctAnswer"]);
 
-		let numWrongQuestions = jsonInput["Questions"][i]["Wrong Answers"].length;
+		let numWrongQuestions = jsonInput["Questions"][i]["wrongAnswers"].length;
 
 		for (let j = 0; j < numWrongQuestions; j++){
-			q.addWrongAnswer(jsonInput["Questions"][i]["Wrong Answers"][j]);
+			q.addWrongAnswer(jsonInput["Questions"][i]["wrongAnswers"][j]);
 		}
 
 		questionSet.push(q);

@@ -1,20 +1,37 @@
 package servlet;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+
 import database.Database;
 import mail.Mail;
+import questions.QuestionGenerator;
+import questions.Question;
 
 
 /**
  * Servlet implementation class QuizServlet
  */
+
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10,      // 10MB
+        maxRequestSize = 1024 * 1024 * 50   // 50MB
+    )
 @WebServlet("/QuizServlet")
 public class QuizServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -44,7 +61,7 @@ public class QuizServlet extends HttpServlet {
 			}
 			
 			int numQuestions = Integer.parseInt(temp);
-			response.getOutputStream().println(Database.getInstance().getRandomQuestions(numQuestions));
+			response.getWriter().println(Database.getInstance().getRandomQuestions(numQuestions));
 		}else if (infoRequest.equals("SpecificQuestion")){
 			String prompt = request.getParameter("Prompt");
 			if (prompt == null || prompt.isEmpty()) {
@@ -52,9 +69,9 @@ public class QuizServlet extends HttpServlet {
 				return;
 			}
 			
-			response.getOutputStream().print(Database.getInstance().getQuestion(prompt));
+			response.getWriter().print(Database.getInstance().getQuestion(prompt));
 		}else if (infoRequest.equals("QuestionTotal")) {
-			response.getOutputStream().print(Database.getInstance().getTotalQuestions());
+			response.getWriter().print(Database.getInstance().getTotalQuestions());
 		}else if (infoRequest.equals("QuestionsFrom")) {
 			String temp1 = request.getParameter("Start");
 			String temp2 = request.getParameter("End");
@@ -67,7 +84,7 @@ public class QuizServlet extends HttpServlet {
 			int start = Integer.parseInt(temp1);
 			int end = Integer.parseInt(temp2);
 			
-			response.getOutputStream().print(Database.getInstance().getQuestionsFrom(start, end));
+			response.getWriter().print(Database.getInstance().getQuestionsFrom(start, end));
 		}else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
@@ -235,7 +252,31 @@ public class QuizServlet extends HttpServlet {
 			Runnable run = new Mail(message);
 			
 			new Thread(run).run();
-		}else {
+		}else if (postRequest.equals("ReadPDF")) {
+			try {
+				Part filePart = request.getPart("PDF");
+				String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+				InputStream fileContent = filePart.getInputStream();
+				
+				Path uploadPath = Paths.get(getServletContext().getRealPath("/WEB-INF/uploads"));
+				
+				if (!Files.exists(uploadPath)) {
+					Files.createDirectories(uploadPath);
+				}
+				Path filePath = uploadPath.resolve(fileName);
+				
+				Files.copy(fileContent, filePath, StandardCopyOption.REPLACE_EXISTING);
+				
+				ArrayList<Question> questions = QuestionGenerator.readPDF(filePath);
+				
+				String json = Database.getInstance().formatQuestionsAsJson(questions);
+				
+				response.getWriter().println(json);
+			}catch (Exception e) {
+				System.out.println("Error: " + e.getMessage());
+			}
+		}
+		else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}

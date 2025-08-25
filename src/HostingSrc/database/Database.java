@@ -1,8 +1,18 @@
 package database;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Scanner;
+
+import com.fasterxml.jackson.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import questions.*;
 
 public class Database {
 	private static Database db = new Database();
@@ -46,6 +56,8 @@ public class Database {
 		
 		String json = "{\"Questions\":[";
 		
+		ArrayList<questions.Question> que = new ArrayList<>();
+		
 		//Loops through the number of questions requested and adds questions to the questions variable
 		for (int i = 0; i < numQuestions; i++) {
 			//Initializes a question variable that is obtained by getting questions from the question table with the id provided from the possible questions
@@ -55,20 +67,17 @@ public class Database {
 			//HashMap.
 			ArrayList<String> wrongAnswers = WrongAnswer.getInstance().getWrongAnswers(possibleQuestions.get(i));
 			
-			if (i != 0){
-				json += ", ";
-			}
-			
-			json += formatQuestionAsJson(question, wrongAnswers);
+			questions.Question q = new questions.Question(question.get("Prompt"), question.get("Correct Answer"), wrongAnswers);
+			que.add(q);
 		}
 		
-		json += "]}";
+		json = formatQuestionsAsJson(que);
 		
 		return json;
 	}
 	
 	public String getQuestionsFrom(int start, int end) {
-		String json = "{\"Questions\":[";
+		String json;
 		
 		ArrayList<Integer> possibleQuestions = Question.getInstance().getAvailableQuestions();
 				
@@ -79,42 +88,31 @@ public class Database {
 			return "";
 		}
 		
+		ArrayList<questions.Question> que = new ArrayList<>();
 		for (int i = start; i < end; i++) {
-			//Initializes a question variable that is obtained by getting questions from the question table with the id provided from the possible questions
-			//ArrayList
 			HashMap<String, String> question = Question.getInstance().getQuestion(possibleQuestions.get(i));
-			//Creates a temporary variable that will hold an ArrayList of the wrong answers; this also initializes the wrong answers string to put in the question
-			//HashMap.
 			ArrayList<String> wrongAnswers = WrongAnswer.getInstance().getWrongAnswers(possibleQuestions.get(i));
 			
-			if (i != start){
-				json += ", ";
-			}
-			
-			json += formatQuestionAsJson(question, wrongAnswers);
+			questions.Question q = new questions.Question(question.get("Prompt"), question.get("Correct Answer"), wrongAnswers);
+			que.add(q);
 		}
 		
-		json += "]}";
+		json = formatQuestionsAsJson(que);
 		
 		return json;
 	}
 	
 	public Boolean addQuestions(String questionsJson) {
-		ArrayList<HashMap<String, String>> questions = getQuestionsFromJson(questionsJson);
+		ArrayList<questions.Question> allQuestions = getQuestionsFromJson(questionsJson);
 		String prompt = "";
 		String correctAnswer = "";
-		ArrayList<String> wrongAnswers = new ArrayList<>();
+		ArrayList<String> wrongAnswers;
 		
-		for (HashMap<String, String> question : questions) {
-			prompt = question.get("Prompt");
-			correctAnswer = question.get("Correct Answer");
-			String wrongAnswersString = question.get("Wrong Answers");
+		for (questions.Question question : allQuestions) {
+			prompt = question.getPrompt();;
+			correctAnswer = question.getCorrectAnswer();;
+			wrongAnswers = question.getWrongAnswers();
 			
-			String[] wrongAnswersSplit = wrongAnswersString.split("\", ");
-			
-			for (String wrongAnswer : wrongAnswersSplit) {
-				wrongAnswers.add(wrongAnswer);
-			}
 			if (!prompt.isEmpty() && !correctAnswer.isEmpty() && !wrongAnswers.isEmpty()) {
 				addQuestion(prompt, correctAnswer, wrongAnswers);
 			}
@@ -179,7 +177,12 @@ public class Database {
 			return "{}";
 		}
 		
-		return formatQuestionAsJson(question, wrongAnswers);
+		questions.Question q = new questions.Question(question.get("Prompt"), question.get("Correct Answer"), wrongAnswers);
+		
+		ArrayList<questions.Question>que = new ArrayList<>();
+		que.add(q);
+		
+		return formatQuestionsAsJson(que);
 	}
 	
 	public void addWrongAnswers(ArrayList<String> wrongAnswers, int questionId) {
@@ -235,94 +238,47 @@ public class Database {
 		return true;
 	}
 	
-	private String escapeQuote(String input) {
+	public String escapeQuote(String input) {
 		return input.replace("\"", "\\\"");
 	}
 	
-	private ArrayList<HashMap<String, String>> getQuestionsFromJson(String questionsJson){
-		ArrayList<HashMap<String, String>> questions = new ArrayList<>();
-		System.out.println(questionsJson);
+	private ArrayList<questions.Question> getQuestionsFromJson(String questionsJson){
+		ArrayList<questions.Question> allQuestions = new ArrayList<>(); 
+		//ArrayList<HashMap<String, String>> questions = new ArrayList<>();
 		
-		String[] questionInfo = questionsJson.split("}},");
-		
-		for (String question : questionInfo) {
-			HashMap<String, String> questionVal = new HashMap<>();
-			String tempWrongAnswers = question.split("\",\"Wrong Answers\":\\[")[1];
-			question = question.split("\",\"Wrong Answers\":\\[\"")[0];
-			
-			String correctAnswer = question.split("\",\"Correct Answer\":\"")[1];
-			question = question.split("\",\"Correct Answer\":\"")[0];
-			
-			String prompt = question.split("\\{\"Prompt\":\"")[1];
-			
-			String[] wrongAnswers = tempWrongAnswers.split(",\"");
-			
-			String wrongAnswersCSV = "";
-			int i = 0;
-			for (String wrongAnswer : wrongAnswers) {
-				Boolean hasQuote = false;
-				System.out.println(wrongAnswer);
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			JsonNode jsonNodeRoot = objectMapper.readTree(questionsJson);
+			for (int i = 0; i < jsonNodeRoot.size(); i++) {
+				String prompt = jsonNodeRoot.get(i).get("Prompt").asText();
+				String correctAnswer = jsonNodeRoot.get(i).get("Correct Answer").asText();
 				
-				if (wrongAnswer.contains("\\\"")) {
-					wrongAnswer = wrongAnswer.replaceAll("\\\"", "-9919299");
-					hasQuote = true;
+				ArrayList<String> wrongAnswers = new ArrayList<>();
+				
+				for (JsonNode element : jsonNodeRoot.get(i).get("Wrong Answers")) {
+					wrongAnswers.add(element.asText());
 				}
 				
-				if (wrongAnswer.contains("]")) {
-					wrongAnswer = wrongAnswer.replaceAll("]", "");
-				}
+				questions.Question q = new questions.Question(prompt, correctAnswer, wrongAnswers);
 				
-				if (wrongAnswer.contains("}")) {
-					wrongAnswer = wrongAnswer.replaceAll("}", "");
-				}
-				
-				wrongAnswer = wrongAnswer.replaceAll("\"", "");
-				
-				if (hasQuote) {
-					wrongAnswer = wrongAnswer.replaceAll("-9919299", "\\\"");
-				}
-				
-				if (i == 0) {
-					wrongAnswersCSV += wrongAnswer;
-				}else {
-					wrongAnswersCSV += "\", " + wrongAnswer;
-				}
-				i++;
+				allQuestions.add(q);
 			}
-			
-			System.out.println(wrongAnswersCSV);
-			questionVal.put("Wrong Answers", wrongAnswersCSV);
-			questionVal.put("Prompt", prompt);
-			questionVal.put("Correct Answer", correctAnswer);
-			
-			questions.add(questionVal);
+		}catch(Exception e) {
+			System.out.println("Error: " + e.getMessage());
 		}
-		
-		return questions;
+		return allQuestions;
 	}
 	
-	private String formatQuestionAsJson(HashMap<String, String> question, ArrayList<String> wrongAnswers) {
+	public String formatQuestionsAsJson(ArrayList<questions.Question>question) {
+		ObjectMapper objectMapper = new ObjectMapper();
 		String json = "";
-		String prompt = (question.get("Prompt").contains("\""))? escapeQuote(question.get("Prompt")) : question.get("Prompt");
-		String correctAnswer = (question.get("Correct Answer").contains("\""))? escapeQuote(question.get("Correct Answer")) : question.get("Correct Answer");
-		
-		json += "{";
-		json += "\"Prompt\":\"" + prompt + "\",";
-		json += "\"Correct Answer\":\"" + correctAnswer + "\",";
-		json += "\"Wrong Answers\":[";
-		
-		for (String wrongAnswer : wrongAnswers) {
-			wrongAnswer= (wrongAnswer.contains("\""))? escapeQuote(wrongAnswer) : wrongAnswer;
-			
-			if (wrongAnswer.equals(wrongAnswers.getFirst())){
-				json += "\"" + wrongAnswer + "\"";
-			}else {
-				json += ", \"" + wrongAnswer + "\"";
-			}
+		try {
+			HashMap<String, ArrayList<questions.Question>> finalBoss = new HashMap<>();
+			finalBoss.put("Questions", question);
+			json = objectMapper.writeValueAsString(finalBoss);
+		}catch(Exception e) {
+			System.out.println("Error: " + e.getMessage());
 		}
-		
-		json += "]}";
-		
 		return json;
 	}
 	
