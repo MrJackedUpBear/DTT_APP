@@ -35,7 +35,12 @@ export function AddQuestions(){
         const formData = new FormData();
         formData.append("PDF", file);
         questionsFromFile = await uploadFile(formData);
-        router.navigate('Verify')
+
+        if (questionsFromFile === undefined){
+            alert("Unsupported file type.")
+        }else{
+            router.navigate('Verify')
+        }
     }
 
     return (<div className="App">

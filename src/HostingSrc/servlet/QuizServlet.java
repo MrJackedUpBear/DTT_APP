@@ -258,6 +258,11 @@ public class QuizServlet extends HttpServlet {
 				String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
 				InputStream fileContent = filePart.getInputStream();
 				
+				if (!fileName.substring(fileName.indexOf('.')).equalsIgnoreCase(".pdf")) {
+					Exception e = new Exception("Incorrect file type.");
+					throw e;
+				}
+				
 				Path uploadPath = Paths.get(getServletContext().getRealPath("/WEB-INF/uploads"));
 				
 				if (!Files.exists(uploadPath)) {
@@ -274,6 +279,7 @@ public class QuizServlet extends HttpServlet {
 				response.getWriter().println(json);
 			}catch (Exception e) {
 				System.out.println("Error: " + e.getMessage());
+				response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
 			}
 		}
 		else {
