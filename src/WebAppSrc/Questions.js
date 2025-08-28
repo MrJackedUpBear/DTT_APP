@@ -67,27 +67,22 @@ export async function getNumberQuestions(){
 }
 
 //prompts is an array, correctAnswers is an array, and wrongAnswers is a nested array(ie. [[1, 2],['yes', 'no']])
-export async function addQuestions(prompts, correctAnswers, wrongAnswers){
-	let numQuestions = prompts.length;
+export async function addQuestions(question){
+	let numQuestions = question.length;
 	let questions = '{"Questions": [';
 
-	if (prompts.length !== correctAnswers.length || correctAnswers.length !== wrongAnswers.length){
-		alert("Prompts Length: " + prompts.length + "\nCorrect Answer: " + correctAnswers.length + "\nWrong Answers: " + wrongAnswers.length);
-		return;
-	}
-
 	for (let i = 0; i < numQuestions; i++){
-		if (correctAnswers[i].includes('"')){
-			correctAnswers[i] = correctAnswers[i].replaceAll('"', '\\"');
+		if (question[i].getCorrectAnswer().includes('"')){
+			question[i].setCorrectAnswer(question[i].getCorrectAnswer().replaceAll('"', '\\"'));
 		}
-		if (prompts[i].includes('"')){
-			prompts[i] = prompts[i].replaceAll('"', '\\"');
+		if (question[i].getQuestion().includes('"')){
+			question[i].setCorrectAnswer(question[i].getQuestion().replaceAll('"', '\\"'));
 		}
 
-		questions += '{"Prompt":"' + prompts[i] + '",';
-		questions += '"Correct Answer":"' + correctAnswers[i] + '",';
+		questions += '{"Prompt":"' + question[i].getQuestion() + '",';
+		questions += '"Correct Answer":"' + question[i].getCorrectAnswer() + '",';
 		questions += '"Wrong Answers":[';
-		let wrongAnswerSet = wrongAnswers[i];
+		let wrongAnswerSet = question[i].getWrongAnswers();
 		let numWrongAnswers = wrongAnswerSet.length;
 
 		for (let j = 0; j < numWrongAnswers; j++){
@@ -113,8 +108,8 @@ export async function addQuestions(prompts, correctAnswers, wrongAnswers){
 				questions += ',"' + wrongAnswerSet[j] + '"';
 			}
 		}
-		questions += ', "Justification":""';
-		questions += ', "Task Letter": ""';
+		questions += ', "Justification":"' + question[i].getJustification() + '"';
+		questions += ', "Task Letter": "' + question[i].getTaskLetter() + '"';
 		questions += ', "Has Image": false';
 		questions += ', "Image": ""';
 

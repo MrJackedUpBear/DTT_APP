@@ -116,14 +116,12 @@ public class QuizServlet extends HttpServlet {
 				return;
 			}
 			
-			if (!questionJson.contains("]}]") || !questionJson.contains("Prompt")|| !questionJson.contains("Correct Answer") || 
+			if (!questionJson.contains("Prompt")|| !questionJson.contains("Correct Answer") || 
 					!questionJson.contains("Wrong Answers") || !questionJson.contains("Questions")){
 				response.sendError(HttpServletResponse.SC_UNPROCESSABLE_CONTENT);
 				return;
 			}
-			
-			questionJson = questionJson.substring("{\"Questions\":".length(), questionJson.length() - 1);
-			
+						
 			if (!Database.getInstance().addQuestions(questionJson)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;

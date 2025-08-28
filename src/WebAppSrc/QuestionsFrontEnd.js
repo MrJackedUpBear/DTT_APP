@@ -3,7 +3,7 @@ import * as questions from './Questions.js';
 import {useEffect, useState} from 'react';
 import {Form} from 'react-router-dom';
 import { Text, View } from 'react-native';
-import { uploadFile } from './Database.js';
+import * as db from './Database.js';
 
 let page = 1;
 let numOnPage = 100;
@@ -34,7 +34,7 @@ export function AddQuestions(){
         event.preventDefault();
         const formData = new FormData();
         formData.append("PDF", file);
-        questionsFromFile = await uploadFile(formData);
+        questionsFromFile = await db.uploadFile(formData);
 
         if (questionsFromFile !== null){
             router.navigate('Verify')
@@ -45,8 +45,8 @@ export function AddQuestions(){
 
     return (<div className="App">
         <header className="App-header">
-            <button onClick={() => router.navigate("/")}>Home</button>
-            <button onClick={() => router.navigate("/Questions")}>Back</button>
+            <button onClick={() => router.navigate("/MainPage")}>Home</button>
+            <button onClick={() => router.navigate("/MainPage/Questions")}>Back</button>
             Enter prompt, correct answer, and wrong answers.
         </header>
         <Form onSubmit={handleSubmit}>
@@ -55,16 +55,29 @@ export function AddQuestions(){
                     Prompt: 
                     <input type="text" id="prompt" name="prompt"/>
                 </label>
+                <br/>
                 <label>
                     Correct Answer:
                     <input type="text" id="correctAnswer" name="correctAnswer"/>
                 </label>
+                <br/>
                 <label>
                     Wrong Answers:
                     <input type="text" id="wrongAnswer1" name="wrongAnswer1"/>
                     <input type="text" id="wrongAnswer2" name="wrongAnswer2"/>
                     <input type="text" id="wrongAnswer3" name="wrongAnswer3"/>
                 </label>
+                <br/>
+                <label>
+                    Justification: 
+                    <input type="text" id="description" name="description"/>
+                </label>
+                <br/>
+                <label>
+                    Tasklist Domain Letter:
+                    <input type="text" id="taskLetter" name="taskLetter"/>
+                </label>
+                <br/>
                 <input type="submit" value="Submit"/>
             </div>
         </Form>
@@ -88,6 +101,8 @@ export async function QuestionsSubmittedPage(formData){
     let wrongAnswer1 = formData.get("wrongAnswer1").trim();
     let wrongAnswer2 = formData.get("wrongAnswer2").trim();
     let wrongAnswer3 = formData.get("wrongAnswer3").trim();
+    let taskLetter = formData.get("taskLetter").trim();
+    let description = formData.get("description").trim();
 
     if (prompt === "" || correctAnswer === "" || wrongAnswer1 === "" ||
         wrongAnswer2 === "" || wrongAnswer3 === ""
@@ -96,17 +111,20 @@ export async function QuestionsSubmittedPage(formData){
         return;
     }
 
-    let wrongAnswer = [];
+    let question = new db.question();
 
-    prompts.push(prompt);
-    correctAnswers.push(correctAnswer);
-    wrongAnswer.push(wrongAnswer1);
-    wrongAnswer.push(wrongAnswer2);
-    wrongAnswer.push(wrongAnswer3);
+    question.setQuestion(prompt);
+    question.setCorrectAnswer(correctAnswer);
+    question.addWrongAnswer(wrongAnswer1);
+    question.addWrongAnswer(wrongAnswer2);
+    question.addWrongAnswer(wrongAnswer3);
+    question.setJustification(description);
+    question.setTaskLetter(taskLetter);
 
-    wrongAnswers.push(wrongAnswer);
+    let ques = [];
+    ques.push(question);
 
-    await questions.addQuestions(prompts, correctAnswers, wrongAnswers);
+    await questions.addQuestions(ques);
     router.navigate("Submit");
 }
 
@@ -133,7 +151,7 @@ export function VerifyQuestions(){
 
         await questions.addQuestions(prompts, answers, wrongAnswers);
         alert("Successfully added questions.");
-        router.navigate('/Questions');
+        router.navigate('/MainPage/Questions');
     }
 
     return (
@@ -141,7 +159,7 @@ export function VerifyQuestions(){
             <div className="App-header">
                 Questions From File:
             </div>
-            <button onClick={() => router.navigate("/")}>Home</button>
+            <button onClick={() => router.navigate("/MainPage")}>Home</button>
             <button onClick={() => router.navigate(-1)}>Back</button>
             {showQuestions(questionsFromFile, false)}
             <button onClick={handleClick}>Add Questions</button>
@@ -152,15 +170,15 @@ export function VerifyQuestions(){
 export function SubmitAddQuestions(){
     return (<div>
         Questions added.
-        <button onClick={() => router.navigate("/Questions/Add")}>Add Another Question</button>
-        <button onClick={() => router.navigate("/")}>Go Home</button>
+        <button onClick={() => router.navigate("/MainPage/Questions/Add")}>Add Another Question</button>
+        <button onClick={() => router.navigate("/MainPage")}>Go Home</button>
     </div>);
 }
 
 export function ViewAndUpdate(){
 
     return (<div>
-        <button onClick={() => router.navigate("/")}>Home</button>
+        <button onClick={() => router.navigate("/MainPage")}>Home</button>
         <button onClick={() => router.navigate('Add')}>Add Questions</button>
         <h1>Prompts</h1>
         {LoadQuestions()}
@@ -203,18 +221,18 @@ function verifyNextPageButton(){
 export function Next(){
     page++;
     if (allQuestions !== undefined){
-        router.navigate('/Questions/');
+        router.navigate('/MainPage/Questions/');
     }else{
-        router.navigate('/Questions/Add/Verify');
+        router.navigate('/MainPage/Questions/Add/Verify');
     }
 }
 
 export function Back(){
     page--;
     if (allQuestions !== undefined){
-        router.navigate('/Questions/');
+        router.navigate('/MainPage/Questions/');
     }else{
-        router.navigate('/Questions/Add/Verify');
+        router.navigate('/MainPage/Questions/Add/Verify');
     }
 }
 
@@ -320,7 +338,7 @@ async function setQuestionPrompt(className, prompt, index){
         router.navigate('Back');
     }
     else{
-        router.navigate('/Questions/Update');
+        router.navigate('/MainPage/Questions/Update');
     }
 }
 
@@ -361,15 +379,15 @@ export function EditPrompt(){
 
         if (allQuestions !== undefined){
             await questions.updatePrompt(oldPrompt, newPrompt);
-            router.navigate('/Questions/Update');
+            router.navigate('/MainPage/Questions/Update');
         }else{
             await updatePrompt(newPrompt);
-            router.navigate('/Questions/Add/Verify');
+            router.navigate('/MainPage/Questions/Add/Verify');
         }
     }
 
     return (<div>
-        <button onClick={() => router.navigate("/")}>Home</button>
+        <button onClick={() => router.navigate("/MainPage")}>Home</button>
         <button onClick={() => router.navigate(-1)}>Back</button>
         <Form onSubmit={handleSubmit}>
             <label>Enter new prompt: </label>
@@ -392,16 +410,16 @@ export function EditCorrectAnswer(){
 
         if (allQuestions !== undefined){
             await questions.updateCorrectAnswer(oldCorrectAnswer, newCorrectAnswer);
-            router.navigate('/Questions/Add/Verify');
+            router.navigate('/MainPage/Questions/Add/Verify');
         }else{
             await updateCorrectAnswer(newCorrectAnswer);
-            router.navigate('/Questions/Add/Verify');
+            router.navigate('/MainPage/Questions/Add/Verify');
         }
     }
 
     return (<div>
-        <button onClick={() => router.navigate("/")}>Home</button>
-        <button onClick={() => router.navigate("/Questions/Update")}>Back</button>
+        <button onClick={() => router.navigate("/MainPage")}>Home</button>
+        <button onClick={() => router.navigate("/MainPage/Questions/Update")}>Back</button>
         <Form onSubmit={handleSubmit}>
             <label>Enter new correct answer: </label>
             <input type='text' id='newCorrectAnswer' name='newCorrectAnswer'/>
@@ -437,16 +455,16 @@ export function EditWrongAnswers(){
 
          if (allQuestions !== undefined){
             await questions.updateWrongAnswer(prompt, wrongAnswer, questionId);
-            router.navigate('/Questions/Update');
+            router.navigate('/MainPage/Questions/Update');
         }else{
             await updateWrongAnswer(wrongAnswer, questionId);
-            router.navigate('/Questions/Add/Verify');
+            router.navigate('/MainPage/Questions/Add/Verify');
         }
     }
 
     return (<div>
-        <button onClick={() => router.navigate("/")}>Home</button>
-        <button onClick={() => router.navigate("/Questions/Update")}>Back</button>
+        <button onClick={() => router.navigate("/MainPage")}>Home</button>
+        <button onClick={() => router.navigate("/MainPage/Questions/Update")}>Back</button>
         <Form onSubmit={handleSubmit}>
             <select id='oldWrongAnswer' name='oldWrongAnswer' value={questionToEdit[questionNum].getWrongAnswers[0]}>
                 {questionToEdit[questionNum].getWrongAnswers().map((value, index) => (

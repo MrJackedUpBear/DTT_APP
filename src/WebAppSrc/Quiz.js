@@ -5,35 +5,29 @@ import * as db from './Database.js';
 import router from './index.js';
 import React, { useState, useEffect } from 'react';
 import { Text, View } from 'react-native';
+import * as settings from './Settings.js';
 
 
 let correctAnswerVoice = null;
 let wrongAnswerVoice = null;
 let currentQuestion = new db.question();
 let currentQuestionNum = 1;
-let totalQuestions = 1;
-let totalTime = 15;
+let totalQuestions = settings.getNumQuestions();
+let totalTime = settings.getTime();
 let wrongChoice = false;
 let correctChoice = false;
 let totalCorrect = 0;
+let correctLetter = '';
 
 export function getInfo(){
-  const tempNumQuestions = prompt("Enter number of questions.");
-  const tempTime = prompt("Enter time");
-
-  if (!isNum(tempNumQuestions) || !isNum(tempTime)){
-    alert("Incorrect usage!");
-    return;
-  }
-
-  totalQuestions = tempNumQuestions;
-  totalTime = tempTime;
+  totalQuestions = settings.getNumQuestions();
+  totalTime = settings.getTime();
   wrongChoice = false;
   correctChoice = false;
   currentQuestionNum = 1;
   totalCorrect = 0;
 
-  router.navigate("/Quiz");
+  router.navigate("/MainPage/Quiz");
 }
 
 export function StartQuiz() {
@@ -41,7 +35,7 @@ export function StartQuiz() {
   return (
     <div className="App">
       <header className="App-header">
-        <button onClick={() => router.navigate("/")}>Home</button>
+        <button onClick={() => router.navigate("/MainPage")}>EXIT</button>
         DTT Quiz 
         <br></br>
         Question: {currentQuestionNum} of {totalQuestions}
@@ -112,14 +106,15 @@ export function CorrectAnswer(){
     correctChoice = false;
     return (<h1>
       Well done! You got {totalCorrect} out of {totalQuestions}<br />
-      <button onClick={() => router.navigate("/")}>Return Home</button>
+      <button onClick={() => router.navigate("/MainPage")}>Return Home</button>
       <button onClick={() => getInfo()}>Take Another Quiz</button>
     </h1>)
   }
 
   return (<h1 className="correct">
-    <button onClick={() => router.navigate("/")}>Return Home</button>
-    <button onClick={() => router.navigate('/Quiz')}>Correct! Next Question</button>
+    <button onClick={() => router.navigate("/MainPage")}>Return Home</button>
+    <button onClick={() => router.navigate('/MainPage/Quiz')}>Correct! Next Question</button>
+    Justification: {currentQuestion.getJustification()}
     </h1>);
 }
 
@@ -132,8 +127,9 @@ export function WrongAnswer(){
 
   document.body.style = 'background: red;';
   return (<h1>
-    <button onClick={() => router.navigate("/")}>Return Home</button>
-    <button onClick={() => router.navigate('/Quiz')}>Incorrect. Try Again. Try {currentQuestion.getCorrectAnswer()}</button>
+    <button onClick={() => router.navigate("/MainPage")}>Return Home</button>
+    <button onClick={() => router.navigate('/MainPage/Quiz')}>Incorrect. Try Again. Try {correctLetter}</button>
+    Justification: {currentQuestion.getJustification()}
 
   </h1>);
 }
@@ -199,13 +195,50 @@ function GetAnswerChoices(){
     combined.push(correctAnswer);
   }
 
-  shuffleArray(combined);
+  if (!wrongChoice){
+    shuffleArray(combined);
+  }
 
   return (<h1>
     {combined.map((item, index) =>(
-      <li><button key={index} onClick={() => CheckAnswer(item)}>{item}</button></li>
+      <li><button key={index} onClick={() => CheckAnswer(item)}>{letterAt(index, item)}) {item}</button></li>
     ))}
   </h1>);
+}
+
+function letterAt(index, value){
+  let isCorrect = false;
+  let letter = '';
+  if (value === currentQuestion.getCorrectAnswer()){
+    isCorrect = true;
+  }
+
+  switch(index){
+    case 0:
+      letter = 'A';
+      break;
+    case 1:
+      letter = 'B';
+      break;
+    case 2:
+      letter = 'C';
+      break;
+    case 3:
+      letter = 'D';
+      break;
+    case 4:
+      letter = 'E';
+      break;
+    case 5:
+      letter = 'F';
+      break;
+  }
+
+  if (isCorrect){
+    correctLetter = letter;
+  }
+
+  return letter;
 }
 
 function shuffleArray(array){

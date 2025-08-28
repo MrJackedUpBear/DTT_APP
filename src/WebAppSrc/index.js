@@ -7,58 +7,59 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import * as quiz from './Quiz';
 import * as qfend from './QuestionsFrontEnd';
 import * as suggestions from './Suggestions';
+import * as settings from './Settings';
 
  const router = createBrowserRouter([
     {
-      path: 'Quiz',
+      path: 'MainPage/Quiz',
       element: <quiz.StartQuiz />
     },
     {
-      path: 'Quiz/CorrectAnswer',
+      path: 'MainPage/Quiz/CorrectAnswer',
       element: <quiz.CorrectAnswer />
     },
     {
-      path: 'Quiz/SameQuestion',
+      path: 'MainPage/Quiz/SameQuestion',
       element: <quiz.WrongAnswer />
     },
     {
-      path:'Questions',
+      path:'MainPage/Questions',
       element:<qfend.ViewAndUpdate/>
     },
     {
-      path:'Questions/Add',
+      path:'MainPage/Questions/Add',
       element:<qfend.AddQuestions />,
     },
     {
-      path: 'Questions/Add/Submit',
+      path: 'MainPage/Questions/Add/Submit',
       element:<qfend.SubmitAddQuestions/>,
     },
     {
-      path: '',
+      path: 'MainPage',
       element:<app.MainPage/>,
     },
     {
-      path: 'Questions/Next',
+      path: 'MainPage/Questions/Next',
       element:<qfend.Next/>
     },
     {
-      path: 'Questions/Back',
+      path: 'MainPage/Questions/Back',
       element:<qfend.Back/>
     },
     {
-      path: 'Questions/Edit',
+      path: 'MainPage/Questions/Edit',
       element:<qfend.Edit/>
     },
     {
-      path: 'Questions/Edit/Prompt',
+      path: 'MainPage/Questions/Edit/Prompt',
       element:<qfend.EditPrompt/>
     },
     {
-      path: 'Questions/Edit/CorrectAnswer',
+      path: 'MainPage/Questions/Edit/CorrectAnswer',
       element:<qfend.EditCorrectAnswer/>
     },
     {
-      path: 'Questions/Edit/WrongAnswers',
+      path: 'MainPage/Questions/Edit/WrongAnswers',
       element:<qfend.EditWrongAnswers/>
     },
     {
@@ -70,28 +71,36 @@ import * as suggestions from './Suggestions';
       element:<suggestions.Sent/>
     },
     {
-      path:'Questions/Add/Verify',
+      path:'MainPage/Questions/Add/Verify',
       element:<qfend.VerifyQuestions/>
     },
     {
-      path:'Questions/Add/Verify/Edit',
+      path:'MainPage/Questions/Add/Verify/Edit',
       element:<qfend.Edit/>
     },
     {
-      path:'Questions/Add/Verify/Edit/Prompt',
+      path:'MainPage/Questions/Add/Verify/Edit/Prompt',
       element:<qfend.EditPrompt/>
     },
     {
-      path:'Questions/Add/Verify/Edit/CorrectAnswer',
+      path:'MainPage/Questions/Add/Verify/Edit/CorrectAnswer',
       element:<qfend.EditCorrectAnswer/>
     },
     {
-      path:'Questions/Add/Verify/Edit/WrongAnswers',
+      path:'MainPage/Questions/Add/Verify/Edit/WrongAnswers',
       element:<qfend.EditWrongAnswers/>
     },
     {
-      path:'Questions/Add/Verify/Back',
+      path:'MainPage/Questions/Add/Verify/Back',
       element:<qfend.Back/>
+    },
+    {
+      path:'',
+      element:<app.LandingPage/>
+    },
+    {
+      path: 'MainPage/Settings',
+      element: <settings.Settings/>
     }
   ]);
 

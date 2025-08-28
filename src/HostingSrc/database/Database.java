@@ -244,19 +244,19 @@ public class Database {
 		try {
 			JsonNode jsonNodeRoot = objectMapper.readTree(questionsJson);
 			for (int i = 0; i < jsonNodeRoot.size(); i++) {
-				String prompt = jsonNodeRoot.get(i).get("Prompt").asText();
-				String correctAnswer = jsonNodeRoot.get(i).get("Correct Answer").asText();
+				String prompt = jsonNodeRoot.get("Questions").get(i).get("Prompt").asText();
+				String correctAnswer = jsonNodeRoot.get("Questions").get(i).get("Correct Answer").asText();
 				
 				ArrayList<String> wrongAnswers = new ArrayList<>();
 				
-				for (JsonNode element : jsonNodeRoot.get(i).get("Wrong Answers")) {
+				for (JsonNode element : jsonNodeRoot.get("Questions").get(i).get("Wrong Answers")) {
 					wrongAnswers.add(element.asText());
 				}
 				
-				String justification = jsonNodeRoot.get(i).get("Justification").asText();
-				String taskLetter = jsonNodeRoot.get(i).get("Task Letter").asText();
-				boolean hasImage = jsonNodeRoot.get(i).get("Has Image").asBoolean();
-				String image = jsonNodeRoot.get(i).get("Image").asText();
+				String justification = jsonNodeRoot.get("Questions").get(i).get("Justification").asText();
+				String taskLetter = jsonNodeRoot.get("Questions").get(i).get("Task Letter").asText();
+				boolean hasImage = jsonNodeRoot.get("Questions").get(i).get("Has Image").asBoolean();
+				String image = jsonNodeRoot.get("Questions").get(i).get("Image").asText();
 				
 				questions.Question q = new questions.Question(prompt, correctAnswer, wrongAnswers);
 				

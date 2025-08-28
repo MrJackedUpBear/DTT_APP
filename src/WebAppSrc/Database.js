@@ -40,6 +40,16 @@ export class question{
 		this.question = "";
 		this.correctAnswer = "";
 		this.wrongAnswers = [];
+		this.taskLetter = "";
+		this.justification = "";
+	}
+
+	getJustification(){
+		return this.justification;
+	}
+
+	getTaskLetter(){
+		return this.taskLetter;
 	}
 
 	getQuestion(){
@@ -52,6 +62,14 @@ export class question{
 
 	getWrongAnswers(){
 		return this.wrongAnswers;
+	}
+
+	setJustification(justification){
+		this.justification = justification;
+	}
+
+	setTaskLetter(taskLetter){
+		this.taskLetter = taskLetter;
 	}
 
 	setQuestion(question){
@@ -355,6 +373,8 @@ function parseQuestions(jsonInput, numQuest){
 		for (let j = 0; j < numWrongQuestions; j++){
 			q.addWrongAnswer(jsonInput["Questions"][i]["wrongAnswers"][j]);
 		}
+
+		q.setJustification(jsonInput["Questions"][i]["justification"]);
 
 		questionSet.push(q);
 	}
