@@ -1,18 +1,10 @@
 package database;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Scanner;
-
-import com.fasterxml.jackson.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import questions.*;
 
 public class Database {
 	private static Database db = new Database();
@@ -31,7 +23,7 @@ public class Database {
 	}
 	
 	public String getTotalQuestions() {
-		ArrayList<Integer> questions = Question.getInstance().getAvailableQuestions();
+		ArrayList<Integer> questions = QuestionDB.getInstance().getAvailableQuestions();
 		
 		int totalQuestions = questions.size();
 		
@@ -42,7 +34,7 @@ public class Database {
 	//This function accesses the question and wrong answer table to get complete questions. First it checks how many questions are in the database, then it
 	//shuffles the question id's to get a random set of questions to return back as a JSON String
 	public String getRandomQuestions(int numQuestions) {
-		ArrayList<Integer> possibleQuestions = Question.getInstance().getAvailableQuestions();
+		ArrayList<Integer> possibleQuestions = QuestionDB.getInstance().getAvailableQuestions();
 		
 		//If there are no possible questions, return.
 		if (possibleQuestions.size() == 0) {
@@ -62,13 +54,10 @@ public class Database {
 		for (int i = 0; i < numQuestions; i++) {
 			//Initializes a question variable that is obtained by getting questions from the question table with the id provided from the possible questions
 			//ArrayList
-			HashMap<String, String> question = Question.getInstance().getQuestion(possibleQuestions.get(i));
+			questions.Question question = QuestionDB.getInstance().getQuestion(possibleQuestions.get(i));
 			//Creates a temporary variable that will hold an ArrayList of the wrong answers; this also initializes the wrong answers string to put in the question
 			//HashMap.
-			ArrayList<String> wrongAnswers = WrongAnswer.getInstance().getWrongAnswers(possibleQuestions.get(i));
-			
-			questions.Question q = new questions.Question(question.get("Prompt"), question.get("Correct Answer"), wrongAnswers);
-			que.add(q);
+			que.add(question);
 		}
 		
 		json = formatQuestionsAsJson(que);
@@ -79,7 +68,7 @@ public class Database {
 	public String getQuestionsFrom(int start, int end) {
 		String json;
 		
-		ArrayList<Integer> possibleQuestions = Question.getInstance().getAvailableQuestions();
+		ArrayList<Integer> possibleQuestions = QuestionDB.getInstance().getAvailableQuestions();
 				
 		//If there are no possible questions, return.
 		if (possibleQuestions.size() == 0) {
@@ -90,11 +79,9 @@ public class Database {
 		
 		ArrayList<questions.Question> que = new ArrayList<>();
 		for (int i = start; i < end; i++) {
-			HashMap<String, String> question = Question.getInstance().getQuestion(possibleQuestions.get(i));
-			ArrayList<String> wrongAnswers = WrongAnswer.getInstance().getWrongAnswers(possibleQuestions.get(i));
+			questions.Question question = QuestionDB.getInstance().getQuestion(possibleQuestions.get(i));
 			
-			questions.Question q = new questions.Question(question.get("Prompt"), question.get("Correct Answer"), wrongAnswers);
-			que.add(q);
+			que.add(question);
 		}
 		
 		json = formatQuestionsAsJson(que);
@@ -107,22 +94,28 @@ public class Database {
 		String prompt = "";
 		String correctAnswer = "";
 		ArrayList<String> wrongAnswers;
+		String justification = "";
+		String taskLetter = "";
+		boolean hasImage = false;
 		
 		for (questions.Question question : allQuestions) {
-			prompt = question.getPrompt();;
+			prompt = question.getPrompt();
 			correctAnswer = question.getCorrectAnswer();;
 			wrongAnswers = question.getWrongAnswers();
+			justification = question.getJustification();
+			taskLetter = question.getTaskLetter();
+			hasImage = question.hasImage();
 			
 			if (!prompt.isEmpty() && !correctAnswer.isEmpty() && !wrongAnswers.isEmpty()) {
-				addQuestion(prompt, correctAnswer, wrongAnswers);
+				addQuestion(prompt, correctAnswer, wrongAnswers, justification, taskLetter, hasImage);
 			}
 		}
 		return true;
 	}
 	
-	public void addQuestion(String prompt, String correctAnswer, ArrayList<String> wrongAnswers) {
-		Question.getInstance().createQuestion(prompt, correctAnswer);
-		int questionId = Question.getInstance().getQuestionId(prompt);
+	public void addQuestion(String prompt, String correctAnswer, ArrayList<String> wrongAnswers, String justification, String taskLetter, boolean hasImage) {
+		QuestionDB.getInstance().createQuestion(prompt, correctAnswer, justification, taskLetter, hasImage);
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
 		
 		if (questionId == -1) {
 			return;
@@ -132,55 +125,52 @@ public class Database {
 	}
 	
 	public Boolean deleteQuestion(String prompt) {
-		int questionId = Question.getInstance().getQuestionId(prompt);
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
 		
 		if (questionId == -1) {
 			return false;
 		}
 		
-		Question.getInstance().deleteQuestion(questionId);
+		QuestionDB.getInstance().deleteQuestion(questionId);
 		deleteAllWrongAnswers(questionId);
 		
 		return true;
 	}
 	
 	public Boolean updateQuestionPrompt(String oldPrompt, String prompt) {
-		int questionId = Question.getInstance().getQuestionId(oldPrompt);
+		int questionId = QuestionDB.getInstance().getQuestionId(oldPrompt);
 		
 		if (questionId == -1){
 			return false;
 		}
 		
-		Question.getInstance().updateQuestionPrompt(questionId, prompt);
+		QuestionDB.getInstance().updateQuestionPrompt(questionId, prompt);
 		
 		return true;
 	}
 	
 	public Boolean updateQuestionAnswer(String prompt, String answer) {
-		int questionId = Question.getInstance().getQuestionId(prompt);
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
 		
 		if (questionId == -1) {
 			return false;
 		}
 		
-		Question.getInstance().updateQuestionAnswer(questionId, answer);
+		QuestionDB.getInstance().updateQuestionAnswer(questionId, answer);
 		
 		return true;
 	}
 	
 	public String getQuestion(String prompt) {
-		int questionId = Question.getInstance().getQuestionId(prompt);
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
 		
-		HashMap<String, String> question = Question.getInstance().getQuestion(questionId);
-		ArrayList<String> wrongAnswers = WrongAnswer.getInstance().getWrongAnswers(questionId);
-		if (question == null || question.isEmpty()) {
+		questions.Question question = QuestionDB.getInstance().getQuestion(questionId);
+		if (question == null) {
 			return "{}";
 		}
-		
-		questions.Question q = new questions.Question(question.get("Prompt"), question.get("Correct Answer"), wrongAnswers);
-		
+				
 		ArrayList<questions.Question>que = new ArrayList<>();
-		que.add(q);
+		que.add(question);
 		
 		return formatQuestionsAsJson(que);
 	}
@@ -225,7 +215,7 @@ public class Database {
 	public Boolean updateWrongAnswer(String prompt, String wrongAnswer, int answerId) {
 		int questionId = -1;
 		
-		questionId = Question.getInstance().getQuestionId(prompt);
+		questionId = QuestionDB.getInstance().getQuestionId(prompt);
 		
 		if (answerId == -1) {
 			return false;
@@ -236,6 +226,10 @@ public class Database {
 		WrongAnswer.getInstance().updateWrongAnswer(answerId, wrongAnswer, questionId);
 		
 		return true;
+	}
+	
+	public String getTaskDesc(String taskLetter) {
+		return TaskList.getInstance().getTask(taskLetter);
 	}
 	
 	public String escapeQuote(String input) {
@@ -259,7 +253,18 @@ public class Database {
 					wrongAnswers.add(element.asText());
 				}
 				
+				String justification = jsonNodeRoot.get(i).get("Justification").asText();
+				String taskLetter = jsonNodeRoot.get(i).get("Task Letter").asText();
+				boolean hasImage = jsonNodeRoot.get(i).get("Has Image").asBoolean();
+				String image = jsonNodeRoot.get(i).get("Image").asText();
+				
 				questions.Question q = new questions.Question(prompt, correctAnswer, wrongAnswers);
+				
+				q.setJustification(justification);
+				q.setTaskLetter(taskLetter);
+				if (hasImage) {
+					q.setImage(image);
+				}
 				
 				allQuestions.add(q);
 			}

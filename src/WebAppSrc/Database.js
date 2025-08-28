@@ -327,7 +327,8 @@ export async function uploadFile(formData){
 		});
 
 		if (!resp.ok){
-			console.log(resp);
+			console.log(resp.body);
+			return null;
 		}
 
 		let json = await resp.text();

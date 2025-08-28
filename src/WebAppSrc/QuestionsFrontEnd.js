@@ -36,10 +36,10 @@ export function AddQuestions(){
         formData.append("PDF", file);
         questionsFromFile = await uploadFile(formData);
 
-        if (questionsFromFile === undefined){
-            alert("Unsupported file type.")
-        }else{
+        if (questionsFromFile !== null){
             router.navigate('Verify')
+        }else{
+            alert("Unsupported file type. Must be a pdf file.");
         }
     }
 

@@ -113,6 +113,11 @@ export async function addQuestions(prompts, correctAnswers, wrongAnswers){
 				questions += ',"' + wrongAnswerSet[j] + '"';
 			}
 		}
+		questions += ', "Justification":""';
+		questions += ', "Task Letter": ""';
+		questions += ', "Has Image": false';
+		questions += ', "Image": ""';
+
 		if (i === numQuestions - 1){
 			questions += '}';
 		}else{
