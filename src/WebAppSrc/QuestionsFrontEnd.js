@@ -78,6 +78,11 @@ export function AddQuestions(){
                     <input type="text" id="taskLetter" name="taskLetter"/>
                 </label>
                 <br/>
+                <label>
+                    Image Upload:
+                    <input type="file" id="image" name="image"/>
+                </label>
+                <br/>
                 <input type="submit" value="Submit"/>
             </div>
         </Form>
@@ -92,6 +97,18 @@ export function AddQuestions(){
 }
 
 export async function QuestionsSubmittedPage(formData){
+    const readFile = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            //.replace('data:', '').replace(/^.+,/, '')
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+
+            reader.readAsDataURL(file);
+        });
+    };
+
     let prompts = [];
     let wrongAnswers = [];
     let correctAnswers = [];
@@ -103,6 +120,7 @@ export async function QuestionsSubmittedPage(formData){
     let wrongAnswer3 = formData.get("wrongAnswer3").trim();
     let taskLetter = formData.get("taskLetter").trim();
     let description = formData.get("description").trim();
+    let image = formData.get("image");
 
     if (prompt === "" || correctAnswer === "" || wrongAnswer1 === "" ||
         wrongAnswer2 === "" || wrongAnswer3 === ""
@@ -121,6 +139,17 @@ export async function QuestionsSubmittedPage(formData){
     question.setJustification(description);
     question.setTaskLetter(taskLetter);
 
+    const reader = new FileReader();
+    let fileData = await readFile(image);
+
+    let typeOfPhoto = fileData.substring(0, fileData.indexOf(";base64"));
+    fileData = fileData.replace('data:', '').replace(/^.+,/, '');
+
+    if (fileData !== ""){
+        typeOfPhoto = typeOfPhoto.split("data:image/")[1];
+        question.setImage(fileData, typeOfPhoto);
+    }
+
     let ques = [];
     ques.push(question);
 
@@ -135,21 +164,24 @@ export function VerifyQuestions(){
         let prompts = [];
         let answers = [];
         let wrongAnswers = [];
+        let que = [];
 
         for (let i = 0; i < questionToEdit.length; i++){
-            prompts.push(questionToEdit[i].getQuestion());
-            answers.push(questionToEdit[i].getCorrectAnswer());
+            let question = new db.question();
+            question.setQuestion(questionToEdit[i].getQuestion());
+            question.setCorrectAnswer(questionToEdit[i].getCorrectAnswer());
 
             let wrongLen = questionToEdit[i].getWrongAnswers().length;
 
             let temp = [];
             for (let j = 0; j < wrongLen; j++){
-                temp.push(questionToEdit[i].getWrongAnswers()[j]);
+                question.addWrongAnswer(questionToEdit[i].getWrongAnswers()[j]);
             }
-            wrongAnswers.push(temp);
+
+            que.push(question);
         }
 
-        await questions.addQuestions(prompts, answers, wrongAnswers);
+        await questions.addQuestions(que);
         alert("Successfully added questions.");
         router.navigate('/MainPage/Questions');
     }
@@ -302,8 +334,14 @@ function showQuestions(data, isAll = true){
 
     let numQuestions = data.length;
 
+    let images = [];
+
     for (let i = 0; i < numQuestions; i++){
         questionPrompts.push(data[i].getQuestion());
+
+        if (data[i].getHasImage()){
+            images.push(data[i].getImage());
+        }
     }
 
     return (<div>
@@ -311,6 +349,9 @@ function showQuestions(data, isAll = true){
             <li style={{border: '1px solid black', padding: '8px'}}>{index + 1}: {item}<br/>
             <button className="Edit" onClick={(e) => handleClick(e, item, index)}>Edit</button>
             <button className='Delete' onClick={(e) => handleClick(e, item, index)}>Delete</button></li>
+        ))}
+        {images.map((item, index) => (
+            <li>{index + 1}: <img src={item} alt="Fetched from API"/></li>
         ))}
     </div>);
 }

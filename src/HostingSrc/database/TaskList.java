@@ -8,8 +8,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class TaskList {
-	private static String user = "mrjackedupbear";
-	private static String pass = "TempPass";
+	private static String user = System.getenv("DB_USER");
+	private static String pass = System.getenv("DB_PASSWORD");
 	private static String DB_URL = "jdbc:mariadb://localhost:3306/DTT_APP";
 	
 	private static String createQuestion = "CREATE TABLE IF NOT EXISTS TaskList (TaskLetter CHAR(2) NOT NULL PRIMARY KEY, Description TEXT NOT NULL);";

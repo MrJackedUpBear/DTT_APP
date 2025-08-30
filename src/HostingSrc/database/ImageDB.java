@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImageDB {
-	private static String user = "mrjackedupbear";
-	private static String pass = "TempPass";
+	private static String user = System.getenv("DB_USER");
+	private static String pass = System.getenv("DB_PASSWORD");
 	private static String DB_URL = "jdbc:mariadb://localhost:3306/DTT_APP";
 	
 	private static String createQuestion = "CREATE TABLE IF NOT EXISTS Image (ImageId INT NOT NULL AUTO_INCREMENT, ImageLoc TEXT NOT NULL, QuestionId INT NOT NULL, PRIMARY KEY(ImageId));";
@@ -74,6 +74,30 @@ public class ImageDB {
         }
         return null;
     }
+    
+    public Image getImage(String imageLoc) {
+        String sql = "SELECT * FROM Image WHERE ImageLoc LIKE ?";
+        
+        
+        
+        try (Connection conn = connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, "%" + imageLoc + "%");
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new Image(
+                    rs.getInt("ImageId"),
+                    rs.getString("ImageLoc"),
+                    rs.getInt("QuestionId")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     // READ ALL
     public List<Image> getAllImages() {
@@ -113,7 +137,7 @@ public class ImageDB {
 
     // DELETE
     public void deleteImage(int id) {
-        String sql = "DELETE FROM Image WHERE ImageId = ?";
+        String sql = "DELETE FROM Image WHERE QuestionId = ?";
         try (Connection conn = connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 

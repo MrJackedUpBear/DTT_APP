@@ -110,8 +110,9 @@ export async function addQuestions(question){
 		}
 		questions += ', "Justification":"' + question[i].getJustification() + '"';
 		questions += ', "Task Letter": "' + question[i].getTaskLetter() + '"';
-		questions += ', "Has Image": false';
-		questions += ', "Image": ""';
+		questions += ', "Has Image": ' + question[i].getHasImage();
+		questions += ', "Image": "' + question[i].getImage() + '"';
+		questions += ', "Image Type": "' + question[i].getImageType() + '"';
 
 		if (i === numQuestions - 1){
 			questions += '}';

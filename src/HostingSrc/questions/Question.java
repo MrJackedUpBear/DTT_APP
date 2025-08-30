@@ -11,6 +11,7 @@ public class Question {
     private String taskLetter;
     private String taskLetterDesc;
     private boolean hasImage;
+    private String imageType;
     
     public Question() {
     	prompt = "";
@@ -21,6 +22,7 @@ public class Question {
     	taskLetter = "";
     	hasImage = false;
     	taskLetterDesc = "";
+    	imageType = "";
     }
     
     public Question(String prompt, String correctAnswer, ArrayList<String> wrongAnswers){
@@ -37,8 +39,12 @@ public class Question {
         this.taskLetter = taskLetter;
     }
     
-    public boolean hasImage() {
+    public boolean getHasImage() {
     	return hasImage;
+    }
+    
+    public String getImageType() {
+    	return imageType;
     }
     
    public String getTaskLetterDesc() {
@@ -77,8 +83,9 @@ public class Question {
     	this.taskLetterDesc = taskLetterDesc;
     }
     
-    public void setImage(String image) {
+    public void setImage(String image, String imageType) {
     	this.image = image;
+    	this.imageType = imageType;
     	hasImage = true;
     }
     

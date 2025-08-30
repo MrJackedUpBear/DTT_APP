@@ -11,8 +11,8 @@ import java.sql.ResultSet;
 import questions.Question;
 
 public class QuestionDB {
-	private static String user = "mrjackedupbear";
-	private static String pass = "TempPass";
+	private static String user = System.getenv("DB_USER");
+	private static String pass = System.getenv("DB_PASSWORD");
 	private static String DB_URL = "jdbc:mariadb://localhost:3306/DTT_APP";
 	
 	private static String createQuestion = "CREATE TABLE IF NOT EXISTS Question (QuestionId INT NOT NULL AUTO_INCREMENT, Prompt TEXT UNIQUE, CorrectAnswer TEXT, Justification TEXT, TaskLetter CHAR(4), HasImage TINYINT(1) NOT NULL, PRIMARY KEY(QuestionId));";
@@ -67,8 +67,8 @@ public class QuestionDB {
 		
 		if (hasImage) {
 			Image image = ImageDB.getInstance().getImage(id);
-			String img = image.convertImageFileToString();
-			question.setImage(img);
+			String img = image.getImageLoc().substring(image.getImageLoc().lastIndexOf("\\") + 1);
+			question.setImage(img, img.substring(img.lastIndexOf(".") + 1));
 		}
 		
 		if (taskLetter != null) {

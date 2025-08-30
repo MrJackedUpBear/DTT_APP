@@ -1,11 +1,11 @@
 package mail;
 
 public class Config {
-	final String host = "smtp.gmail.com";
-	final String port = "587";
-	final String recipient = "jwtaylor771@proton.me";
-	final String sender = "jwtaylorjo772@gmail.com";
-	final String password = "yoqp xzzj bnkp ajzo";
+	final String host = System.getenv("EMAIL_HOST");
+	final String port = System.getenv("EMAIL_PORT");
+	final String recipient = System.getenv("EMAIL_RECIPIENT");
+	final String sender = System.getenv("EMAIL_SENDER");
+	final String password = System.getenv("EMAIL_PASSWORD");
 	
 	public String getHost() {
 		return host;

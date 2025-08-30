@@ -9,8 +9,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 public class WrongAnswer {
-	private static String user = "mrjackedupbear";
-	private static String pass = "TempPass";
+	private static String user = System.getenv("DB_USER");
+	private static String pass = System.getenv("DB_PASSWORD");
 	private static String DB_URL = "jdbc:mariadb://localhost:3306/DTT_APP";
 	
 	private static String createQuestion = "CREATE TABLE IF NOT EXISTS WrongAnswer (AnswerId INT, Answer TEXT, QuestionId INT, PRIMARY KEY (AnswerId, QuestionId));";

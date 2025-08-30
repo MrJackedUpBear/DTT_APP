@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from "react";
+
 //Creates an user class that can be used to handle multiple users in the database
 class user{
 	constructor(fName, lName, uName, mail, sett, perm){
@@ -42,6 +44,25 @@ export class question{
 		this.wrongAnswers = [];
 		this.taskLetter = "";
 		this.justification = "";
+		this.image = "";
+		this.hasImage = false;
+		this.imageType = "";
+	}
+
+	getImageType(){
+		return this.imageType;
+	}
+
+	getHasImage(){
+		return this.hasImage;
+	}
+
+	getImage(){
+		if (this.hasImage){
+			return this.image;
+		}else{
+			return "";
+		}
 	}
 
 	getJustification(){
@@ -62,6 +83,12 @@ export class question{
 
 	getWrongAnswers(){
 		return this.wrongAnswers;
+	}
+
+	setImage(image, imageType){
+		this.image = image;
+		this.imageType = imageType;
+		this.hasImage = true;
 	}
 
 	setJustification(justification){
@@ -103,6 +130,7 @@ const updateQuestionPromptURL = "UpdateQuestionPrompt";
 const updateCorrectAnswerURL = "UpdateQuestionAnswer";
 const updateWrongAnswerURL = "UpdateWrongAnswer";
 const fileUploadURL = "ReadPDF";
+const getImagesURL = "Image";
 
 const addQuestionsURL = "AddQuestions";
 
@@ -203,7 +231,7 @@ export async function getQuestions(numQuest){
 		//questionSet = parseQuestions(JSON, numQuest);
 		Json = await JSON.parse(Json);
 
-		questionSet = parseQuestions(Json, numQuest);
+		questionSet = await parseQuestions(Json, numQuest);
 		return questionSet;
 	}catch{
 		alert("Error connecting to database.");
@@ -253,7 +281,7 @@ export async function getQuestionsFrom(start, end){
 		Json = await JSON.parse(Json);
 
 		let numQuest = end - start;
-		questionSet = parseQuestions(Json, numQuest);
+		questionSet = await parseQuestions(Json, numQuest);
 
 		return questionSet;
 
@@ -359,7 +387,29 @@ export async function uploadFile(formData){
 	}
 }
 
-function parseQuestions(jsonInput, numQuest){
+export async function getImage(imageName){
+	const params = new URLSearchParams();
+	params.append("ImageName", imageName);
+
+	try{
+		const resp = await fetch (baseURL + getImagesURL + "?" + params);
+
+		if (!resp.ok){
+			console.error("Error fetching...");
+			return;
+		}
+
+		const blob = await resp.blob();
+
+		const image = URL.createObjectURL(blob);
+
+		return image;
+	}catch (e){
+		console.error("Error: ", e);
+	}
+}
+
+async function parseQuestions(jsonInput, numQuest){
 	let questionSet = [];
 
 	for (let i = 0; i < numQuest; i++){
@@ -375,6 +425,10 @@ function parseQuestions(jsonInput, numQuest){
 		}
 
 		q.setJustification(jsonInput["Questions"][i]["justification"]);
+		if (jsonInput["Questions"][i]["hasImage"] === true){
+			let image = await getImage(jsonInput["Questions"][i]["image"]);
+			q.setImage(image, jsonInput["Questions"][i]["imageType"]);
+		}
 
 		questionSet.push(q);
 	}

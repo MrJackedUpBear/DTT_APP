@@ -1,6 +1,10 @@
 package database;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,6 +33,12 @@ public class Database {
 		
 		String json = "{\"Question Total\":\"" + totalQuestions + "\"}";
 		return json;
+	}
+	
+	public Image getImage(String imageLoc) {
+		Image img = ImageDB.getInstance().getImage(imageLoc);
+		
+		return img;
 	}
 	
 	//This function accesses the question and wrong answer table to get complete questions. First it checks how many questions are in the database, then it
@@ -89,7 +99,7 @@ public class Database {
 		return json;
 	}
 	
-	public Boolean addQuestions(String questionsJson) {
+	public Boolean addQuestions(String questionsJson, String fileUpload) {
 		ArrayList<questions.Question> allQuestions = getQuestionsFromJson(questionsJson);
 		String prompt = "";
 		String correctAnswer = "";
@@ -104,16 +114,16 @@ public class Database {
 			wrongAnswers = question.getWrongAnswers();
 			justification = question.getJustification();
 			taskLetter = question.getTaskLetter();
-			hasImage = question.hasImage();
+			hasImage = question.getHasImage();
 			
 			if (!prompt.isEmpty() && !correctAnswer.isEmpty() && !wrongAnswers.isEmpty()) {
-				addQuestion(prompt, correctAnswer, wrongAnswers, justification, taskLetter, hasImage);
+				addQuestion(prompt, correctAnswer, wrongAnswers, justification, taskLetter, hasImage, fileUpload, question.getImage(), question.getImageType());
 			}
 		}
 		return true;
 	}
 	
-	public void addQuestion(String prompt, String correctAnswer, ArrayList<String> wrongAnswers, String justification, String taskLetter, boolean hasImage) {
+	public void addQuestion(String prompt, String correctAnswer, ArrayList<String> wrongAnswers, String justification, String taskLetter, boolean hasImage, String fileUpload, String imageInfo, String imageType) {
 		QuestionDB.getInstance().createQuestion(prompt, correctAnswer, justification, taskLetter, hasImage);
 		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
 		
@@ -122,6 +132,29 @@ public class Database {
 		}
 		
 		addWrongAnswers(wrongAnswers, questionId);
+		
+		if (hasImage) {
+			Image img = new Image();
+			img.setImageLoc("temp");
+			img.setQuestionId(questionId);
+			ImageDB.getInstance().addImage(img);
+			img = ImageDB.getInstance().getImage(questionId);
+			
+			fileUpload += String.valueOf("ImageID - " + img.getImageId()) + ", QuestionID - " + String.valueOf(img.getQuestionId()) + "." + imageType;
+			System.out.println(fileUpload);
+			img.setImageLoc(fileUpload);
+			ImageDB.getInstance().updateImage(img);
+			
+			try {
+				byte[] decodedBytes = Base64.getDecoder().decode(imageInfo);
+				
+				Files.write(Paths.get(fileUpload), decodedBytes);
+				
+				System.out.println("Image file created successfully at: " + fileUpload);
+			}catch(IOException e) {
+				System.out.println("Error: " + e.getMessage());
+			}
+		}
 	}
 	
 	public Boolean deleteQuestion(String prompt) {
@@ -129,6 +162,18 @@ public class Database {
 		
 		if (questionId == -1) {
 			return false;
+		}
+		
+		questions.Question q = QuestionDB.getInstance().getQuestion(questionId);
+		
+		if (q.getHasImage()) {
+			try {
+				Files.delete(Paths.get(ImageDB.getInstance().getImage(questionId).getImageLoc()));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			ImageDB.getInstance().deleteImage(questionId);
 		}
 		
 		QuestionDB.getInstance().deleteQuestion(questionId);
@@ -257,13 +302,14 @@ public class Database {
 				String taskLetter = jsonNodeRoot.get("Questions").get(i).get("Task Letter").asText();
 				boolean hasImage = jsonNodeRoot.get("Questions").get(i).get("Has Image").asBoolean();
 				String image = jsonNodeRoot.get("Questions").get(i).get("Image").asText();
+				String imageType = jsonNodeRoot.get("Questions").get(i).get("Image Type").asText();
 				
 				questions.Question q = new questions.Question(prompt, correctAnswer, wrongAnswers);
 				
 				q.setJustification(justification);
 				q.setTaskLetter(taskLetter);
 				if (hasImage) {
-					q.setImage(image);
+					q.setImage(image, imageType);
 				}
 				
 				allQuestions.add(q);

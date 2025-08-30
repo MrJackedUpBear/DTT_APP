@@ -1,6 +1,7 @@
 package servlet;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,6 +10,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -16,11 +19,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Properties;
+
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import database.Database;
 import mail.Mail;
 import questions.QuestionGenerator;
 import questions.Question;
+import database.Image;
 
 
 /**
@@ -85,7 +96,34 @@ public class QuizServlet extends HttpServlet {
 			int end = Integer.parseInt(temp2);
 			
 			response.getWriter().print(Database.getInstance().getQuestionsFrom(start, end));
-		}else {
+		}else if (infoRequest.equals("Image")) {
+			String imageName = request.getParameter("ImageName");
+			
+			Image image = Database.getInstance().getImage(imageName);
+			
+			if (image == null) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+			
+			String file = image.getImageLoc();
+			
+			File imageFile = new File(file);
+			
+			String typeOfImage = file.substring(file.lastIndexOf('.') + 1);
+			
+			response.setContentType("image/" + typeOfImage);
+			
+			try (FileInputStream fis = new FileInputStream(imageFile);
+				ServletOutputStream os = response.getOutputStream()){
+				byte[] buffer = new byte[1024];
+				int bytesRead;
+				while ((bytesRead = fis.read(buffer)) != -1) {
+					os.write(buffer, 0, bytesRead);
+				}
+			}
+		}
+		else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
@@ -116,13 +154,23 @@ public class QuizServlet extends HttpServlet {
 				return;
 			}
 			
+			String pathUpload = System.getenv("UPLOAD_LOCATION");
+			
 			if (!questionJson.contains("Prompt")|| !questionJson.contains("Correct Answer") || 
 					!questionJson.contains("Wrong Answers") || !questionJson.contains("Questions")){
 				response.sendError(HttpServletResponse.SC_UNPROCESSABLE_CONTENT);
 				return;
 			}
+			
+			if (pathUpload == null) {
+				System.out.println("You have not sent the environment variable UPLOAD_LOCATION. Please do so to continue");
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				return;
+			}
+			
+			pathUpload += "\\";
 						
-			if (!Database.getInstance().addQuestions(questionJson)) {
+			if (!Database.getInstance().addQuestions(questionJson, pathUpload)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
