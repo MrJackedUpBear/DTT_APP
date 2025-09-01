@@ -178,6 +178,8 @@ function ShowCurrentQuestion(){
         <View style={{justifyContent: 'center', alignItems: 'center', flexShrink: 1}}> 
           <Text style={{flex: 1, flexWrap: 'wrap', fontSize: 30, flexShrink: 1}}> 
             {data.getQuestion()}
+            <br/>
+            <img src={data.getImage()} alt="Image"/>
             {Countdown()}
           </Text>
         </View>

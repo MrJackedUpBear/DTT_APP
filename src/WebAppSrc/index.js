@@ -47,22 +47,6 @@ import * as settings from './Settings';
       element:<qfend.Back/>
     },
     {
-      path: 'MainPage/Questions/Edit',
-      element:<qfend.Edit/>
-    },
-    {
-      path: 'MainPage/Questions/Edit/Prompt',
-      element:<qfend.EditPrompt/>
-    },
-    {
-      path: 'MainPage/Questions/Edit/CorrectAnswer',
-      element:<qfend.EditCorrectAnswer/>
-    },
-    {
-      path: 'MainPage/Questions/Edit/WrongAnswers',
-      element:<qfend.EditWrongAnswers/>
-    },
-    {
       path:'Suggestions',
       element:<suggestions.Suggestions/>
     },
@@ -73,22 +57,6 @@ import * as settings from './Settings';
     {
       path:'MainPage/Questions/Add/Verify',
       element:<qfend.VerifyQuestions/>
-    },
-    {
-      path:'MainPage/Questions/Add/Verify/Edit',
-      element:<qfend.Edit/>
-    },
-    {
-      path:'MainPage/Questions/Add/Verify/Edit/Prompt',
-      element:<qfend.EditPrompt/>
-    },
-    {
-      path:'MainPage/Questions/Add/Verify/Edit/CorrectAnswer',
-      element:<qfend.EditCorrectAnswer/>
-    },
-    {
-      path:'MainPage/Questions/Add/Verify/Edit/WrongAnswers',
-      element:<qfend.EditWrongAnswers/>
     },
     {
       path:'MainPage/Questions/Add/Verify/Back',

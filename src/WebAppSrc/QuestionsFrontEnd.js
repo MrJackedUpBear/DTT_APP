@@ -6,7 +6,7 @@ import { Text, View } from 'react-native';
 import * as db from './Database.js';
 
 let page = 1;
-let numOnPage = 100;
+let numOnPage = 15;
 let end = 0;
 let start = 0;
 let questionPrompt = "";
@@ -298,6 +298,30 @@ function LoadQuestions(){
 
         fetchData();
     }, []);
+
+    questionsFromFile = undefined;
+    allQuestions = data;
+    questionToEdit = allQuestions;
+
+    let questionPrompts = [];
+    const handleClick = (event, prompt, index) => {
+        const className = event.target.className;
+
+        setQuestionPrompt(className, prompt, index);
+    }
+
+    let numQuestions = data.length;
+
+    let images = [];
+
+    for (let i = 0; i < numQuestions; i++){
+        questionPrompts.push(data[i].getQuestion());
+
+        if (data[i].getHasImage()){
+            images.push(data[i].getImage());
+        }
+    }
+
     
     //getCurrentQuestion();
     return (<h1>
@@ -305,9 +329,56 @@ function LoadQuestions(){
         {error && <p>Error: {error.message}</p>}
         {data && (
         <div>
+            Total Questions: {qTotal}
         <View style={{justifyContent: 'center', alignItems: 'center', flexShrink: 1}}> 
             <Text style={{flex: 1, flexWrap: 'wrap', fontSize: 20, flexShrink: 1}}> 
-            {showQuestions(data, true)}
+            <div>
+                {data.map((item, index) =>(
+                    <li style={{border: '1px solid black', padding: '8px'}}>
+                    <div className="taskLetter">
+                        <h3>Task Letter:</h3>
+                        {item.getTaskLetter()} - {item.getTaskLetterDesc()} {' '}
+                        <br/>
+                        <button className="editTaskLetter" onClick={handleClick}>Edit Task Letter</button>
+                    </div>
+                    <div className="prompt">
+                        <h3>Prompt:</h3>
+                        {item.getQuestion()} {' '}
+                        <br/>
+                        <button className="editPrompt" onClick={handleClick}>Edit Prompt</button>
+                    </div>
+                    <div className="wrongAnswers">
+                        <h3>Wrong Answers:</h3>
+                        {item.getWrongAnswers().map((wrongAnswer, wrongAnswerIndex) => (
+                            <div>{wrongAnswerIndex + 1}: {' '} {wrongAnswer}
+                                <br/>
+                                <button className="editWrongAnswer" onClick={handleClick}>Edit Wrong Answer {wrongAnswerIndex + 1}</button>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="correctAnswer">
+                        <h3>Correct Answer:</h3>
+                        {item.getCorrectAnswer()}
+                        <br/>
+                        <button className="editCorrectAnswer" onClick={handleClick}>Edit Correct Answer</button>
+                    </div>
+                    <div className="justification">
+                        <h3>Justification:</h3>
+                        {item.getJustification()}
+                        <br/>
+                        <button className="editJustification" onClick={handleClick}>Edit Justification</button>
+                    </div>
+                    <div className="image">
+                        <h3>Image:</h3>
+                        <img src={item.getImage()}/>
+                        <br/>
+                        <button className="deleteImage" onClick={handleClick}>Delete Image?</button>
+                        <button className="addImage" onClick={handleClick}>Add Image</button>
+                    </div>
+
+                    <button className='Delete' onClick={(e) => handleClick(e, item.getQuestion(), index)}>Delete Question?</button></li>
+                ))}
+            </div>
             </Text>
         </View>
         </div>
@@ -345,13 +416,50 @@ function showQuestions(data, isAll = true){
     }
 
     return (<div>
-        {questionPrompts.map((item, index) =>(
-            <li style={{border: '1px solid black', padding: '8px'}}>{index + 1}: {item}<br/>
-            <button className="Edit" onClick={(e) => handleClick(e, item, index)}>Edit</button>
-            <button className='Delete' onClick={(e) => handleClick(e, item, index)}>Delete</button></li>
-        ))}
-        {images.map((item, index) => (
-            <li>{index + 1}: <img src={item} alt="Fetched from API"/></li>
+        {data.map((item, index) =>(
+            <li style={{border: '1px solid black', padding: '8px'}}>
+            <div className="taskLetter">
+                <h3>Task Letter:</h3>
+                {item.getTaskLetter()} - {item.getTaskLetterDesc()} {' '}
+                <br/>
+                <button className="editTaskLetter" onClick={handleClick}>Edit Task Letter</button>
+            </div>
+            <div className="prompt">
+                <h3>Prompt:</h3>
+                {item.getQuestion()} {' '}
+                <br/>
+                <button className="editPrompt" onClick={handleClick}>Edit Prompt</button>
+            </div>
+            <div className="wrongAnswers">
+                <h3>Wrong Answers:</h3>
+                {item.getWrongAnswers().map((wrongAnswer, wrongAnswerIndex) => (
+                    <div>{wrongAnswerIndex + 1}: {' '} {wrongAnswer}
+                        <br/>
+                        <button className="editWrongAnswer" onClick={handleClick}>Edit Wrong Answer {wrongAnswerIndex + 1}</button>
+                    </div>
+                ))}
+            </div>
+            <div className="correctAnswer">
+                <h3>Correct Answer:</h3>
+                {item.getCorrectAnswer()}
+                <br/>
+                <button className="editCorrectAnswer" onClick={handleClick}>Edit Correct Answer</button>
+            </div>
+            <div className="justification">
+                <h3>Justification:</h3>
+                {item.getJustification()}
+                <br/>
+                <button className="editJustification" onClick={handleClick}>Edit Justification</button>
+            </div>
+            <div className="image">
+                <h3>Image:</h3>
+                <img src={item.getImage()}/>
+                <br/>
+                <button className="deleteImage" onClick={handleClick}>Delete Image?</button>
+                <button className="addImage" onClick={handleClick}>Add Image</button>
+            </div>
+
+            <button className='Delete' onClick={(e) => handleClick(e, item.getQuestion(), index)}>Delete Question?</button></li>
         ))}
     </div>);
 }
@@ -360,9 +468,7 @@ async function setQuestionPrompt(className, prompt, index){
     questionPrompt = prompt;
     questionNum = index;
 
-    if (className === 'Edit'){
-        router.navigate('Edit');
-    }else if (className === 'Delete'){
+    if (className === 'Delete'){
         let confirmation = window.confirm("Are you sure you want to delete: \"" + prompt + "\"?");
 
         if (!confirmation){
@@ -377,9 +483,11 @@ async function setQuestionPrompt(className, prompt, index){
         alert("Successfully deleted: " + prompt);
         page++;
         router.navigate('Back');
+    }else if (className === 'editTaskLetter'){
+
     }
     else{
-        router.navigate('/MainPage/Questions/Update');
+        alert("Button doesn't work yet.");
     }
 }
 
@@ -395,128 +503,12 @@ async function deleteFromFile(prompt){
     questionToEdit = temp;
 }
 
-export function Edit(){
-    let wrongAnswers = questionToEdit[questionNum].getWrongAnswers();
-    return (<div>
-        <header className="App-header">
-            <button onClick={() => router.navigate("/")}>Home</button>
-            <button onClick={() => router.navigate(-1)}>Back</button>
-            {questionPrompt}
-        </header>
-        <button onClick={() => router.navigate('Prompt')}>Edit Prompt</button>: "{questionToEdit[questionNum].getQuestion()}" <br/>
-        <button onClick={() => router.navigate('CorrectAnswer')}>Edit Correct Answer</button>: "{questionToEdit[questionNum].getCorrectAnswer()}" <br />
-        <button onClick={() => router.navigate('WrongAnswers')}>Edit Wrong Answers</button>: {wrongAnswers.map((item, index) =>
-            <div key={index}>"{item}"</div>
-        )}
-    </div>);
-}
-
-export function EditPrompt(){
-    const handleSubmit = async (event) => {
-        const formData = new FormData(event.target);
-
-        let newPrompt = formData.get('newPrompt').trim();
-        let oldPrompt = questionToEdit[questionNum].getQuestion();
-
-        if (allQuestions !== undefined){
-            await questions.updatePrompt(oldPrompt, newPrompt);
-            router.navigate('/MainPage/Questions/Update');
-        }else{
-            await updatePrompt(newPrompt);
-            router.navigate('/MainPage/Questions/Add/Verify');
-        }
-    }
-
-    return (<div>
-        <button onClick={() => router.navigate("/MainPage")}>Home</button>
-        <button onClick={() => router.navigate(-1)}>Back</button>
-        <Form onSubmit={handleSubmit}>
-            <label>Enter new prompt: </label>
-            <input type='text' id='newPrompt' name='newPrompt'/>
-            <input type='submit'/>
-        </Form>
-    </div>);
-}
-
 async function updatePrompt(newPrompt){
     await questionsFromFile[questionNum].setQuestion(newPrompt);
 }
 
-export function EditCorrectAnswer(){
-    const handleSubmit = async (event) => {
-        const formData = new FormData(event.target);
-
-        let newCorrectAnswer = formData.get('newCorrectAnswer').trim();
-        let oldCorrectAnswer = questionToEdit[questionNum].getQuestion();
-
-        if (allQuestions !== undefined){
-            await questions.updateCorrectAnswer(oldCorrectAnswer, newCorrectAnswer);
-            router.navigate('/MainPage/Questions/Add/Verify');
-        }else{
-            await updateCorrectAnswer(newCorrectAnswer);
-            router.navigate('/MainPage/Questions/Add/Verify');
-        }
-    }
-
-    return (<div>
-        <button onClick={() => router.navigate("/MainPage")}>Home</button>
-        <button onClick={() => router.navigate("/MainPage/Questions/Update")}>Back</button>
-        <Form onSubmit={handleSubmit}>
-            <label>Enter new correct answer: </label>
-            <input type='text' id='newCorrectAnswer' name='newCorrectAnswer'/>
-            <input type='submit'/>
-        </Form>
-    </div>);
-}
-
 async function updateCorrectAnswer(newCorrectAnswer){
     await questionToEdit[questionNum].setCorrectAnswer(newCorrectAnswer);
-}
-
-export function EditWrongAnswers(){
-    const handleSubmit = async (event) => {
-        const formData = new FormData(event.target);
-
-        let wrongAnswer = formData.get('newWrongAnswer').trim();
-        let prompt = questionToEdit[questionNum].getQuestion();
-        let questionId = -1;
-
-        let oldWrongAnswer = formData.get('oldWrongAnswer').trim();
-
-        for (let i = 0; i < questionToEdit[questionNum].getWrongAnswers().length; i++){
-            if (oldWrongAnswer === questionToEdit[questionNum].getWrongAnswers()[i]){
-                questionId = i;
-                i = questionToEdit[questionNum].getWrongAnswers().length;
-            }
-        }
-
-        if (questionId === -1){
-            return;
-        }
-
-         if (allQuestions !== undefined){
-            await questions.updateWrongAnswer(prompt, wrongAnswer, questionId);
-            router.navigate('/MainPage/Questions/Update');
-        }else{
-            await updateWrongAnswer(wrongAnswer, questionId);
-            router.navigate('/MainPage/Questions/Add/Verify');
-        }
-    }
-
-    return (<div>
-        <button onClick={() => router.navigate("/MainPage")}>Home</button>
-        <button onClick={() => router.navigate("/MainPage/Questions/Update")}>Back</button>
-        <Form onSubmit={handleSubmit}>
-            <select id='oldWrongAnswer' name='oldWrongAnswer' value={questionToEdit[questionNum].getWrongAnswers[0]}>
-                {questionToEdit[questionNum].getWrongAnswers().map((value, index) => (
-                    <option key={index}>{value}</option>
-                ))}
-            </select>
-            <label>Enter new wrongAnswer: </label>
-            <input type='text' id='newWrongAnswer' name='newWrongAnswer'/>
-            <input type='submit'/>
-        </Form>
-    </div>);
 }
 
 async function updateWrongAnswer(wrongAnswer, questionId){

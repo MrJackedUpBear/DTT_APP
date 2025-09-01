@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -107,7 +109,7 @@ public class Database {
 		String justification = "";
 		String taskLetter = "";
 		boolean hasImage = false;
-		
+				
 		for (questions.Question question : allQuestions) {
 			prompt = question.getPrompt();
 			correctAnswer = question.getCorrectAnswer();;
@@ -116,7 +118,7 @@ public class Database {
 			taskLetter = question.getTaskLetter();
 			hasImage = question.getHasImage();
 			
-			if (!prompt.isEmpty() && !correctAnswer.isEmpty() && !wrongAnswers.isEmpty()) {
+			if (!prompt.isEmpty() && !correctAnswer.isEmpty() && !wrongAnswers.isEmpty() && QuestionDB.getInstance().getQuestionId(prompt) == -1) {
 				addQuestion(prompt, correctAnswer, wrongAnswers, justification, taskLetter, hasImage, fileUpload, question.getImage(), question.getImageType());
 			}
 		}
@@ -285,35 +287,11 @@ public class Database {
 		ArrayList<questions.Question> allQuestions = new ArrayList<>(); 
 		//ArrayList<HashMap<String, String>> questions = new ArrayList<>();
 		
+		questionsJson = questionsJson.substring("{Questions: ".length() + 1, questionsJson.lastIndexOf('}'));
+		
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
-			JsonNode jsonNodeRoot = objectMapper.readTree(questionsJson);
-			for (int i = 0; i < jsonNodeRoot.size(); i++) {
-				String prompt = jsonNodeRoot.get("Questions").get(i).get("Prompt").asText();
-				String correctAnswer = jsonNodeRoot.get("Questions").get(i).get("Correct Answer").asText();
-				
-				ArrayList<String> wrongAnswers = new ArrayList<>();
-				
-				for (JsonNode element : jsonNodeRoot.get("Questions").get(i).get("Wrong Answers")) {
-					wrongAnswers.add(element.asText());
-				}
-				
-				String justification = jsonNodeRoot.get("Questions").get(i).get("Justification").asText();
-				String taskLetter = jsonNodeRoot.get("Questions").get(i).get("Task Letter").asText();
-				boolean hasImage = jsonNodeRoot.get("Questions").get(i).get("Has Image").asBoolean();
-				String image = jsonNodeRoot.get("Questions").get(i).get("Image").asText();
-				String imageType = jsonNodeRoot.get("Questions").get(i).get("Image Type").asText();
-				
-				questions.Question q = new questions.Question(prompt, correctAnswer, wrongAnswers);
-				
-				q.setJustification(justification);
-				q.setTaskLetter(taskLetter);
-				if (hasImage) {
-					q.setImage(image, imageType);
-				}
-				
-				allQuestions.add(q);
-			}
+			allQuestions = objectMapper.readValue(questionsJson, new TypeReference<ArrayList<questions.Question>>() {}); 
 		}catch(Exception e) {
 			System.out.println("Error: " + e.getMessage());
 		}

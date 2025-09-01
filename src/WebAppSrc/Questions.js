@@ -76,12 +76,12 @@ export async function addQuestions(question){
 			question[i].setCorrectAnswer(question[i].getCorrectAnswer().replaceAll('"', '\\"'));
 		}
 		if (question[i].getQuestion().includes('"')){
-			question[i].setCorrectAnswer(question[i].getQuestion().replaceAll('"', '\\"'));
+			question[i].setQuestion(question[i].getQuestion().replaceAll('"', '\\"'));
 		}
 
-		questions += '{"Prompt":"' + question[i].getQuestion() + '",';
-		questions += '"Correct Answer":"' + question[i].getCorrectAnswer() + '",';
-		questions += '"Wrong Answers":[';
+		questions += '{"prompt":"' + question[i].getQuestion() + '",';
+		questions += '"correctAnswer":"' + question[i].getCorrectAnswer() + '",';
+		questions += '"wrongAnswers":[';
 		let wrongAnswerSet = question[i].getWrongAnswers();
 		let numWrongAnswers = wrongAnswerSet.length;
 
@@ -108,11 +108,11 @@ export async function addQuestions(question){
 				questions += ',"' + wrongAnswerSet[j] + '"';
 			}
 		}
-		questions += ', "Justification":"' + question[i].getJustification() + '"';
-		questions += ', "Task Letter": "' + question[i].getTaskLetter() + '"';
-		questions += ', "Has Image": ' + question[i].getHasImage();
-		questions += ', "Image": "' + question[i].getImage() + '"';
-		questions += ', "Image Type": "' + question[i].getImageType() + '"';
+		questions += ', "justification":"' + question[i].getJustification() + '"';
+		questions += ', "taskLetter": "' + question[i].getTaskLetter() + '"';
+		questions += ', "hasImage": ' + question[i].getHasImage();
+		questions += ', "image": "' + question[i].getImage() + '"';
+		questions += ', "imageType": "' + question[i].getImageType() + '"';
 
 		if (i === numQuestions - 1){
 			questions += '}';

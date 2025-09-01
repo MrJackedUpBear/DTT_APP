@@ -19,14 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Properties;
-
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-
 import database.Database;
 import mail.Mail;
 import questions.QuestionGenerator;
@@ -156,8 +148,8 @@ public class QuizServlet extends HttpServlet {
 			
 			String pathUpload = System.getenv("UPLOAD_LOCATION");
 			
-			if (!questionJson.contains("Prompt")|| !questionJson.contains("Correct Answer") || 
-					!questionJson.contains("Wrong Answers") || !questionJson.contains("Questions")){
+			if (!questionJson.contains("prompt")|| !questionJson.contains("correctAnswer") || 
+					!questionJson.contains("wrongAnswers") || !questionJson.contains("Questions")){
 				response.sendError(HttpServletResponse.SC_UNPROCESSABLE_CONTENT);
 				return;
 			}
@@ -169,7 +161,8 @@ public class QuizServlet extends HttpServlet {
 			}
 			
 			pathUpload += "\\";
-						
+			
+			
 			if (!Database.getInstance().addQuestions(questionJson, pathUpload)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;

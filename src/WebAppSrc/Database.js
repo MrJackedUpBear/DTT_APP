@@ -47,6 +47,11 @@ export class question{
 		this.image = "";
 		this.hasImage = false;
 		this.imageType = "";
+		this.taskLetterDesc = "";
+	}
+
+	getTaskLetterDesc(){
+		return this.taskLetterDesc;
 	}
 
 	getImageType(){
@@ -83,6 +88,10 @@ export class question{
 
 	getWrongAnswers(){
 		return this.wrongAnswers;
+	}
+
+	setTaskLetterDesc(taskLetterDesc){
+		this.taskLetterDesc = taskLetterDesc;
 	}
 
 	setImage(image, imageType){
@@ -429,6 +438,8 @@ async function parseQuestions(jsonInput, numQuest){
 			let image = await getImage(jsonInput["Questions"][i]["image"]);
 			q.setImage(image, jsonInput["Questions"][i]["imageType"]);
 		}
+		q.setTaskLetter(jsonInput["Questions"][i]["taskLetter"]);
+		q.setTaskLetterDesc(jsonInput["Questions"][i]["taskLetterDesc"]);
 
 		questionSet.push(q);
 	}

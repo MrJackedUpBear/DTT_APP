@@ -1,5 +1,7 @@
 import router from './index.js';
 import { useState } from 'react';
+import home from './home-svgrepo-com.svg';
+import landingPage from './landing-page-web-design-svgrepo-com.svg'
 
 let totalQuestions = 10;
 let totalTime = 15;
@@ -26,31 +28,40 @@ export function Settings(){
     }
 
     return (<div className="Settings">
-        <button onClick={() => router.navigate("/MainPage")}>Return Home</button>
+        <h1 className="navBar">
+            <div className="landingPage">
+                <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
+            </div>
+            <div className="home">
+                <button onClick={() => router.navigate("/MainPage")}><img src={home} alt="Home"/></button>
+            </div>
+            DTT Quiz App - Settings
+        </h1>
 
-        <h1>DTT Quiz App - Settings</h1>
-        <form onSubmit={handleSubmit}>
-            <label>Number of Questions: </label>
-            <input
-                type="number"
-                value={numQuestions}
-                onChange={handleNumQuestionsChange}
-                name="numQuestions"
-                id="numQuestions"
-            />
-            <br/>
-            Time:
-            <input
-                type="number"
-                value={time}
-                onChange={handleTimeChange}
-                name="time"
-                id="time"    
-            />
+        <div className="settings">
+            <form onSubmit={handleSubmit}>
+                <label className="numQuestionsSetting">Number of Questions: </label>
+                <input
+                    type="number"
+                    value={numQuestions}
+                    onChange={handleNumQuestionsChange}
+                    name="numQuestions"
+                    id="numQuestions"
+                />
                 <br/>
-            <input
-                type="submit" value="Submit"/>
-        </form>
+                <label className="timeSetting">Time: </label>
+                <input
+                    type="number"
+                    value={time}
+                    onChange={handleTimeChange}
+                    name="time"
+                    id="time"    
+                />
+                    <br/>
+                <input
+                    type="submit" value="Apply"/>
+            </form>
+        </div>
     </div>);
 }
 
