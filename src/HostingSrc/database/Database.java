@@ -109,7 +109,8 @@ public class Database {
 		String justification = "";
 		String taskLetter = "";
 		boolean hasImage = false;
-				
+		
+		int i = 0;
 		for (questions.Question question : allQuestions) {
 			prompt = question.getPrompt();
 			correctAnswer = question.getCorrectAnswer();;
@@ -119,13 +120,18 @@ public class Database {
 			hasImage = question.getHasImage();
 			
 			if (!prompt.isEmpty() && !correctAnswer.isEmpty() && !wrongAnswers.isEmpty() && QuestionDB.getInstance().getQuestionId(prompt) == -1) {
-				addQuestion(prompt, correctAnswer, wrongAnswers, justification, taskLetter, hasImage, fileUpload, question.getImage(), question.getImageType());
+				if (hasImage) {
+					addQuestion(prompt, correctAnswer, wrongAnswers, justification, taskLetter, hasImage, fileUpload, question.getImages(i));
+				}else {
+					addQuestion(prompt, correctAnswer, wrongAnswers, justification, taskLetter, hasImage, fileUpload, new ArrayList<Image>());
+				}
 			}
+			i++;
 		}
 		return true;
 	}
 	
-	public void addQuestion(String prompt, String correctAnswer, ArrayList<String> wrongAnswers, String justification, String taskLetter, boolean hasImage, String fileUpload, String imageInfo, String imageType) {
+	public void addQuestion(String prompt, String correctAnswer, ArrayList<String> wrongAnswers, String justification, String taskLetter, boolean hasImage, String fileUpload, ArrayList<Image> images) {
 		QuestionDB.getInstance().createQuestion(prompt, correctAnswer, justification, taskLetter, hasImage);
 		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
 		
@@ -136,25 +142,25 @@ public class Database {
 		addWrongAnswers(wrongAnswers, questionId);
 		
 		if (hasImage) {
-			Image img = new Image();
-			img.setImageLoc("temp");
-			img.setQuestionId(questionId);
-			ImageDB.getInstance().addImage(img);
-			img = ImageDB.getInstance().getImage(questionId);
-			
-			fileUpload += String.valueOf("ImageID - " + img.getImageId()) + ", QuestionID - " + String.valueOf(img.getQuestionId()) + "." + imageType;
-			System.out.println(fileUpload);
-			img.setImageLoc(fileUpload);
-			ImageDB.getInstance().updateImage(img);
-			
-			try {
-				byte[] decodedBytes = Base64.getDecoder().decode(imageInfo);
-				
-				Files.write(Paths.get(fileUpload), decodedBytes);
-				
-				System.out.println("Image file created successfully at: " + fileUpload);
-			}catch(IOException e) {
-				System.out.println("Error: " + e.getMessage());
+			for (Image img : images) {
+				String imageType = img.getImageType();
+				img.setQuestionId(questionId);
+				ImageDB.getInstance().addImage(img);
+				img = ImageDB.getInstance().getImage(questionId);
+				img.setImageType(imageType);
+				fileUpload += String.valueOf("ImageID - " + img.getImageId()) + ", QuestionID - " + String.valueOf(img.getQuestionId()) + "." + img.getImageType();
+								
+				try {
+					byte[] decodedBytes = Base64.getDecoder().decode(img.getImageLoc());
+					
+					Files.write(Paths.get(fileUpload), decodedBytes);
+					
+					System.out.println("Image file created successfully at: " + fileUpload);
+					img.setImageLoc(fileUpload);
+					ImageDB.getInstance().updateImage(img);
+				}catch(IOException e) {
+					System.out.println("Error: " + e.getMessage());
+				}
 			}
 		}
 	}
@@ -192,6 +198,30 @@ public class Database {
 		}
 		
 		QuestionDB.getInstance().updateQuestionPrompt(questionId, prompt);
+		
+		return true;
+	}
+	
+	public Boolean updateQuestionTaskLetter(String prompt, String taskLetter) {
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+		
+		if (questionId == -1) {
+			return false;
+		}
+		
+		QuestionDB.getInstance().updateTaskLetter(questionId, taskLetter);
+		
+		return true;
+	}
+	
+	public Boolean updateQuestionJustification(String prompt, String justification) {
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+		
+		if (questionId == -1) {
+			return false;
+		}
+		
+		QuestionDB.getInstance().updateQuestionJustification(questionId, justification);
 		
 		return true;
 	}

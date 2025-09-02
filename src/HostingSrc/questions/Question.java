@@ -1,6 +1,9 @@
 package questions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import database.Image;
 
 public class Question {
     private String prompt;
@@ -12,6 +15,8 @@ public class Question {
     private String taskLetterDesc;
     private boolean hasImage;
     private String imageType;
+    ArrayList<Image> imgs = new ArrayList<>();
+    ArrayList<HashMap<String, String>> images = new ArrayList<>();
     
     public Question() {
     	prompt = "";
@@ -43,17 +48,33 @@ public class Question {
     	return hasImage;
     }
     
-    public String getImageType() {
-    	return imageType;
+    public String getImageType(int imageId) {
+    	return imgs.get(imageId).getImageType();
     }
     
    public String getTaskLetterDesc() {
 	   return taskLetterDesc;
    }
+   
+   public ArrayList<Image> getImages(){
+	   return imgs;
+   }
+   
+   public ArrayList<Image> getImages(int questionId){
+	   ArrayList<Image> im = new ArrayList<>();
+	   
+	   for (Image img : imgs) {
+		   if (img.getQuestionId() == questionId) {
+			   im.add(img);
+		   }
+	   }
+	   
+	   return im;
+   }
     
-    public String getImage() {
+    public String getImage(int imageId) {
     	if (hasImage) {
-    		return image;
+    		return imgs.get(imageId).getImageLoc();
     	}else {
     		return "";
     	}
@@ -83,10 +104,19 @@ public class Question {
     	this.taskLetterDesc = taskLetterDesc;
     }
     
-    public void setImage(String image, String imageType) {
-    	this.image = image;
-    	this.imageType = imageType;
+    public void addImage(String image, int questionId, String imageType) {
     	hasImage = true;
+    	imgs.add(new Image(image, questionId));
+    	
+    	imgs.get(imgs.size() - 1).setImageType(imageType);
+    }
+    
+    public void setImages(ArrayList<HashMap<String, String>> images) {
+    	this.images = images;
+    	
+    	for (HashMap<String, String> img : images) {    		
+    		imgs.add(new Image(img.get("image"), img.get("imageType")));
+    	}
     }
     
     public void setTaskLetter(String taskLetter) {

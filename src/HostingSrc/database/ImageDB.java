@@ -75,6 +75,30 @@ public class ImageDB {
         return null;
     }
     
+    public ArrayList<Image> getImages(int questionId){
+    	String sql = "SELECT * FROM Image WHERE QuestionId = ?";
+    	
+    	ArrayList<Image> images = new ArrayList<>();
+        try (Connection conn = connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, questionId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                int imageId = rs.getInt("ImageId");
+                String imageLoc = rs.getString("ImageLoc");
+                questionId = rs.getInt("QuestionId");
+                
+                Image img = new Image(imageId, imageLoc, questionId);
+                images.add(img);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return images;
+    }
+    
     public Image getImage(String imageLoc) {
         String sql = "SELECT * FROM Image WHERE ImageLoc LIKE ?";
         

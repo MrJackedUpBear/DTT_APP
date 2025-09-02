@@ -66,9 +66,12 @@ public class QuestionDB {
 		Question question = new Question(prompt, correctAnswer, wrongAnswers);
 		
 		if (hasImage) {
-			Image image = ImageDB.getInstance().getImage(id);
-			String img = image.getImageLoc().substring(image.getImageLoc().lastIndexOf("\\") + 1);
-			question.setImage(img, img.substring(img.lastIndexOf(".") + 1));
+			ArrayList<Image> images = ImageDB.getInstance().getImages(id);
+			
+			for (Image image : images) {
+				String img = image.getImageLoc().substring(image.getImageLoc().lastIndexOf("\\") + 1);
+				question.addImage(img, id, img.substring(img.lastIndexOf(".") + 1));
+			}
 		}
 		
 		if (taskLetter != null) {
@@ -141,6 +144,46 @@ public class QuestionDB {
 				System.out.println("Error deleting");
 			}
 		}catch (SQLException e) {
+			System.out.println("Error establishing connection: " + e.getMessage());
+		}
+	}
+	
+	void updateTaskLetter(int id, String taskLetter) {
+		String sql = "UPDATE Question SET TaskLetter=? WHERE QuestionId=?;";
+		
+		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+				PreparedStatement pstmt = conn.prepareStatement(sql)){
+			pstmt.setString(1,  taskLetter);
+			pstmt.setInt(2, id);
+			
+			int affectedRows = pstmt.executeUpdate();
+			
+			if (affectedRows > 0) {
+				System.out.println("Successfully updated justification.");
+			}else {
+				System.out.println("Error updating justification.");
+			}
+		}catch (SQLException e) {
+			System.out.println("Error establshing connection: " + e.getMessage());
+		}
+	}
+	
+	void updateQuestionJustification(int id, String justification) {
+		String sql = "UPDATE Question SET Justification=? WHERE QuestionId=?;";
+		
+		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+				PreparedStatement pstmt = conn.prepareStatement(sql)){
+			pstmt.setString(1, justification);
+			pstmt.setInt(2, id);
+			
+			int affectedRows = pstmt.executeUpdate();
+			
+			if (affectedRows > 0) {
+				System.out.println("Successfully updated prompt.");
+			}else {
+				System.out.println("Error updating prompt.");
+			}
+		}catch(SQLException e) {
 			System.out.println("Error establishing connection: " + e.getMessage());
 		}
 	}

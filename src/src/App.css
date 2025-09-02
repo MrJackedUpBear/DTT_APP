@@ -1,0 +1,133 @@
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: darkgray;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 40px;
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.correct {
+  background-color:green;
+}
+
+.LandingPage{
+  background-image: url('./test.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 100vh;
+  text-align: center;
+
+  .loginButton{
+    width: 200px;
+    height:50px;
+    size: 100px;
+
+    text-align: center;
+    margin: auto;
+  }
+}
+
+.navBar{
+  background-color: #FFCC8E;
+  text-align: center;
+  color: #1000A5;
+  margin-top: 0;
+  
+  img{
+    width: 30px;
+    height: auto;
+  }
+
+  .settings{
+    float: right;
+    top: 0;
+  }
+
+  .landingPage{
+    float: left;
+  }
+
+  .home{
+    float: left;
+  }
+}
+
+.Settings{
+  text-align: center;
+
+  .settings{
+    background-color: #C8C8C8;
+    width: 75%;
+    margin: auto;
+    padding:5%;
+    border-radius: 10px;
+  }
+
+  .numQuestionsSetting{
+    font:bold;
+    font-size:20px;
+    margin-bottom:60px;
+  }
+
+  .timeSetting{
+    font:bold;
+    font-size:20px;
+    margin-bottom: 500px;
+  }
+}
+
+.MainPage{
+  text-align: center;
+
+  .greeting{
+    background-color: #D9D9D9;
+    width: 400px;
+    margin: auto;
+    margin-bottom: 100px;
+    border-radius: 10px;
+  }
+
+  .takeQuiz{
+    width: 15%;
+    height:50px;
+    margin-bottom: 200px;
+    background-color: #D9D9D9;
+    border-radius: 10px;
+  }
+
+  .editQuestions{
+    width: 15%;
+    height:50px;
+    background-color: #D9D9D9;
+    border-radius:10px;
+  }
+  
+}
+
+.loadQuestions{
+  margin: auto;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.questions{
+  width: 75%;
+  height: auto;
+  margin: auto;
+}
+
+img{
+  width:100%;
+}

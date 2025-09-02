@@ -8,6 +8,7 @@ import java.util.Base64;
 public class Image {
     private int imageId;
     private String imageLoc;
+    private String imageType;
     private int questionId;
 
     public Image(int imageId, String imageLoc, int questionId) {
@@ -21,6 +22,11 @@ public class Image {
         this.questionId = questionId;
     }
     
+    public Image(String imageLoc, String imageType) {
+    	this.imageLoc = imageLoc;
+    	this.imageType = imageType;
+    }
+    
     public Image() {
     	this.imageId = -1;
     	this.imageLoc = "";
@@ -28,6 +34,7 @@ public class Image {
     }
 
     // Getters and Setters
+    public String getImageType() {return imageType;}
     public int getImageId() { return imageId; }
     public String getImageLoc() { return imageLoc; }
     public int getQuestionId() { return questionId; }
@@ -50,6 +57,7 @@ public class Image {
     	return Base64.getEncoder().encodeToString(fileContent);
     }
     
+    public void setImageType(String imageType) {this.imageType = imageType;}
     public void setImageLoc(String imageLoc) { this.imageLoc = imageLoc; }
     public void setQuestionId(int questionId) { this.questionId = questionId; }
 }

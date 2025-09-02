@@ -249,8 +249,8 @@ public class QuizServlet extends HttpServlet {
 			
 			String req = stringRequest.toString();
 			
-			String tempQuestionId = req.split("\"Question Id\":")[1];
-			req = req.split("\"Question Id\":")[0];
+			String tempQuestionId = req.split("\"Answer Id\":")[1];
+			req = req.split("\"Answer Id\":")[0];
 			tempQuestionId = tempQuestionId.replaceAll("}", "");
 			
 			if (!isNum(tempQuestionId)) {
@@ -320,6 +320,60 @@ public class QuizServlet extends HttpServlet {
 				System.out.println("Error: " + e.getMessage());
 				response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
 			}
+		}else if (postRequest.equals("UpdateJustification")) {
+			StringBuilder stringRequest = new StringBuilder();
+			
+			try (BufferedReader reader = request.getReader()){
+				String line = "";
+				
+				while ((line = reader.readLine()) != null) {
+					stringRequest.append(line);
+				}
+			}
+			
+			String promptJustification = stringRequest.toString();
+			
+			promptJustification = promptJustification.split("\"Prompt and Justification\":\\[\"")[1];
+			
+			String prompt = promptJustification.split("\",")[0];
+			String justification = promptJustification.split(",\"")[1];
+			
+			justification = justification.replaceAll("\"\\]\\}", "");
+			
+			if (!Database.getInstance().updateQuestionJustification(prompt, justification)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			}
+		}else if (postRequest.equals("UpdateTaskLetter")) {
+			StringBuilder stringRequest = new StringBuilder();
+			
+			try (BufferedReader reader = request.getReader()){
+				String line = "";
+				
+				while ((line = reader.readLine()) != null) {
+					stringRequest.append(line);
+				}
+			}
+			
+			String promptTaskLetter = stringRequest.toString();
+			
+			promptTaskLetter = promptTaskLetter.split("\"Prompt and Task Letter\":\\[\"")[1];
+			
+			String prompt = promptTaskLetter.split("\",")[0];
+			String taskLetter = promptTaskLetter.split(",\"")[1];
+			
+			taskLetter = taskLetter.replaceAll("\"\\]\\}", "");
+			
+			if (!Database.getInstance().updateQuestionTaskLetter(prompt, taskLetter)){
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			}
+		}else if (postRequest.equals("DeleteWrongAnswer")) {
+			
+		}else if (postRequest.equals("AddWrongAnswer")) {
+			
+		}else if (postRequest.equals("AddImage")) {
+			
+		}else if (postRequest.equals("DeleteImage")) {
+			
 		}
 		else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
