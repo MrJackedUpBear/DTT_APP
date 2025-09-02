@@ -114,9 +114,18 @@
   
 }
 
+.loadQuestions{
+  margin: auto;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+}
+
 .questions{
-  width: 70%;
+  width: 75%;
   height: auto;
+  margin: auto;
 }
 
 img{

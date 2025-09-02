@@ -111,8 +111,10 @@ export async function addQuestions(question){
 		questions += ', "justification":"' + question[i].getJustification() + '"';
 		questions += ', "taskLetter": "' + question[i].getTaskLetter() + '"';
 		questions += ', "hasImage": ' + question[i].getHasImage();
-		questions += ', "image": "' + question[i].getImage() + '"';
+		questions += ', "images": [';
+		questions += '{"image": "' +  question[i].getImage() + '"';
 		questions += ', "imageType": "' + question[i].getImageType() + '"';
+		questions += '}]';
 
 		if (i === numQuestions - 1){
 			questions += '}';
@@ -137,13 +139,13 @@ export async function deleteQuestion(prompt){
 }
 
 export async function updatePrompt(oldPrompt, newPrompt){
-	await db.updatePrompt(oldPrompt, newPrompt);
+	return await db.updatePrompt(oldPrompt, newPrompt);
 }
 
-export async function updateCorrectAnswer(oldCorrectAnswer, newCorrectAnswer){
-	await db.updateCorrectAnswer(oldCorrectAnswer, newCorrectAnswer);
+export async function updateCorrectAnswer(prompt, newCorrectAnswer){
+	return await db.updateCorrectAnswer(prompt, newCorrectAnswer);
 }
 
-export async function updateWrongAnswer(prompt, wrongAnswer, questionId){
-	await db.updateWrongAnswer(prompt, wrongAnswer, questionId);
+export async function updateWrongAnswer(prompt, questionId, newWrongAnswer){
+	return await db.updateWrongAnswer(prompt, questionId, newWrongAnswer);
 }

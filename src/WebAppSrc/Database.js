@@ -140,6 +140,12 @@ const updateCorrectAnswerURL = "UpdateQuestionAnswer";
 const updateWrongAnswerURL = "UpdateWrongAnswer";
 const fileUploadURL = "ReadPDF";
 const getImagesURL = "Image";
+const addImageURL = "AddImage";
+const deleteImageURL = "DeleteImage";
+const addWrongAnswerURL = "AddWrongAnswer";
+const deleteWrongAnswerURL = "DeleteWrongAnswer";
+const updateJustificationURL = "UpdateJustification";
+const updateTaskLetterURL = "UpdateTaskLetter";
 
 const addQuestionsURL = "AddQuestions";
 
@@ -328,12 +334,14 @@ export async function updatePrompt(oldPrompt, newPrompt){
 		if (!response.ok){
 			console.log(response);
 		}
+		return true;
 	}catch(error){
 		console.error("Error: ", error);
+		return false;
 	}
 }
 
-export async function updateCorrectAnswer(oldCorrectAnswer, newCorrectAnswer){
+export async function updateCorrectAnswer(prompt, newCorrectAnswer){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -341,19 +349,22 @@ export async function updateCorrectAnswer(oldCorrectAnswer, newCorrectAnswer){
 		const response = await fetch(baseURL + updateCorrectAnswerURL,{
 			headers:myHeaders,
 			method:"POST",
-			body: JSON.stringify({"Prompt and Answer":[oldCorrectAnswer, newCorrectAnswer]}),
+			body: JSON.stringify({"Prompt and Answer":[prompt, newCorrectAnswer]}),
 		})
 
 		if (!response.ok){
 			console.log(response);
 		}
 
+		return true;
+
 	}catch(error){
 		console.error("Error: ", error);
+		return false;
 	}
 }
 
-export async function updateWrongAnswer(prompt, wrongAnswer, questionId){
+export async function updateWrongAnswer(prompt, answerId, wrongAnswer){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -361,15 +372,17 @@ export async function updateWrongAnswer(prompt, wrongAnswer, questionId){
 		const response = await fetch(baseURL + updateWrongAnswerURL,{
 			headers:myHeaders,
 			method:"POST",
-			body: JSON.stringify({"Prompt":prompt, "Wrong Answer":wrongAnswer, "Question Id":questionId}),
+			body: JSON.stringify({"Prompt":prompt, "Wrong Answer":wrongAnswer, "Answer Id":answerId}),
 		})
 
 		if (!response.ok){
 			console.log(response);
 		}
 
+		return true;
 	}catch(error){
 		console.error("Error: ", error);
+		return false;
 	}
 }
 
@@ -434,8 +447,13 @@ async function parseQuestions(jsonInput, numQuest){
 
 		q.setJustification(jsonInput["Questions"][i]["justification"]);
 		if (jsonInput["Questions"][i]["hasImage"] === true){
-			let image = await getImage(jsonInput["Questions"][i]["image"]);
-			q.setImage(image, jsonInput["Questions"][i]["imageType"]);
+			let images = jsonInput["Questions"][i]["images"];
+			let numImages = images.length;
+
+			for (let j = 0; j < numImages; j++){
+				let image = await getImage(images[i]["imageLoc"]);
+				q.setImage(image, images[i]["imageType"]);	
+			}
 		}
 		q.setTaskLetter(jsonInput["Questions"][i]["taskLetter"]);
 		q.setTaskLetterDesc(jsonInput["Questions"][i]["taskLetterDesc"]);
