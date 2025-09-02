@@ -193,7 +193,7 @@ export function VerifyQuestions(){
             </div>
             <button onClick={() => router.navigate("/MainPage")}>Home</button>
             <button onClick={() => router.navigate(-1)}>Back</button>
-            {showQuestions(questionsFromFile, false)}
+            {ShowQuestions(questionsFromFile, false)}
             <button onClick={handleClick}>Add Questions</button>
         </div>
     );
@@ -261,11 +261,7 @@ export function Next(){
 
 export function Back(){
     page--;
-    if (allQuestions !== undefined){
-        router.navigate('/MainPage/Questions/');
-    }else{
-        router.navigate('/MainPage/Questions/Add/Verify');
-    }
+    router.navigate('/MainPage/Questions/');
 }
 
 function LoadQuestions(){
@@ -299,29 +295,143 @@ function LoadQuestions(){
         fetchData();
     }, []);
 
-    questionsFromFile = undefined;
-    allQuestions = data;
-    questionToEdit = allQuestions;
+    const handleClick = async (event, prompt, index, wrongAnswer = '') => {
+        allQuestions = " ";
+        const resetAll = () =>{
+            setEditTaskLetter(false);
+            setEditPrompt(false);
+            setEditWrongAnswer(false);
+            setEditCorrectAnswer(false);
+            setEditJustification(false);
+            setAddImage(false);
+        }
 
-    let questionPrompts = [];
-    const handleClick = (event, prompt, index) => {
         const className = event.target.className;
 
-        setQuestionPrompt(className, prompt, index);
-    }
+        setCurrentq(prompt);
 
-    let numQuestions = data.length;
+        questionPrompt = prompt;
+        questionNum = index;
 
-    let images = [];
+        if (className === 'Delete'){
+            let confirmation = window.confirm("Are you sure you want to delete: \"" + prompt + "\"?");
 
-    for (let i = 0; i < numQuestions; i++){
-        questionPrompts.push(data[i].getQuestion());
+            if (!confirmation){
+                return;
+            }
 
-        if (data[i].getHasImage()){
-            images.push(data[i].getImage());
+            questions.deleteQuestion(prompt);
+            alert("Successfully deleted: " + prompt);
+            page++;
+            router.navigate('Back');
+        }else if (className === 'editTaskLetter'){
+            if (editTaskLetter === true){
+                resetAll();
+                setEditTaskLetter(false);
+            }else{
+                resetAll();
+                setEditTaskLetter(true);
+            }
+        }else if (className === 'editPrompt'){
+            if (editPrompt === true){
+                resetAll();
+                setEditPrompt(false);
+            }else{
+                resetAll();
+                setEditPrompt(true);
+            }
+        }else if (className === 'editWrongAnswer'){
+            if (editWrongAnswer === true){
+                setCurrentWrongAnswer(wrongAnswer);
+                resetAll();
+                setEditWrongAnswer(false);
+            }else{
+                setCurrentWrongAnswer(wrongAnswer);
+                resetAll();
+                setEditWrongAnswer(true);
+            }
+        }else if (className === 'editCorrectAnswer'){
+            if (editCorrectAnswer === true){
+                resetAll();
+                setEditCorrectAnswer(false);
+            }else{
+                resetAll();
+                setEditCorrectAnswer(true);
+            }
+        }else if (className === 'editJustification'){
+            if (editJustification === true){
+                resetAll();
+                setEditJustification(false);
+            }else{
+                resetAll();
+                setEditJustification(true);
+            }
+        }else if (className === 'addImage'){
+            if (addImage === true){
+                resetAll();
+                setAddImage(false);
+            }else{
+                resetAll();
+                setAddImage(true);
+            }
+        }else if (className === 'deleteImage'){
+            alert('Deleting image?');
+        }else if (className === 'addWrongAnswer'){
+            if (addWrongAnswer){
+                resetAll();
+                setAddWrongAnswer(false);
+            }else{
+                resetAll();
+                setAddWrongAnswer(true);
+            }
+        }else if (className === 'deleteWrongAnswer'){
+            alert('Deleting wrong answer: ' + (wrongAnswer + 1));
+        }
+        else{
+            alert("Button doesn't work yet.");
         }
     }
 
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const formData = event.target;
+        const className = formData.className;
+
+        if (className === 'submitEditTaskLetter'){
+            alert('Task letter edited.');
+            setEditTaskLetter(false);
+        }else if (className === 'submitEditPrompt'){
+            alert('Prompt edited.');
+            setEditPrompt(false);
+        }else if (className === 'submitEditWrongAnswer'){
+            alert('Wrong answer edited.');
+            setEditWrongAnswer(false);
+        }else if (className === 'submitEditCorrectAnswer'){
+            alert('Correct answer edited.');
+            setEditCorrectAnswer(false);
+        }else if (className === 'submitEditJustification'){
+            alert('Justification edited.');
+            setEditJustification(false);
+        }else if (className === 'submitAddImage'){
+            alert('Image added.');
+            setAddImage(false);
+        }else if (className === 'submitAddWrongAnswer'){
+            alert('Wrong answer added.');
+            setAddWrongAnswer(false);
+        }
+    }
+
+    const [editTaskLetter, setEditTaskLetter] = useState(false);
+
+    const [editPrompt, setEditPrompt] = useState(false);
+    const [editWrongAnswer, setEditWrongAnswer] = useState(false);
+    const [currentWrongAnswer, setCurrentWrongAnswer] = useState(false);
+    const [addWrongAnswer, setAddWrongAnswer] = useState(false);
+
+    const [editCorrectAnswer, setEditCorrectAnswer] = useState(false);
+    const [editJustification, setEditJustification] = useState(false);
+    const [addImage, setAddImage] = useState(false);
+    const [currentq, setCurrentq] = useState('');
     
     //getCurrentQuestion();
     return (<h1>
@@ -332,52 +442,128 @@ function LoadQuestions(){
             Total Questions: {qTotal}
         <View style={{justifyContent: 'center', alignItems: 'center', flexShrink: 1}}> 
             <Text style={{flex: 1, flexWrap: 'wrap', fontSize: 20, flexShrink: 1}}> 
-            <div>
-                {data.map((item, index) =>(
-                    <li style={{border: '1px solid black', padding: '8px'}}>
-                    <div className="taskLetter">
-                        <h3>Task Letter:</h3>
-                        {item.getTaskLetter()} - {item.getTaskLetterDesc()} {' '}
-                        <br/>
-                        <button className="editTaskLetter" onClick={handleClick}>Edit Task Letter</button>
-                    </div>
-                    <div className="prompt">
-                        <h3>Prompt:</h3>
-                        {item.getQuestion()} {' '}
-                        <br/>
-                        <button className="editPrompt" onClick={handleClick}>Edit Prompt</button>
-                    </div>
-                    <div className="wrongAnswers">
-                        <h3>Wrong Answers:</h3>
-                        {item.getWrongAnswers().map((wrongAnswer, wrongAnswerIndex) => (
-                            <div>{wrongAnswerIndex + 1}: {' '} {wrongAnswer}
-                                <br/>
-                                <button className="editWrongAnswer" onClick={handleClick}>Edit Wrong Answer {wrongAnswerIndex + 1}</button>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="correctAnswer">
-                        <h3>Correct Answer:</h3>
-                        {item.getCorrectAnswer()}
-                        <br/>
-                        <button className="editCorrectAnswer" onClick={handleClick}>Edit Correct Answer</button>
-                    </div>
-                    <div className="justification">
-                        <h3>Justification:</h3>
-                        {item.getJustification()}
-                        <br/>
-                        <button className="editJustification" onClick={handleClick}>Edit Justification</button>
-                    </div>
-                    <div className="image">
-                        <h3>Image:</h3>
-                        <img src={item.getImage()}/>
-                        <br/>
-                        <button className="deleteImage" onClick={handleClick}>Delete Image?</button>
-                        <button className="addImage" onClick={handleClick}>Add Image</button>
-                    </div>
+            <div className="questions">
+                <div>
+                    {data.map((item, index) =>(
+                        <li style={{border: '1px solid black', padding: '8px'}}>
+                        <div className="taskLetter">
+                            <h3>Task Letter:</h3>
+                            {item.getTaskLetter()} - {item.getTaskLetterDesc()}
+                            <br/>
+                            {editTaskLetter && (currentq === item.getQuestion()) ? 
+                            <div>
+                                <form onSubmit={handleSubmit} className="submitEditTaskLetter">
+                                    <label>Enter New Task Letter: </label> 
+                                    <input type="text"></input>
+                                    <br/>
+                                    <button className="editTaskLetter" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button> 
+                                    <input type="submit"></input>
+                                </form>
+                            </div>:
+                            <button className="editTaskLetter" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Edit Task Letter</button>}
+                        </div>
+                        <div className="prompt">
+                            <h3>Prompt:</h3>
+                            {item.getQuestion()} {' '}
+                            <br/>
+                            {editPrompt && (currentq === item.getQuestion()) ? 
+                            <div>
+                                <form onSubmit={handleSubmit} className="submitEditPrompt">
+                                    <label>Enter New Prompt: </label>
+                                    <input type="text"></input>
+                                    <br/>
+                                    <button className="editPrompt" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
+                                    <input type="submit"></input>
+                                </form>
+                            </div> : 
+                            <button className="editPrompt" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Edit Prompt</button>}
+                        </div>
+                        <div className="wrongAnswers">
+                            <h3>Wrong Answers:</h3>
+                            {item.getWrongAnswers().map((wrongAnswer, wrongAnswerIndex) => (
+                                <div>{wrongAnswerIndex + 1}: {' '} {wrongAnswer}
+                                    <br/>
+                                    
+                                    {editWrongAnswer && (currentq === item.getQuestion() && (currentWrongAnswer === wrongAnswerIndex)) ? 
+                                    <div>
+                                        <form onSubmit={handleSubmit} className="submitEditWrongAnswer">
+                                            <label>Enter New Wrong Answer: </label>
+                                            <input type="text"></input>
+                                            <br/>
+                                            <button className="editWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index, wrongAnswerIndex)}>Cancel</button>
+                                            <input type="submit"></input>
+                                        </form>
+                                    </div> : 
+                                    <button className="editWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index, wrongAnswerIndex)}>Edit Wrong Answer {wrongAnswerIndex + 1}</button>}
+                                    <button className="deleteWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index, wrongAnswerIndex)}>Delete Wrong Answer?</button>
+                                </div>
+                            ))}
+                            {addWrongAnswer && (currentq === item.getQuestion()) ? 
+                            <div>
+                                <form onSubmit={handleSubmit} className="submitAddWrongAnswer">
+                                    <label>Enter New Wrong Answer: </label>
+                                    <input type='text'></input>
+                                    <br/>
+                                    <button className="addWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
+                                    <input type="submit"></input> 
+                                </form>
+                            </div>:
+                            <button className="addWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Add Wrong Answer</button>}
+                        </div>
+                        <div className="correctAnswer">
+                            <h3>Correct Answer:</h3>
+                            {item.getCorrectAnswer()}
+                            <br/>
+                            {editCorrectAnswer && (currentq === item.getQuestion()) ? 
+                            <div>
+                                <form onSubmit={handleSubmit} className="submitEditCorrectAnswer">
+                                    <label>Enter New Correct Answer: </label>
+                                    <input type="text"></input>
+                                    <br/>
+                                    <button className="editCorrectAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
+                                    <input type="submit"></input>
+                                </form>
+                            </div> : 
+                            <button className="editCorrectAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Edit Correct Answer</button>}
+                        </div>
+                        <div className="justification">
+                            <h3>Justification:</h3>
+                            {item.getJustification()}
+                            <br/>
+                            {editJustification && (currentq === item.getQuestion()) ? 
+                            <div>
+                                <form onSubmit={handleSubmit} className="submitEditJustification">
+                                    <label>Enter New Justification: </label>
+                                    <input type="text"></input>
+                                    <br/>
+                                    <button className="editJustification" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
+                                    <input type="submit"></input>
+                                </form>
+                            </div> : 
+                            <button className="editJustification" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Edit Justification</button>}
+                        </div>
+                        <div className="image">
+                            <h3>Image:</h3>
+                            <img src={item.getImage()}/>
+                            <br/>
+                            <button className="deleteImage" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Delete Image?</button>
+                            {addImage && (currentq === item.getQuestion()) ? 
+                            <div>
+                                <form onSubmit={handleSubmit} className="submitAddImage">
+                                    <label>Add Image: </label>
+                                    <input type="file"></input>
+                                    <br/>
+                                    <button className="addImage" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
+                                    <input type="submit"></input>
+                                </form>
+                            </div> : 
+                            <button className="addImage" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Add Image</button>}
+                        </div>
 
-                    <button className='Delete' onClick={(e) => handleClick(e, item.getQuestion(), index)}>Delete Question?</button></li>
-                ))}
+                        <button className='Delete' onClick={(e) => handleClick(e, item.getQuestion(), index)}>Delete Question?</button></li>
+                    ))}
+                    {ShowQuestions()}
+                </div>
             </div>
             </Text>
         </View>
@@ -386,7 +572,36 @@ function LoadQuestions(){
     </h1>);
 }
 
-function showQuestions(data, isAll = true){
+function ShowQuestions(data, isAll = true){
+    const handleClick = async (event, prompt, index) => {
+        const className = event.target.className;
+
+        questionPrompt = prompt;
+        questionNum = index;
+
+        if (className === 'Delete'){
+            let confirmation = window.confirm("Are you sure you want to delete: \"" + prompt + "\"?");
+
+            if (!confirmation){
+                return;
+            }
+
+            if (allQuestions !== undefined){
+                questions.deleteQuestion(prompt);
+            }else{
+                await deleteFromFile(prompt);
+            }
+            alert("Successfully deleted: " + prompt);
+            page++;
+            router.navigate('Back');
+        }else if (className === 'editTaskLetter'){
+
+        }
+        else{
+            alert("Button doesn't work yet.");
+        }
+    }
+
     if (isAll){
         questionsFromFile = undefined;
         allQuestions = data;
@@ -394,28 +609,8 @@ function showQuestions(data, isAll = true){
     }else{
         allQuestions = undefined;
         questionToEdit = questionsFromFile;
-    }
 
-    let questionPrompts = [];
-    const handleClick = (event, prompt, index) => {
-        const className = event.target.className;
-
-        setQuestionPrompt(className, prompt, index);
-    }
-
-    let numQuestions = data.length;
-
-    let images = [];
-
-    for (let i = 0; i < numQuestions; i++){
-        questionPrompts.push(data[i].getQuestion());
-
-        if (data[i].getHasImage()){
-            images.push(data[i].getImage());
-        }
-    }
-
-    return (<div>
+        return (<div>
         {data.map((item, index) =>(
             <li style={{border: '1px solid black', padding: '8px'}}>
             <div className="taskLetter">
@@ -462,32 +657,6 @@ function showQuestions(data, isAll = true){
             <button className='Delete' onClick={(e) => handleClick(e, item.getQuestion(), index)}>Delete Question?</button></li>
         ))}
     </div>);
-}
-
-async function setQuestionPrompt(className, prompt, index){
-    questionPrompt = prompt;
-    questionNum = index;
-
-    if (className === 'Delete'){
-        let confirmation = window.confirm("Are you sure you want to delete: \"" + prompt + "\"?");
-
-        if (!confirmation){
-            return;
-        }
-
-        if (allQuestions !== undefined){
-            questions.deleteQuestion(prompt);
-        }else{
-            await deleteFromFile(prompt);
-        }
-        alert("Successfully deleted: " + prompt);
-        page++;
-        router.navigate('Back');
-    }else if (className === 'editTaskLetter'){
-
-    }
-    else{
-        alert("Button doesn't work yet.");
     }
 }
 

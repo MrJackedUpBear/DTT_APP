@@ -218,7 +218,6 @@ export async function addQuestions(questionsToAdd){
 
 		console.log(response.status);
 	}catch(error) {
-		alert("Error Adding" + error);
 		console.log("Error Adding: " + error);
 	}
 }
@@ -242,8 +241,8 @@ export async function getQuestions(numQuest){
 
 		questionSet = await parseQuestions(Json, numQuest);
 		return questionSet;
-	}catch{
-		alert("Error connecting to database.");
+	}catch (e){
+		console.error("Error: ", e);
 	}
 }
 
@@ -264,8 +263,8 @@ export async function getNumberQuestions(){
 		let stringNum = split.split("\"}")[0];
 
 		numQuestions = parseInt(stringNum);
-	}catch{
-		alert("Error connecting to the database.");
+	}catch (e){
+		console.error("Error: ", e);
 	}
 	return numQuestions;
 }
@@ -295,7 +294,7 @@ export async function getQuestionsFrom(start, end){
 		return questionSet;
 
 	}catch (error){
-		alert("Error connecting to database: " + error);
+		console.error("Error: ", error);
 	}
 }
 
@@ -311,7 +310,7 @@ export async function deleteQuestion(prompt){
 
 		console.log(response.status);
 	}catch(error){
-		alert("Error adding: " + error);
+		console.error("Error: ", error);
 	}
 }
 
@@ -330,7 +329,7 @@ export async function updatePrompt(oldPrompt, newPrompt){
 			console.log(response);
 		}
 	}catch(error){
-		alert("Error updating: " + error);
+		console.error("Error: ", error);
 	}
 }
 
@@ -350,7 +349,7 @@ export async function updateCorrectAnswer(oldCorrectAnswer, newCorrectAnswer){
 		}
 
 	}catch(error){
-		alert("Error updating: " + error);
+		console.error("Error: ", error);
 	}
 }
 
@@ -370,7 +369,7 @@ export async function updateWrongAnswer(prompt, wrongAnswer, questionId){
 		}
 
 	}catch(error){
-		alert("Error updating: " + error);
+		console.error("Error: ", error);
 	}
 }
 
@@ -392,7 +391,7 @@ export async function uploadFile(formData){
 
 		return parseQuestions(file, file["Questions"].length);
 	}catch(e){
-		alert("Error uploading: " + e);
+		console.error("Error: ", e);
 	}
 }
 
