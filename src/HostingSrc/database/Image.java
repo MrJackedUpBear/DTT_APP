@@ -58,6 +58,12 @@ public class Image {
     }
     
     public void setImageType(String imageType) {this.imageType = imageType;}
+    public void setImage(String image) {setImageLoc(image);}
+    public void setPrompt(String prompt) {
+    	int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+    	
+    	this.questionId = questionId;
+    }
     public void setImageLoc(String imageLoc) { this.imageLoc = imageLoc; }
     public void setQuestionId(int questionId) { this.questionId = questionId; }
 }

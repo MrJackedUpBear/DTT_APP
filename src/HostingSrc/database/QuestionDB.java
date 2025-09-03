@@ -106,6 +106,7 @@ public class QuestionDB {
 		return availableQuestions;
 	}
 	
+	
 	void createQuestion(String prompt, String answer, String justification, String taskLetter, boolean hasImage) {
 		String sql = "INSERT INTO Question (Prompt, CorrectAnswer, Justification, TaskLetter, HasImage) VALUES (?, ?, ?, ?, ?);";
 		
@@ -126,6 +127,31 @@ public class QuestionDB {
 			}
 		}catch (SQLException e) {
 			System.out.println("Error establishing connection: " + e.getMessage());
+		}
+	}
+	
+	void updateQuestion(questions.Question question) {
+		String sql = "UPDATE Question SET Prompt=?, CorrectAnswer=?, Justification=?, TaskLetter=?, HasImage=? WHERE QuestionId=?;";
+		
+		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+				PreparedStatement pstmt = conn.prepareStatement(sql)){
+			pstmt.setString(1,  question.getPrompt());
+			pstmt.setString(2, question.getCorrectAnswer());
+			pstmt.setString(3, question.getJustification());
+			pstmt.setString(4, question.getTaskLetter());
+			pstmt.setBoolean(5, question.getHasImage());
+			
+			pstmt.setInt(6, getQuestionId(question.getPrompt()));
+			
+			int affectedRows = pstmt.executeUpdate();
+			
+			if (affectedRows > 0) {
+				System.out.println("Successfully updated question.");
+			}else {
+				System.out.println("Error updating question.");
+			}
+		}catch (SQLException e) {
+			System.out.println("Error establshing connection: " + e.getMessage());
 		}
 	}
 	
@@ -202,6 +228,26 @@ public class QuestionDB {
 				System.out.println("Successfully updated prompt.");
 			}else {
 				System.out.println("Error updating prompt.");
+			}
+		}catch (SQLException e) {
+			System.out.println("Error establishing connection: " + e.getMessage());
+		}
+	}
+	
+	void updateQuestionHasImage(int id, boolean hasImage) {
+		String sql = "UPDATE Question SET HasImage=? WHERE QuestionId=?;";
+		
+		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+				PreparedStatement pstmt = conn.prepareStatement(sql)){
+			pstmt.setBoolean(1, hasImage);
+			pstmt.setInt(2, id);
+			
+			int affectedRows = pstmt.executeUpdate();
+			
+			if (affectedRows > 0) {
+				System.out.println("Successfully updated has image.");
+			}else {
+				System.out.println("Error updating has image.");
 			}
 		}catch (SQLException e) {
 			System.out.println("Error establishing connection: " + e.getMessage());

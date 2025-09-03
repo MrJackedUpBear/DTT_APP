@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import database.Image;
+import database.ImageDB;
+import database.QuestionDB;
 
 public class Question {
     private String prompt;
@@ -117,6 +119,23 @@ public class Question {
     	for (HashMap<String, String> img : images) {    		
     		imgs.add(new Image(img.get("image"), img.get("imageType")));
     	}
+    }
+    
+    public void deleteImage(Image image) {
+    	if (imgs.size() == 1) {
+    		this.hasImage = false;
+    	}
+    	
+    	imgs = ImageDB.getInstance().getImages(image.getQuestionId());
+    	
+    	ArrayList<Image> i = new ArrayList<>();
+    	for (Image img : imgs) {
+    		if (!img.equals(image)) {
+    			i.add(img);
+    		}
+    	}
+    	
+    	this.imgs = i;
     }
     
     public void setTaskLetter(String taskLetter) {

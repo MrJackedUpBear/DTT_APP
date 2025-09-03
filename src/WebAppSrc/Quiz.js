@@ -6,6 +6,9 @@ import router from './index.js';
 import React, { useState, useEffect } from 'react';
 import { Text, View } from 'react-native';
 import * as settings from './Settings.js';
+import settingsMenu from './settings-svgrepo-com.svg';
+import landingPage from './landing-page-web-design-svgrepo-com.svg';
+import home from './home-svgrepo-com.svg';
 
 
 let correctAnswerVoice = null;
@@ -30,23 +33,44 @@ export function getInfo(){
   router.navigate("/MainPage/Quiz");
 }
 
+function confirmExit(){
+  const response = window.confirm("Are you sure you want to exit? You will lose all progress.");
+
+  if (!response){
+    return;
+  }
+  router.navigate('/MainPage')
+}
+
 export function StartQuiz() {
     document.body.style = 'background: white;';
   return (
-    <div className="App">
-      <header className="App-header">
-        <button onClick={() => router.navigate("/MainPage")}>EXIT</button>
-        DTT Quiz 
-        <br></br>
+    <div>
+      <h1 className="navBar">
+        <div className="landingPage">
+            <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
+        </div>
+        <button onClick={confirmExit} className="exit">EXIT</button>
+        DTT Quiz App - Quiz
+        <div className="settings">
+            <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settingsMenu} alt="Settings"/></button>
+        </div>
+    </h1>
+    <div className="quiz">
+      <h1 className="quizHeader">
         Question: {currentQuestionNum} of {totalQuestions}
-        <br></br>
-        Time Left:
-      </header>
-      <div className="Question" style={{wordWrap: 'break-word'}}>
+      </h1>
+
+      <div className="quizSection">
+        <div className="quizQuestion" style={{wordWrap: 'break-word'}}>
         {ShowCurrentQuestion()}
       </div>
+      <div className="quizAnswers">
         {GetAnswerChoices()}
+      </div>
     </div>
+    </div>
+  </div>
   );
 } 
 
@@ -71,8 +95,9 @@ function Countdown(){
     return (
       <div>
         {secondsLeft > 0 ? (
-          <h1>{secondsLeft}</h1>
-        ): CheckAnswer("WrongAnswer")}
+          <div>{secondsLeft}</div>
+        ) : 
+          CheckAnswer("WrongAnswer")}
       </div>
     )
   };
@@ -88,11 +113,10 @@ export function CorrectAnswer(){
     </h1>);
   }
 
-  document.body.style = 'background: green;';
-
   currentQuestionNum++;
 
-  
+  let beforeTotalCorrect = totalCorrect;
+
   if (!wrongChoice && correctChoice){
     totalCorrect++;
   }
@@ -104,18 +128,47 @@ export function CorrectAnswer(){
     currentQuestionNum = 1;
     wrongChoice = false;
     correctChoice = false;
-    return (<h1>
-      Well done! You got {totalCorrect} out of {totalQuestions}<br />
-      <button onClick={() => router.navigate("/MainPage")}>Return Home</button>
-      <button onClick={() => getInfo()}>Take Another Quiz</button>
-    </h1>)
+    return (<div>
+      <h1 className="navBar">
+          <div className="landingPage">
+              <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
+          </div>
+          <button onClick={confirmExit} className="exit">EXIT</button>
+          DTT Quiz App - Quiz
+          <div className="settings">
+              <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settingsMenu} alt="Settings"/></button>
+          </div>
+      </h1>
+      <div className="finishedQuiz">
+        Well done! You got {totalCorrect} out of {totalQuestions}<br />
+      </div>
+    </div>)
   }
 
-  return (<h1 className="correct">
-    <button onClick={() => router.navigate("/MainPage")}>Return Home</button>
-    <button onClick={() => router.navigate('/MainPage/Quiz')}>Correct! Next Question</button>
-    Justification: {currentQuestion.getJustification()}
-    </h1>);
+  return (<div>
+    <h1 className="navBar">
+        <div className="landingPage">
+            <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
+        </div>
+        <button onClick={confirmExit} className="exit">EXIT</button>
+        DTT Quiz App - Quiz
+        <div className="settings">
+            <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settingsMenu} alt="Settings"/></button>
+        </div>
+    </h1>
+    <div className="correct">
+      Correct!
+      <br/>
+      {(currentQuestion.getJustification() !== '') ? <div>Justification: {currentQuestion.getJustification()}</div> :
+      <div></div>}
+      <br/>
+      {(currentQuestion.getTaskLetter() !== '') ? <div>Category: {currentQuestion.getTaskLetter()} - {currentQuestion.getTaskLetterDesc()}</div> :
+      <div></div>}
+      Points for this question: {totalCorrect - beforeTotalCorrect} / 1
+      <br/>
+      <button onClick={() => router.navigate('/MainPage/Quiz')} className='nextButton'>Next Question</button>
+    </div>
+    </div>);
 }
 
 export function WrongAnswer(){
@@ -125,13 +178,28 @@ export function WrongAnswer(){
     </h1>);
   }
 
-  document.body.style = 'background: red;';
-  return (<h1>
-    <button onClick={() => router.navigate("/MainPage")}>Return Home</button>
-    <button onClick={() => router.navigate('/MainPage/Quiz')}>Incorrect. Try Again. Try {correctLetter}</button>
-    Justification: {currentQuestion.getJustification()}
-
-  </h1>);
+  return (<div>
+    <h1 className="navBar">
+        <div className="landingPage">
+            <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
+        </div>
+        <button onClick={confirmExit} className="exit">EXIT</button>
+        DTT Quiz App - Quiz
+        <div className="settings">
+            <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settingsMenu} alt="Settings"/></button>
+        </div>
+    </h1>
+    <div className="wrong">
+      Incorrect!
+      <br/>
+      {(currentQuestion.getJustification() !== '') ? <div>Justification: {currentQuestion.getJustification()}</div> :
+      <div></div>}
+      <br/>
+      {(currentQuestion.getTaskLetter() !== '') ? <div>Category: {currentQuestion.getTaskLetter()} - {currentQuestion.getTaskLetterDesc()}</div> :
+      <div></div>}
+      <button onClick={() => router.navigate('/MainPage/Quiz')} className='tryAgainButton'>Try Again... Try {correctLetter}</button>
+    </div>
+  </div>);
 }
 
 async function getCurrentQuestion(numQuestions){
@@ -174,13 +242,17 @@ function ShowCurrentQuestion(){
       {loading && <p>Loading data...</p>}
       {error && <p>Error: {error.message}</p>}
       {data && (
-        <div>
+        <div className="quizQuestion">
         <View style={{justifyContent: 'center', alignItems: 'center', flexShrink: 1}}> 
           <Text style={{flex: 1, flexWrap: 'wrap', fontSize: 30, flexShrink: 1}}> 
             {data.getQuestion()}
             <br/>
-            <img src={data.getImage()} alt=""/>
-            {Countdown()}
+            {data.getImages().map((image, imageIndex) => (
+                <div>
+                    <img src={image[0]} alt=""/>
+                    <br/>
+                </div>
+            ))}
           </Text>
         </View>
         </div>
@@ -201,11 +273,14 @@ function GetAnswerChoices(){
     shuffleArray(combined);
   }
 
-  return (<h1>
+  return (<div>
     {combined.map((item, index) =>(
-      <li><button key={index} onClick={() => CheckAnswer(item)}>{letterAt(index, item)}) {item}</button></li>
+      <div><button key={index} onClick={() => CheckAnswer(item)} className="quizAnswer">{letterAt(index, item)}) {item}</button></div>
     ))}
-  </h1>);
+    <div className="timer">
+      Time Left: {Countdown()}
+    </div>
+  </div>);
 }
 
 function letterAt(index, value){

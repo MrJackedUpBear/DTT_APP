@@ -54,12 +54,13 @@ public class ImageDB {
     }
 
     // READ
-    public Image getImage(int questionId) {
-        String sql = "SELECT * FROM Image WHERE QuestionId = ?";
+    public Image getImage(int questionId, String imageLoc) {
+        String sql = "SELECT * FROM Image WHERE QuestionId = ? AND ImageLoc=?";
         try (Connection conn = connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, questionId);
+            stmt.setString(2, imageLoc);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -85,7 +86,7 @@ public class ImageDB {
             stmt.setInt(1, questionId);
             ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()) {
+            while (rs.next()) {
                 int imageId = rs.getInt("ImageId");
                 String imageLoc = rs.getString("ImageLoc");
                 questionId = rs.getInt("QuestionId");
@@ -160,12 +161,24 @@ public class ImageDB {
     }
 
     // DELETE
-    public void deleteImage(int id) {
+    public void deleteImages(int questionId) {
         String sql = "DELETE FROM Image WHERE QuestionId = ?";
         try (Connection conn = connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, id);
+            stmt.setInt(1, questionId);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void deleteImage(int imageId) {
+    	String sql = "DELETE FROM Image WHERE ImageId = ?";
+        try (Connection conn = connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, imageId);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -33,7 +33,7 @@ export function Settings(){
                 <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
             </div>
             <div className="home">
-                <button onClick={() => router.navigate("/MainPage")}><img src={home} alt="Home"/></button>
+                <button onClick={() => router.navigate("/MainPage")}><img src={home} alt="Home" className="home"/></button>
             </div>
             DTT Quiz App - Settings
         </h1>

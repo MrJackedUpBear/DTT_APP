@@ -48,6 +48,24 @@ export class question{
 		this.hasImage = false;
 		this.imageType = "";
 		this.taskLetterDesc = "";
+		this.images = [];
+		this.imageNames = [];
+	}
+
+	getImageNames(){
+		if (this.hasImage){
+			return this.imageNames;
+		}else{
+			return [];
+		}
+	}
+
+	getImages(){
+		if (this.hasImage){
+			return this.images;
+		}else{
+			return [];
+		}
 	}
 
 	getTaskLetterDesc(){
@@ -92,6 +110,12 @@ export class question{
 
 	setTaskLetterDesc(taskLetterDesc){
 		this.taskLetterDesc = taskLetterDesc;
+	}
+
+	addImage(image, imageType, imageName){
+		this.hasImage = true;
+		this.images.push([image, imageType]);
+		this.imageNames.push(imageName);
 	}
 
 	setImage(image, imageType){
@@ -386,6 +410,143 @@ export async function updateWrongAnswer(prompt, answerId, wrongAnswer){
 	}
 }
 
+export async function deleteWrongAnswer(prompt, wrongAnswer){
+	try{
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+
+		const response = await fetch(baseURL + deleteWrongAnswerURL,{
+			headers:myHeaders,
+			method:"POST",
+			body: JSON.stringify({"Prompt and Wrong Answer": [prompt, wrongAnswer]}),
+		})
+
+		if (!response.ok){
+			console.log(response);
+		}
+
+		return true;
+	}catch(error){
+		console.error("Error: ", error);
+		return false;
+	}
+}
+
+export async function deleteImage(imageName){
+	try{
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+
+		const response = await fetch(baseURL + deleteImageURL,{
+			headers:myHeaders,
+			method:"POST",
+			body: JSON.stringify({"Image Name": imageName}),
+		})
+
+		if (!response.ok){
+			console.log(response);
+		}
+
+		return true;
+	}catch(error){
+		console.error("Error: ", error);
+		return false;
+	}
+}
+
+export async function addWrongAnswer(prompt, wrongAnswer){
+	try{
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+
+		const response = await fetch(baseURL + addWrongAnswerURL,{
+			headers:myHeaders,
+			method:"POST",
+			body: JSON.stringify({"Prompt and Wrong Answer": [prompt, wrongAnswer]}),
+		})
+
+		if (!response.ok){
+			console.log(response);
+		}
+
+		return true;
+	}catch(error){
+		console.error("Error: ", error);
+		return false;
+	}
+}
+
+export async function addImage(prompt, image, imageType){
+	try{
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+
+		const response = await fetch(baseURL + addImageURL,{
+			headers:myHeaders,
+			method:"POST",
+			body: JSON.stringify({"prompt": prompt,
+				"image":image,
+				"imageType":imageType
+			}),
+		})
+
+		if (!response.ok){
+			console.log(response);
+		}
+
+		return true;
+	}catch(error){
+		console.error("Error: ", error);
+		return false;
+	}
+}
+
+export async function updateTaskLetter(prompt, taskLetter){
+	try{
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+
+		const response = await fetch(baseURL + updateTaskLetterURL,{
+			headers:myHeaders,
+			method:"POST",
+			body: JSON.stringify({"Prompt and Task Letter":[prompt, taskLetter]}),
+		})
+
+		if (!response.ok){
+			console.log(response);
+		}
+
+		return true;
+
+	}catch(error){
+		console.error("Error: ", error);
+		return false;
+	}
+}
+
+export async function updateJustification(prompt, justification){
+	try{
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+
+		const response = await fetch(baseURL + updateJustificationURL,{
+			headers:myHeaders,
+			method:"POST",
+			body: JSON.stringify({"Prompt and Justification":[prompt, justification]}),
+		})
+
+		if (!response.ok){
+			console.log(response);
+		}
+
+		return true;
+
+	}catch(error){
+		console.error("Error: ", error);
+		return false;
+	}
+}
+
 export async function uploadFile(formData){
 	try{
 		const resp = await fetch(baseURL + fileUploadURL, {
@@ -451,8 +612,8 @@ async function parseQuestions(jsonInput, numQuest){
 			let numImages = images.length;
 
 			for (let j = 0; j < numImages; j++){
-				let image = await getImage(images[i]["imageLoc"]);
-				q.setImage(image, images[i]["imageType"]);	
+				let image = await getImage(images[j]["imageLoc"]);
+				q.addImage(image, images[j]["imageType"], images[j]["imageLoc"]);
 			}
 		}
 		q.setTaskLetter(jsonInput["Questions"][i]["taskLetter"]);

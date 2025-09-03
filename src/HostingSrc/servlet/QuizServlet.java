@@ -24,6 +24,7 @@ import mail.Mail;
 import questions.QuestionGenerator;
 import questions.Question;
 import database.Image;
+import database.QuestionDB;
 
 
 /**
@@ -232,7 +233,18 @@ public class QuizServlet extends HttpServlet {
 			prompt = prompt.split("\"Prompt\":\"")[1];
 			prompt = prompt.split("\"\\}")[0];
 			
-			if (!Database.getInstance().deleteQuestion(prompt)) {
+			String pathUpload = System.getenv("UPLOAD_LOCATION");
+			
+			if (pathUpload == null) {
+				System.out.println("You have not sent the environment variable UPLOAD_LOCATION. Please do so to continue");
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				return;
+			}
+			
+			pathUpload += "\\";
+			
+			
+			if (!Database.getInstance().deleteQuestion(prompt, pathUpload)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
@@ -365,15 +377,109 @@ public class QuizServlet extends HttpServlet {
 			
 			if (!Database.getInstance().updateQuestionTaskLetter(prompt, taskLetter)){
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
 			}
 		}else if (postRequest.equals("DeleteWrongAnswer")) {
+			StringBuilder stringRequest = new StringBuilder();
+			
+			try (BufferedReader reader = request.getReader()){
+				String line = "";
+				
+				while ((line = reader.readLine()) != null) {
+					stringRequest.append(line);
+				}
+			}
+			
+			String req = stringRequest.toString();
+						
+			String promptWrongAnswer = req.split("\"Prompt and Wrong Answer\":\\[\"")[1];
+			String prompt = promptWrongAnswer.split("\",")[0];
+			String wrongAnswer = promptWrongAnswer.split("\",\"")[1];
+			
+			wrongAnswer = wrongAnswer.replaceAll("\"\\]\\}", "");
+			
+			
+			if (!Database.getInstance().deleteWrongAnswer(wrongAnswer, prompt)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
 			
 		}else if (postRequest.equals("AddWrongAnswer")) {
+			StringBuilder stringRequest = new StringBuilder();
 			
+			try (BufferedReader reader = request.getReader()){
+				String line = "";
+				
+				while ((line = reader.readLine()) != null) {
+					stringRequest.append(line);
+				}
+			}
+			
+			String req = stringRequest.toString();
+			
+			String promptWrongAnswer = req.split("\"Prompt and Wrong Answer\":\\[\"")[1];
+			String prompt = promptWrongAnswer.split("\",")[0];
+			String wrongAnswer = promptWrongAnswer.split(",\"")[1];
+			
+			wrongAnswer = wrongAnswer.replaceAll("\"\\]\\}", "");
+			
+			if (!Database.getInstance().addWrongAnswer(wrongAnswer, prompt)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
 		}else if (postRequest.equals("AddImage")) {
+			StringBuilder stringRequest = new StringBuilder();
 			
+			try (BufferedReader reader = request.getReader()){
+				String line = "";
+				
+				while ((line = reader.readLine()) != null) {
+					stringRequest.append(line);
+				}
+			}
+			
+			String pathUpload = System.getenv("UPLOAD_LOCATION");
+			
+			if (pathUpload == null) {
+				System.out.println("You have not sent the environment variable UPLOAD_LOCATION. Please do so to continue");
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				return;
+			}
+			
+			pathUpload += "\\";
+			
+			String req = stringRequest.toString();
+			
+			Database.getInstance().addImage(req, pathUpload);
 		}else if (postRequest.equals("DeleteImage")) {
+			StringBuilder stringRequest = new StringBuilder();
 			
+			try (BufferedReader reader = request.getReader()){
+				String line = "";
+				
+				while ((line = reader.readLine()) != null) {
+					stringRequest.append(line);
+				}
+			}
+			
+			String req = stringRequest.toString();
+			String imageName = req.split("\"Image Name\":\"")[1];
+			
+			imageName = imageName.replaceAll("\"\\}", "");
+			
+			Image image = Database.getInstance().getImage(imageName);
+			
+			if (image == null) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+			
+			String typeOfImage = image.getImageLoc().substring(image.getImageLoc().lastIndexOf('.') + 1);
+			
+			if (!Database.getInstance().deleteImage(image, typeOfImage)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
 		}
 		else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);

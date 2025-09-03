@@ -4,6 +4,9 @@ import {useEffect, useState} from 'react';
 import {Form} from 'react-router-dom';
 import { Text, View } from 'react-native';
 import * as db from './Database.js';
+import settings from './settings-svgrepo-com.svg';
+import landingPage from './landing-page-web-design-svgrepo-com.svg';
+import home from './home-svgrepo-com.svg';
 
 let page = 1;
 let numOnPage = 15;
@@ -210,7 +213,18 @@ export function SubmitAddQuestions(){
 export function ViewAndUpdate(){
 
     return (<div>
-        <button onClick={() => router.navigate("/MainPage")}>Home</button>
+        <h1 className="navBar">
+            <div className="landingPage">
+                <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
+            </div>
+            <div className="home">
+                <button onClick={() => router.navigate("/MainPage")}><img src={home} alt="Home"/></button>
+            </div>
+            DTT Quiz App - Questions
+            <div className="settings">
+                <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settings} alt="Settings"/></button>
+            </div>
+        </h1>
         <button onClick={() => router.navigate('Add')}>Add Questions</button>
         <div className="loadQuestions">
             <h1>All Questions</h1>
@@ -255,11 +269,7 @@ function verifyNextPageButton(){
 
 export function Next(){
     page++;
-    if (allQuestions !== undefined){
-        router.navigate('/MainPage/Questions/');
-    }else{
-        router.navigate('/MainPage/Questions/Add/Verify');
-    }
+    router.navigate('/MainPage/Questions/');
 }
 
 export function Back(){
@@ -298,7 +308,7 @@ function LoadQuestions(){
         fetchData();
     }, []);
 
-    const handleClick = async (event, prompt, index, wrongAnswer = '') => {
+    const handleClick = async (event, prompt, index, wrongAnswer = '', wrongAnswerInput = '', imageName = '') => {
         allQuestions = " ";
         const resetAll = () =>{
             setEditTaskLetter(false);
@@ -378,7 +388,18 @@ function LoadQuestions(){
                 setAddImage(true);
             }
         }else if (className === 'deleteImage'){
-            alert('Deleting image?');
+            let confirmation = window.confirm("Are you sure you want to delete: \"" + imageName + "\"?");
+
+            if (!confirmation){
+                return;
+            }
+
+            if (!await questions.deleteImage(imageName)){
+                alert("Error deleting.");
+            }
+
+            page++;
+            router.navigate('Back');
         }else if (className === 'addWrongAnswer'){
             if (addWrongAnswer){
                 resetAll();
@@ -388,7 +409,12 @@ function LoadQuestions(){
                 setAddWrongAnswer(true);
             }
         }else if (className === 'deleteWrongAnswer'){
-            alert('Deleting wrong answer: ' + (wrongAnswer + 1));
+            if (!await questions.deleteWrongAnswer(prompt, wrongAnswerInput)){
+                alert("Error updating");
+            }
+
+            page++;
+            router.navigate('Back');
         }
         else{
             alert("Button doesn't work yet.");
@@ -406,9 +432,7 @@ function LoadQuestions(){
             setEditTaskLetter(false);
         }else if (className === 'submitEditPrompt'){
             let newPrompt = formData.get("newPrompt").trim();
-            if (await questions.updatePrompt(prompt, newPrompt)){
-                alert("Successfully updated.");
-            }else{
+            if (!await questions.updatePrompt(prompt, newPrompt)){
                 alert("Error updating");
             }
 
@@ -417,9 +441,7 @@ function LoadQuestions(){
             setEditPrompt(false);
         }else if (className === 'submitEditWrongAnswer'){
             let newWrongAnswer = formData.get("newWrongAnswer").trim();
-            if (await questions.updateWrongAnswer(prompt, wrongAnswer, newWrongAnswer)){
-                alert("Successfully updated.")
-            }else{
+            if (!await questions.updateWrongAnswer(prompt, wrongAnswer, newWrongAnswer)){
                 alert('Error updating.');
             }
 
@@ -428,9 +450,7 @@ function LoadQuestions(){
             setEditWrongAnswer(false);
         }else if (className === 'submitEditCorrectAnswer'){
             let newCorrectAnswer = formData.get("newCorrectAnswer").trim();
-            if (await questions.updateCorrectAnswer(prompt, newCorrectAnswer)){
-                alert("Successfully updated.");
-            }else{
+            if (!await questions.updateCorrectAnswer(prompt, newCorrectAnswer)){
                 alert("Error updating.");
             }
             
@@ -439,15 +459,51 @@ function LoadQuestions(){
             setEditCorrectAnswer(false);
         }else if (className === 'submitEditJustification'){
             let newJustification = formData.get("newJustification").trim();
-            alert(newJustification);
+            if (!await questions.updateJustification(prompt, newJustification)){
+                alert("Error updating.");
+            }
+
+            page++;
+            router.navigate('Back');
             setEditJustification(false);
         }else if (className === 'submitAddImage'){
+
+            const readFile = (file) => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+
+                    //.replace('data:', '').replace(/^.+,/, '')
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(reader.error);
+
+                    reader.readAsDataURL(file);
+                });
+            };
             let newImage = formData.get("newImage");
-            alert(newImage);
+            const reader = new FileReader();
+            let fileData = await readFile(newImage);
+
+            let typeOfPhoto = fileData.substring(0, fileData.indexOf(";base64"));
+            fileData = fileData.replace('data:', '').replace(/^.+,/, '');
+
+            if (fileData !== ""){
+                typeOfPhoto = typeOfPhoto.split("data:image/")[1];
+                if (!await questions.addImage(prompt, fileData, typeOfPhoto)){
+                    alert("Error adding image.")
+                }
+            }
+
+            page++;
+            router.navigate('Back');
             setAddImage(false);
         }else if (className === 'submitAddWrongAnswer'){
             let newWrongAnswer = formData.get("newWrongAnswer").trim();
-            alert(newWrongAnswer);
+            if (!await questions.addWrongAnswer(prompt, newWrongAnswer)){
+                alert("Error updating.");
+            }
+
+            page++;
+            router.navigate('Back');
             setAddWrongAnswer(false);
         }
     }
@@ -469,135 +525,140 @@ function LoadQuestions(){
         {loading && <p>Loading data...</p>}
         {error && <p>Error: {error.message}</p>}
         {data && (
-        <div>
-        <View style={{justifyContent: 'center', alignItems: 'center', flexShrink: 1}}> 
-            <Text style={{flex: 1, flexWrap: 'wrap', fontSize: 20, flexShrink: 1}}> 
-            <div className="questions">
-                <div>
-                    {data.map((item, index) =>(
-                        <li style={{border: '1px solid black', padding: '8px'}}>
-                        <div className="taskLetter">
-                            <h3>Task Letter:</h3>
-                            {item.getTaskLetter()} - {item.getTaskLetterDesc()}
-                            <br/>
-                            {editTaskLetter && (currentq === item.getQuestion()) ? 
-                            <div>
-                                <form onSubmit={(e) => handleSubmit(e, item.getQuestion())} className="submitEditTaskLetter">
-                                    <label>Enter New Task Letter: </label> 
-                                    <input type="text" id="newTaskLetter" name="newTaskLetter"></input>
-                                    <br/>
-                                    <button className="editTaskLetter" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button> 
-                                    <input type="submit"></input>
-                                </form>
-                            </div>:
-                            <button className="editTaskLetter" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Edit Task Letter</button>}
-                        </div>
-                        <div className="prompt">
-                            <h3>Prompt:</h3>
-                            {item.getQuestion()} {' '}
-                            <br/>
-                            {editPrompt && (currentq === item.getQuestion()) ? 
-                            <div>
-                                <form onSubmit={(e) => handleSubmit(e, item.getQuestion())} className="submitEditPrompt">
-                                    <label>Enter New Prompt: </label>
-                                    <input type="text" id="newPrompt" name="newPrompt"></input>
-                                    <br/>
-                                    <button className="editPrompt" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
-                                    <input type="submit"></input>
-                                </form>
-                            </div> : 
-                            <button className="editPrompt" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Edit Prompt</button>}
-                        </div>
-                        <div className="wrongAnswers">
-                            <h3>Wrong Answers:</h3>
-                            {item.getWrongAnswers().map((wrongAnswer, wrongAnswerIndex) => (
-                                <div>{wrongAnswerIndex + 1}: {' '} {wrongAnswer}
-                                    <br/>
-                                    
-                                    {editWrongAnswer && (currentq === item.getQuestion() && (currentWrongAnswer === wrongAnswerIndex)) ? 
-                                    <div>
-                                        <form onSubmit={(e) => handleSubmit(e, item.getQuestion(), wrongAnswerIndex)} className="submitEditWrongAnswer">
-                                            <label>Enter New Wrong Answer: </label>
-                                            <input type="text" id="newWrongAnswer" name="newWrongAnswer"></input>
-                                            <br/>
-                                            <button className="editWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index, wrongAnswerIndex)}>Cancel</button>
-                                            <input type="submit"></input>
-                                        </form>
-                                    </div> : 
-                                    <button className="editWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index, wrongAnswerIndex)}>Edit Wrong Answer {wrongAnswerIndex + 1}</button>}
-                                    <button className="deleteWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index, wrongAnswerIndex)}>Delete Wrong Answer?</button>
-                                </div>
-                            ))}
-                            {addWrongAnswer && (currentq === item.getQuestion()) ? 
-                            <div>
-                                <form onSubmit={(e) => handleSubmit(e, item.getQuestion())} className="submitAddWrongAnswer">
-                                    <label>Enter New Wrong Answer: </label>
-                                    <input type='text' id="newWrongAnswer" name="newWrongAnswer"></input>
-                                    <br/>
-                                    <button className="addWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
-                                    <input type="submit"></input> 
-                                </form>
-                            </div>:
-                            <button className="addWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Add Wrong Answer</button>}
-                        </div>
-                        <div className="correctAnswer">
-                            <h3>Correct Answer:</h3>
-                            {item.getCorrectAnswer()}
-                            <br/>
-                            {editCorrectAnswer && (currentq === item.getQuestion()) ? 
-                            <div>
-                                <form onSubmit={(e) => handleSubmit(e, item.getQuestion())} className="submitEditCorrectAnswer">
-                                    <label>Enter New Correct Answer: </label>
-                                    <input type="text" id="newCorrectAnswer" name="newCorrectAnswer"></input>
-                                    <br/>
-                                    <button className="editCorrectAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
-                                    <input type="submit"></input>
-                                </form>
-                            </div> : 
-                            <button className="editCorrectAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Edit Correct Answer</button>}
-                        </div>
-                        <div className="justification">
-                            <h3>Justification:</h3>
-                            {item.getJustification()}
-                            <br/>
-                            {editJustification && (currentq === item.getQuestion()) ? 
-                            <div>
-                                <form onSubmit={(e) => handleSubmit(e, item.getQuestion())} className="submitEditJustification">
-                                    <label>Enter New Justification: </label>
-                                    <input type="text" id="newJustification" name="newJustification"></input>
-                                    <br/>
-                                    <button className="editJustification" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
-                                    <input type="submit"></input>
-                                </form>
-                            </div> : 
-                            <button className="editJustification" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Edit Justification</button>}
-                        </div>
-                        <div className="image">
-                            <h3>Image:</h3>
-                            <img src={item.getImage()} alt=""/>
-                            <br/>
-                            <button className="deleteImage" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Delete Image?</button>
-                            <br/>
-                            {addImage && (currentq === item.getQuestion()) ? 
-                            <div>
-                                <form onSubmit={(e) => handleSubmit(e, item.getQuestion())} className="submitAddImage">
-                                    <label>Add Image: </label>
-                                    <input type="file" id="newImage" name="newImage"></input>
-                                    <br/>
-                                    <button className="addImage" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
-                                    <input type="submit"></input>
-                                </form>
-                            </div> : 
-                            <button className="addImage" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Add Image</button>}
-                        </div>
-
-                        <button className='Delete' onClick={(e) => handleClick(e, item.getQuestion(), index)}>Delete Question?</button></li>
-                    ))}
-                    {ShowQuestions()}
+        <div className="questions">
+            {data.map((item, index) =>(
+                <div className="question">
+                <div className="taskLetterAndPrompt">
+                    <div className="questionNum">
+                        Question: {(index + 1) + (numOnPage * (page - 1))}
+                    </div>
+                    <div className="taskLetter">
+                        <h3>Category:</h3>
+                        {item.getTaskLetter()} - {item.getTaskLetterDesc()}
+                        <br/>
+                        {editTaskLetter && (currentq === item.getQuestion()) ? 
+                        <div>
+                            <form onSubmit={(e) => handleSubmit(e, item.getQuestion())} className="submitEditTaskLetter">
+                                <label>Enter New Task Letter: </label> 
+                                <input type="text" id="newTaskLetter" name="newTaskLetter"></input>
+                                <br/>
+                                <button className="editTaskLetter" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button> 
+                                <input type="submit"></input>
+                            </form>
+                        </div>:
+                        <button className="editTaskLetter" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Edit Task Letter</button>}
+                    </div>
+                    <div className="prompt">
+                        <h3>Prompt:</h3>
+                        {item.getQuestion()} {' '}
+                        <br/>
+                        {editPrompt && (currentq === item.getQuestion()) ? 
+                        <div>
+                            <form onSubmit={(e) => handleSubmit(e, item.getQuestion())} className="submitEditPrompt">
+                                <label>Enter New Prompt: </label>
+                                <input type="text" id="newPrompt" name="newPrompt"></input>
+                                <br/>
+                                <button className="editPrompt" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
+                                <input type="submit"></input>
+                            </form>
+                        </div> : 
+                        <button className="editPrompt" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Edit Prompt</button>}
+                    </div>
                 </div>
-            </div>
-            </Text>
-        </View>
+                <div className="wrongAnswers">
+                    <h3>Wrong Answers:</h3>
+                    {item.getWrongAnswers().map((wrongAnswer, wrongAnswerIndex) => (
+                        <div>{wrongAnswerIndex + 1}: {' '} {wrongAnswer}
+                            <br/>
+                            
+                            {editWrongAnswer && (currentq === item.getQuestion() && (currentWrongAnswer === wrongAnswerIndex)) ? 
+                            <div>
+                                <form onSubmit={(e) => handleSubmit(e, item.getQuestion(), wrongAnswerIndex)} className="submitEditWrongAnswer">
+                                    <label>Enter New Wrong Answer: </label>
+                                    <input type="text" id="newWrongAnswer" name="newWrongAnswer"></input>
+                                    <br/>
+                                    <button className="editWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index, wrongAnswerIndex)}>Cancel</button>
+                                    <input type="submit"></input>
+                                </form>
+                            </div> : 
+                            <button className="editWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index, wrongAnswerIndex)}>Edit Wrong Answer {wrongAnswerIndex + 1}</button>}
+                            <button className="deleteWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index, '', wrongAnswer)}>Delete Wrong Answer?</button>
+                        </div>
+                    ))}
+                    {addWrongAnswer && (currentq === item.getQuestion()) ? 
+                    <div>
+                        <form onSubmit={(e) => handleSubmit(e, item.getQuestion())} className="submitAddWrongAnswer">
+                            <label>Enter New Wrong Answer: </label>
+                            <input type='text' id="newWrongAnswer" name="newWrongAnswer"></input>
+                            <br/>
+                            <button className="addWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
+                            <input type="submit"></input> 
+                        </form>
+                    </div>:
+                    <button className="addWrongAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Add Wrong Answer</button>}
+                </div>
+                <div className="correctAnswer">
+                    <h3>Correct Answer:</h3>
+                    {item.getCorrectAnswer()}
+                    <br/>
+                    {editCorrectAnswer && (currentq === item.getQuestion()) ? 
+                    <div>
+                        <form onSubmit={(e) => handleSubmit(e, item.getQuestion())} className="submitEditCorrectAnswer">
+                            <label>Enter New Correct Answer: </label>
+                            <input type="text" id="newCorrectAnswer" name="newCorrectAnswer"></input>
+                            <br/>
+                            <button className="editCorrectAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
+                            <input type="submit"></input>
+                        </form>
+                    </div> : 
+                    <button className="editCorrectAnswer" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Edit Correct Answer</button>}
+                </div>
+                <div className="justification">
+                    <h3>Justification:</h3>
+                    {item.getJustification()}
+                    <br/>
+                    {editJustification && (currentq === item.getQuestion()) ? 
+                    <div>
+                        <form onSubmit={(e) => handleSubmit(e, item.getQuestion())} className="submitEditJustification">
+                            <label>Enter New Justification: </label>
+                            <input type="text" id="newJustification" name="newJustification"></input>
+                            <br/>
+                            <button className="editJustification" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
+                            <input type="submit"></input>
+                        </form>
+                    </div> : 
+                    <button className="editJustification" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Edit Justification</button>}
+                </div>
+                <div className="image">
+                    <h3>Image:</h3>
+                    {item.getImages().map((image, imageIndex) => (
+                        <div>
+                            <img src={image[0]} alt=""/>
+                            <button className="deleteImage" onClick={(e) => handleClick(e, item.getQuestion(), index, '', '', item.getImageNames()[imageIndex])}>Delete Image?</button>
+                            <br/>
+                            <br/>
+                        </div>
+                    ))}
+                    {addImage && (currentq === item.getQuestion()) ? 
+                    <div>
+                        <form onSubmit={(e) => handleSubmit(e, item.getQuestion())} className="submitAddImage">
+                            <label>Add Image: </label>
+                            <input type="file" id="newImage" name="newImage"></input>
+                            <br/>
+                            <button className="addImage" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Cancel</button>
+                            <input type="submit"></input>
+                        </form>
+                    </div> : 
+                    <button className="addImage" onClick={(e) => handleClick(e, item.getQuestion(), index)}>Add Image</button>}
+                </div>
+
+                <button className='Delete' onClick={(e) => handleClick(e, item.getQuestion(), index)}>Delete Question?</button>
+                
+                <div className="afterQuestion"> </div>
+                </div>
+                
+            ))}
+            {ShowQuestions()}
         </div>
         )}
     </h1>);
@@ -640,9 +701,12 @@ function ShowQuestions(data, isAll = true){
         allQuestions = undefined;
         questionToEdit = questionsFromFile;
 
-        return (<div>
+        return (<div className="questions">
         {data.map((item, index) =>(
-            <li style={{border: '1px solid black', padding: '8px'}}>
+            <li className="question">
+                <div className="questionNum">
+                    Question: {(index + 1) * page}
+                </div>
             <div className="taskLetter">
                 <h3>Task Letter:</h3>
                 {item.getTaskLetter()} - {item.getTaskLetterDesc()} {' '}
@@ -678,7 +742,7 @@ function ShowQuestions(data, isAll = true){
             </div>
             <div className="image">
                 <h3>Image:</h3>
-                <img src={item.getImage()}/>
+                <img src={item.getImage()} alt=""/>
                 <br/>
                 <button className="deleteImage" onClick={handleClick}>Delete Image?</button>
                 <button className="addImage" onClick={handleClick}>Add Image</button>

@@ -54,6 +54,27 @@ public class WrongAnswer {
 		return wrongAnswers;
 	}
 	
+	int getWrongAnswerId(int id, String wrongAnswer) {
+		String sql = "SELECT AnswerId FROM WrongAnswer WHERE Answer=? AND QuestionId=?;";
+		int wrongAnswerId = -1;
+		
+		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+				PreparedStatement pstmt = conn.prepareStatement(sql)){
+			pstmt.setString(1, wrongAnswer);
+			pstmt.setInt(2, id);
+			
+			ResultSet set = pstmt.executeQuery();
+			
+			while (set.next()) {
+				wrongAnswerId = set.getInt(1);
+			}
+		} catch (SQLException e) {
+			System.out.println("Error establishing connection: " + e.getMessage());
+		}
+		
+		return wrongAnswerId;
+	}
+	
 	ArrayList<Integer> getWrongAnswerId(int id){
 		String sql = "SELECT AnswerId FROM WrongAnswer WHERE QuestionId=?;";
 		ArrayList<Integer> wrongAnswers = new ArrayList<>();

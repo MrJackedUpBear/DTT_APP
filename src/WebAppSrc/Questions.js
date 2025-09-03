@@ -149,3 +149,27 @@ export async function updateCorrectAnswer(prompt, newCorrectAnswer){
 export async function updateWrongAnswer(prompt, questionId, newWrongAnswer){
 	return await db.updateWrongAnswer(prompt, questionId, newWrongAnswer);
 }
+
+export async function updateTaskLetter(prompt, taskLetter){
+	return await db.updateTaskLetter(prompt, taskLetter);
+}
+
+export async function updateJustification(prompt, justification){
+	return await db.updateJustification(prompt, justification);
+}
+
+export async function addWrongAnswer(prompt, wrongAnswer){
+	return await db.addWrongAnswer(prompt, wrongAnswer);
+}
+
+export async function addImage(prompt, image, imageType){
+	return await db.addImage(prompt, image, imageType);
+}
+
+export async function deleteWrongAnswer(prompt, wrongAnswer){
+	return await db.deleteWrongAnswer(prompt, wrongAnswer);
+}
+
+export async function deleteImage(imageName){
+	return await db.deleteImage(imageName);
+}

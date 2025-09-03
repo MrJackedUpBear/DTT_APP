@@ -2,6 +2,7 @@ package database;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -144,14 +145,16 @@ public class Database {
 		if (hasImage) {
 			for (Image img : images) {
 				String imageType = img.getImageType();
+				String imageData = img.getImageLoc();
+				img.setImageLoc("temp");
 				img.setQuestionId(questionId);
 				ImageDB.getInstance().addImage(img);
-				img = ImageDB.getInstance().getImage(questionId);
+				img = ImageDB.getInstance().getImage(questionId, "temp");
 				img.setImageType(imageType);
 				fileUpload += String.valueOf("ImageID - " + img.getImageId()) + ", QuestionID - " + String.valueOf(img.getQuestionId()) + "." + img.getImageType();
 								
 				try {
-					byte[] decodedBytes = Base64.getDecoder().decode(img.getImageLoc());
+					byte[] decodedBytes = Base64.getDecoder().decode(imageData);
 					
 					Files.write(Paths.get(fileUpload), decodedBytes);
 					
@@ -165,7 +168,7 @@ public class Database {
 		}
 	}
 	
-	public Boolean deleteQuestion(String prompt) {
+	public Boolean deleteQuestion(String prompt, String filePath) {
 		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
 		
 		if (questionId == -1) {
@@ -176,12 +179,15 @@ public class Database {
 		
 		if (q.getHasImage()) {
 			try {
-				Files.delete(Paths.get(ImageDB.getInstance().getImage(questionId).getImageLoc()));
+				ArrayList<Image> images = q.getImages();
+				for (Image img : images) {
+					Files.delete(Paths.get(filePath + img.getImageLoc()));
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			ImageDB.getInstance().deleteImage(questionId);
+			ImageDB.getInstance().deleteImages(questionId);
 		}
 		
 		QuestionDB.getInstance().deleteQuestion(questionId);
@@ -260,32 +266,127 @@ public class Database {
 		}
 	}
 	
+	public Boolean addWrongAnswer(String answer, String prompt) {
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+		
+		if (questionId == -1) {
+			return false;
+		}
+		
+		addWrongAnswer(answer, questionId);
+		
+		return true;
+	}
+	
+	public void addImage(String imageJson, String fileUpload) {
+		Image image = getImageFromJson(imageJson);
+		
+		int questionId = image.getQuestionId();
+		String imageData = image.getImageLoc();
+		String imageType = image.getImageType();
+		
+		image.setImageLoc("temp");
+		
+		ImageDB.getInstance().addImage(image);
+		
+		image = ImageDB.getInstance().getImage(questionId, "temp");
+		
+		image.setImageType(imageType);
+		fileUpload += String.valueOf("ImageID - " + image.getImageId()) + ", QuestionID - " + String.valueOf(image.getQuestionId()) + "." + image.getImageType();
+						
+		try {
+			byte[] decodedBytes = Base64.getDecoder().decode(imageData);
+			
+			Files.write(Paths.get(fileUpload), decodedBytes);
+			
+			System.out.println("Image file created successfully at: " + fileUpload);
+			image.setImageLoc(fileUpload);
+			ImageDB.getInstance().updateImage(image);
+			if (!QuestionDB.getInstance().getQuestion(questionId).getHasImage()) {
+				QuestionDB.getInstance().updateQuestionHasImage(questionId, true);
+			}
+		}catch(IOException e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+	}
+	
 	public void addWrongAnswer(String answer, int questionId) {
 		ArrayList<Integer> wrongAnswerIds = WrongAnswer.getInstance().getWrongAnswerId(questionId);
 		
 		int maxVal = 0;
 		
 		for (int wrongAnswerId : wrongAnswerIds) {
-			if (wrongAnswerId > maxVal && wrongAnswerId - maxVal == 1) {
-				maxVal = wrongAnswerId;
-			}else {
-				maxVal++;
-				break;
+			if (wrongAnswerId >= maxVal) {
+				maxVal = wrongAnswerId + 1;
 			}
 		}
 		
 		WrongAnswer.getInstance().addWrongAnswer(maxVal, answer, questionId);
 	}
 	
-	public void deleteWrongAnswer(int answerId, int questionId) {
-		WrongAnswer.getInstance().deleteWrongAnswer(answerId, questionId);
+	public Boolean deleteImage(Image image, String imageType) {
+		int questionId = image.getQuestionId();
+		
+		if (questionId == -1) {
+			return false;
+		}
+		
+		questions.Question question = QuestionDB.getInstance().getQuestion(questionId);
+		
+		question.deleteImage(image);
+		
+		if (!question.getHasImage()) {
+			QuestionDB.getInstance().updateQuestionHasImage(questionId, question.getHasImage());
+		}
+		
+		ImageDB.getInstance().deleteImage(image.getImageId());
+		
+		Path filePath = Paths.get(image.getImageLoc());
+		
+		try {
+			Files.delete(filePath);
+			System.out.println("Deleted image.");
+		}catch (IOException e) {
+			System.out.println("Error deleting image: " + e.getMessage());
+		}
+		
+		return true;
+	}
+	
+	public Boolean deleteWrongAnswer(int wrongAnswerId, String prompt) {
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+		
+		if (questionId == -1) {
+			return false;
+		}
+		
+		WrongAnswer.getInstance().deleteWrongAnswer(wrongAnswerId, questionId);
+		
+		return true;
+	}
+	
+	public Boolean deleteWrongAnswer(String wrongAnswer, String prompt) {
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+		
+		if (questionId == -1) {
+			return false;
+		}
+		
+		int wrongAnswerId = WrongAnswer.getInstance().getWrongAnswerId(questionId, wrongAnswer);
+		
+		WrongAnswer.getInstance().deleteWrongAnswer(wrongAnswerId, questionId);
+		
+		return true;
 	}
 	
 	public void deleteAllWrongAnswers(int questionId) {
 		ArrayList<Integer> wrongAnswerIds = WrongAnswer.getInstance().getWrongAnswerId(questionId);
 		
+		questions.Question q = QuestionDB.getInstance().getQuestion(questionId);
+		String prompt = q.getPrompt();
+		
 		for (int wrongAnswerId: wrongAnswerIds) {
-			deleteWrongAnswer(wrongAnswerId, questionId);
+			deleteWrongAnswer(wrongAnswerId, prompt);
 		}
 	}
 	
@@ -326,6 +427,20 @@ public class Database {
 			System.out.println("Error: " + e.getMessage());
 		}
 		return allQuestions;
+	}
+	
+	private Image getImageFromJson(String imageJson){
+		Image image = new Image();
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		
+		try {
+			image = objectMapper.readValue(imageJson, Image.class);
+		}catch (Exception e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+		
+		return image;
 	}
 	
 	public String formatQuestionsAsJson(ArrayList<questions.Question>question) {
