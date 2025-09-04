@@ -428,7 +428,12 @@ function LoadQuestions(){
 
         if (className === 'submitEditTaskLetter'){
             let newTaskLetter = formData.get("newTaskLetter").trim();
-            alert(newTaskLetter);
+            if (!await questions.updateTaskLetter(prompt, newTaskLetter)){
+                alert("Error updating.");
+            }
+            
+            page++;
+            router.navigate('Back');
             setEditTaskLetter(false);
         }else if (className === 'submitEditPrompt'){
             let newPrompt = formData.get("newPrompt").trim();
