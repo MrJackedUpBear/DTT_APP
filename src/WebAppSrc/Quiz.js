@@ -51,7 +51,9 @@ export function StartQuiz() {
             <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
         </div>
         <button onClick={confirmExit} className="exit">EXIT</button>
-        DTT Quiz App - Quiz
+        <h1 className="title">
+          DTT Quiz App - Quiz
+        </h1>
         <div className="settings">
             <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settingsMenu} alt="Settings"/></button>
         </div>
@@ -134,7 +136,9 @@ export function CorrectAnswer(){
               <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
           </div>
           <button onClick={confirmExit} className="exit">EXIT</button>
-          DTT Quiz App - Quiz
+          <h1 className="title">
+            DTT Quiz App - Quiz
+          </h1>
           <div className="settings">
               <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settingsMenu} alt="Settings"/></button>
           </div>
@@ -151,7 +155,9 @@ export function CorrectAnswer(){
             <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
         </div>
         <button onClick={confirmExit} className="exit">EXIT</button>
-        DTT Quiz App - Quiz
+        <h1 className="title">
+          DTT Quiz App - Quiz
+        </h1>
         <div className="settings">
             <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settingsMenu} alt="Settings"/></button>
         </div>
@@ -179,16 +185,19 @@ export function WrongAnswer(){
   }
 
   return (<div>
-    <h1 className="navBar">
+    <div className="navBar">
         <div className="landingPage">
             <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
         </div>
         <button onClick={confirmExit} className="exit">EXIT</button>
-        DTT Quiz App - Quiz
+        <h1 className="title">
+          DTT Quiz App - Quiz
+        </h1>
+        
         <div className="settings">
             <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settingsMenu} alt="Settings"/></button>
         </div>
-    </h1>
+    </div>
     <div className="wrong">
       Incorrect!
       <br/>

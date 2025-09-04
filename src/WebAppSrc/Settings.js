@@ -28,15 +28,17 @@ export function Settings(){
     }
 
     return (<div className="Settings">
-        <h1 className="navBar">
+        <div className="navBar">
             <div className="landingPage">
                 <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
             </div>
             <div className="home">
                 <button onClick={() => router.navigate("/MainPage")}><img src={home} alt="Home" className="home"/></button>
             </div>
-            DTT Quiz App - Settings
-        </h1>
+            <h1 className="title">
+                DTT Quiz App - Settings
+            </h1>
+        </div>
 
         <div className="settings">
             <form onSubmit={handleSubmit}>

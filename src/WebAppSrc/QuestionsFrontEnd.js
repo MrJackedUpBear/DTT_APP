@@ -213,18 +213,20 @@ export function SubmitAddQuestions(){
 export function ViewAndUpdate(){
 
     return (<div>
-        <h1 className="navBar">
+        <div className="navBar">
             <div className="landingPage">
                 <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
             </div>
             <div className="home">
                 <button onClick={() => router.navigate("/MainPage")}><img src={home} alt="Home"/></button>
             </div>
-            DTT Quiz App - Questions
+            <h1 className="title">
+                DTT Quiz App - Questions
+            </h1>
             <div className="settings">
                 <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settings} alt="Settings"/></button>
             </div>
-        </h1>
+        </div>
         <button onClick={() => router.navigate('Add')}>Add Questions</button>
         <div className="loadQuestions">
             <h1>All Questions</h1>

@@ -14,15 +14,17 @@ export function MainPage(){
 
 
   return (<div className="MainPage">
-    <h1 className="navBar">
+    <div className="navBar">
       <div className="landingPage">
         <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
       </div>
-      DTT Quiz App - Main Page
+      <h1 className="title">
+        DTT Quiz App - Main Page
+      </h1>
       <div className="settings">
         <button onClick={() => router.navigate('Settings')}><img src={settings} alt="Settings"/></button>
       </div>
-    </h1>
+    </div>
     <h1 className="greeting">
       Welcome User!
     </h1>

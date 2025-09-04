@@ -41,13 +41,20 @@
   background-color: #FFCC8E;
   text-align: center;
   margin: auto;
-  color: #1000A5;
-  margin-top: 0;
-  height: 80px;
-  font-size: 350%;
+  width: 100%;
+  
+
+  .title{
+    margin-top: 0;
+    height:100%;
+    color: #1000A5;
+    font-size:4cqw;
+  }
   
   img{
-    width: 69px;
+    max-width: 69px;
+    min-width: 20px;
+    width:100%;
     height: auto;
   }
 
@@ -62,21 +69,27 @@
   }
 
   .settings{
+    width:5%;
+    height:auto;
     float: right;
     top: 0;
   }
 
   .landingPage{
+    width:5%;
+    height: auto;
     float: left;
   }
 
   .home{
+    width: 5%;
+    height: auto;
     float: left;
   }
 
   .exit{
     float: left;
-    font-size:120%;
+    font-size:4cqw;
     background-color: lightgray;
     color:red;
   }
@@ -185,15 +198,16 @@
             float:left;
             text-align: center;
             display: flex;
+            font-size:3cqw;
+
           }
 
           .taskLetter{
             background-color: lightgrey;
             border: 20px solid darkgray;
             padding: 20px;
-            max-width:50%;
-            font-size:50%;
-
+            max-width:100%;
+            font-size:2cqw;
           }
 
           .prompt{
@@ -201,10 +215,10 @@
             border: 20px solid darkgray;
             padding: 20px;
             word-wrap:break-word;
-            min-width:50%;
+            min-width:100%;
             flex-shrink: 1;
             flex-wrap:wrap;
-            font-size:50%;
+            font-size:2cqw;
           }
         }
 
@@ -219,8 +233,7 @@
           flex-shrink: 1;
           flex-wrap:wrap;
           margin: auto;
-          font-size:50%;
-
+          font-size:2cqw;
         }
 
         .correctAnswer{
@@ -231,7 +244,7 @@
           padding: 20px;
           word-wrap:break-word;
           max-width:20%;
-          font-size:50%;
+          font-size:2cqw;
         }
 
         .justification{
@@ -242,7 +255,7 @@
           padding: 20px;
           word-wrap:break-word;
           max-width:20%;
-          font-size:50%;
+          font-size:1cqw;
         }
 
         .image{
@@ -252,6 +265,8 @@
           padding: 20px;
           word-wrap:break-word;
           max-width:20%;
+          font-size:3cqw;
+
 
           img{
             max-width: 400px;
@@ -285,7 +300,8 @@
     background-color: green;
     text-align: center;
     color:white;
-    font-size: 50px;
+    font-size:4cqw;
+
     margin:auto;
     padding-bottom: 50%;
 
@@ -305,7 +321,7 @@
   background-color: red;
     text-align: center;
     color:white;
-    font-size: 50px;
+    font-size:4cqw;
     margin:auto;
     padding-bottom: 50%;
 
@@ -323,7 +339,7 @@
 }
 
 .finishedQuiz{
-  font-size:50px;
+  font-size:4cqw;
   text-align: center;
   font-weight: bold;
 }
@@ -341,7 +357,7 @@
   }
 
   .quizHeader{
-    font-size:50px;
+    font-size:4cqw;
     background-color: #D9D9D9;
     width:20%;
     margin:auto;
@@ -363,7 +379,7 @@
         background-color: #D9D9D9;
         width: 70%;
         margin:auto;
-        font-size: 50px;
+        font-size:4cqw;
       }
 
       .quizAnswer:hover{
@@ -373,7 +389,7 @@
 
       .timer{
         display:flex;
-        font-size:40px;
+        font-size:4cqw;
         text-align: left;
         margin:auto;
         color:#B3FF9C;
