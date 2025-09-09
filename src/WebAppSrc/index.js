@@ -69,6 +69,10 @@ import * as settings from './Settings';
     {
       path: 'MainPage/Settings',
       element: <settings.Settings/>
+    },
+    {
+      path: 'Login',
+      element: <app.LoginPage/>
     }
   ]);
 

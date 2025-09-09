@@ -22,9 +22,15 @@ let correctChoice = false;
 let totalCorrect = 0;
 let correctLetter = '';
 
-export function getInfo(){
-  totalQuestions = settings.getNumQuestions();
-  totalTime = settings.getTime();
+async function verifyTokens(){
+  if (!await db.verifyTokens()){
+    router.navigate("/Login");
+  }
+}
+
+export async function getInfo(){
+  totalQuestions = await settings.getNumQuestions();
+  totalTime = await settings.getTime();
   wrongChoice = false;
   correctChoice = false;
   currentQuestionNum = 1;
@@ -43,7 +49,8 @@ function confirmExit(){
 }
 
 export function StartQuiz() {
-    document.body.style = 'background: white;';
+  verifyTokens();
+  document.body.style = 'background: white;';
   return (
     <div>
       <h1 className="navBar">
@@ -109,6 +116,8 @@ function Countdown(){
 //Below this is where the actual functions for quiz start
 
 export function CorrectAnswer(){
+  verifyTokens();
+
   if (!wrongChoice && !correctChoice){
     return (<h1>
       Invalid redirect.
@@ -178,6 +187,8 @@ export function CorrectAnswer(){
 }
 
 export function WrongAnswer(){
+  verifyTokens();
+
   if (!wrongChoice && !correctChoice){
     return (<h1>
       Invalid redirect.
@@ -377,6 +388,7 @@ function isNum(input){
 }
 
 export function CheckAnswer(answer){
+  window.scrollTo(0, 0);
   if (answer === currentQuestion.getCorrectAnswer()){
     correctChoice = true;
     router.navigate('CorrectAnswer');

@@ -19,12 +19,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Optional;
+
 import database.Database;
 import mail.Mail;
 import questions.QuestionGenerator;
+import token.TokenGenerator;
 import questions.Question;
 import database.Image;
 import database.QuestionDB;
+import database.User;
 
 
 /**
@@ -52,9 +57,33 @@ public class QuizServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		response.setHeader("Access-Control-Allow-Origin", "*");
+		String auth = request.getHeader("Authorization");
+				
+		if (auth == null){
+			System.out.println("Issue with authorization");
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+		
+		String authType = auth.substring(0, auth.indexOf(' '));
+				
+		if (!authType.equals("Bearer")) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+		
+		String encodedAuth = auth.substring(auth.indexOf(' ') + 1);
+		String accessToken = new String(Base64.getDecoder().decode(encodedAuth));
+		
+		String user = TokenGenerator.getInstance().getUsername(accessToken);
+		
+		if (user == null) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+		
 		String requestURI = request.getRequestURI();
-		String infoRequest = requestURI.substring("/DTT_APP/QuizServlet/".length());
+		String infoRequest = requestURI.substring("/DTT_APP/Quiz/".length());
 		
 		if (infoRequest.equals("RandomQuestions")) {
 			String temp = request.getParameter("NumQuestions");
@@ -115,6 +144,8 @@ public class QuizServlet extends HttpServlet {
 					os.write(buffer, 0, bytesRead);
 				}
 			}
+		}else if (infoRequest.equals("User")) {
+			response.getWriter().print(Database.getInstance().getUserInfo(user));
 		}
 		else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -126,8 +157,32 @@ public class QuizServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.setHeader("Access-Control-Allow-Origin", "*");
-		String postRequest = request.getRequestURI().substring("/DTT_APP/QuizServlet/".length());
+		String auth = request.getHeader("Authorization");
+				
+		if (auth == null){
+			System.out.println("Issue with authorization");
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+		
+		String authType = auth.substring(0, auth.indexOf(' '));
+		
+		if (!authType.equals("Bearer")) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+		
+		String encodedAuth = auth.substring(auth.indexOf(' ') + 1);
+		String accessToken = new String(Base64.getDecoder().decode(encodedAuth));
+		
+		String user = TokenGenerator.getInstance().getUsername(accessToken);
+		
+		if (user == null) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+		
+		String postRequest = request.getRequestURI().substring("/DTT_APP/Quiz/".length());
 		
 		if (postRequest.equals("AddQuestions")) {
 			StringBuilder stringRequest = new StringBuilder();

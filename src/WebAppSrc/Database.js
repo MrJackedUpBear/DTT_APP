@@ -1,40 +1,7 @@
 import React, { useEffect, useState } from "react";
+import {user, Setting} from './User.js';
 
 //Creates an user class that can be used to handle multiple users in the database
-class user{
-	constructor(fName, lName, uName, mail, sett, perm){
-		this.firstName = fName;
-		this.lastName = lName;
-		this.username = uName;
-		this.email = mail;
-		this.settings = sett;
-		this.permissions = perm;
-	}
-
-	getFirstName(){
-		return this.firstName;
-	}
-
-	getLastName(){
-		return this.lastName;
-	}
-
-	getUsername(){
-		return this.username;
-	}
-
-	getEmail(){
-		return this.email;
-	}
-
-	getSettings(){
-		return this.settings;
-	}
-
-	getPermissions(){
-		return this.permissions;
-	}
-}
 
 //Creates a question class to hold all the information for a question.
 export class question{
@@ -153,7 +120,19 @@ export class question{
 	}
 }
 
-const baseURL = "http://localhost:8080/DTT_APP/QuizServlet/";
+const baseURL = "http://localhost:8080/DTT_APP/"
+
+const authURL = baseURL + "Auth/";
+const emailAuthURL = "EmailAuth";
+const tokenCheckURL = "IsValid";
+
+const getUserInfoURL = "User";
+
+const settingsURL = baseURL + "Settings/";
+const getSettingsURL = "AppSettings";
+const updateSettingsURL = "Update";
+
+const questionURL = baseURL + "Quiz/";
 const getRandomQuestionsURL = "RandomQuestions";
 const getSpecificQuestionURL = "SpecificQuestion";
 const getQuestionTotalURL = "QuestionTotal";
@@ -173,7 +152,7 @@ const updateTaskLetterURL = "UpdateTaskLetter";
 
 const addQuestionsURL = "AddQuestions";
 
-let users = new Map();
+let currentUser;
 let questions = [];
 
 let permissions = new Map();
@@ -181,24 +160,6 @@ let settings = new Map();
 
 permissions.set('Users', 'T');
 permissions.set('Questions', 'T');
-
-settings.set('Timer', '10s');
-settings.set('Number Questions', '20');
-settings.set('Audio', 'T');
-
-let user1 = new user("Admin", "Admin", "Admin", "admin@admin", settings, permissions);
-
-users.set('1', user1);
-
-export function getUserInfo(id){
-	let userInfo = new Map();
-	userInfo = users.get(id);
-	if (userInfo === undefined){
-		alert("User does not exist.");
-	}
-
-	return userInfo;
-}
 
 export function getQuestionInfo(userQuestion){
 	let questionInfo = new question();
@@ -220,27 +181,173 @@ export function getQuestionInfo(userQuestion){
 	return questionInfo;
 }
 
-export function setUserInfo(id, userInfo){
-	let user = users.get(id);
+export function getBaseURL(){
+	return baseURL;
+}
 
-	if (user === undefined){
-		users.set(id, userInfo);
-	}else if (user !== userInfo){
-		users.set(id, userInfo);
+export async function verifyTokens(){
+	let token = localStorage.getItem("AccessToken");
+	if (token !== null){
+		if (!await verifyToken(token)){
+			await refreshAccessToken();
+			token = localStorage.getItem("AccessToken");
+			if (await verifyToken(token)){
+				return true;
+			}
+
+			return false;
+		}
+
+		return true;
 	}else{
-		alert("No changes have been made.");
+		return false;
 	}
 }
 
-export function getBaseURL(){
-	return baseURL;
+export async function getToken(username, password){
+	try{
+		const myHeaders = new Headers();
+		let combined = username + ":" + password;
+		myHeaders.append("Content-Type", "application/json");
+		combined = btoa(combined);
+		myHeaders.append("Authorization", "Basic " + combined);
+
+		const response = await fetch(authURL, {
+			headers:myHeaders,
+			method: "POST",
+			credentials: "include",
+		});
+
+		if (!response.ok){
+			console.error("Error getting token..." + response);
+			return false;
+		}
+
+		let token = await response.json();
+
+		localStorage.setItem("AccessToken", token["AccessToken"]);
+		const cookie = response.headers.getSetCookie();
+
+		cookie.forEach(cook =>{
+			alert(cook);
+		});
+		return true;
+	}catch(e){
+		console.error(e);
+	}
+}
+
+export async function verifyEmailAuth(code){
+	const myHeaders = new Headers();
+	let combined = 'dummy' + ":" + code;
+	myHeaders.append("Content-Type", "application/json");
+	combined = btoa(combined);
+	myHeaders.append("Authorization", "Email " + combined);
+
+	const response = await fetch(authURL, {
+		headers:myHeaders,
+		method: "POST",
+		credentials: "include",
+	});
+
+	if (!response.ok){
+		console.error("Error getting token..." + response);
+		return false;
+	}
+
+	let token = await response.json();
+
+	localStorage.setItem("AccessToken", token["AccessToken"]);
+	const cookie = response.headers;
+
+	alert(cookie.getSetCookie());
+
+	return true;
+}
+
+export async function getEmailAuth(username){
+	try{
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+
+		let req = "Username=" + username;
+
+		const response = await fetch(authURL + emailAuthURL + "?" + req, {
+			headers:myHeaders,
+			method: "GET",
+		});
+
+		if (!response.ok){
+			console.error("Error getting token..." + response);
+			return false;
+		}
+	}catch(e){
+		console.error(e);
+	}
+}
+
+export async function verifyToken(token){
+	try{
+		const myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+
+		let req = "Token=" + token;
+
+		const response = await fetch(authURL + tokenCheckURL + "?" + req, {
+			headers:myHeaders,
+			method: "GET",
+			credentials: "include",
+		});
+
+		if (!response.ok){
+			console.error("Error checking token..." + response);
+			return false;
+		}
+
+		let isValid = await response.json();
+
+		return isValid["IsValid"];
+	}catch(e){
+		console.error(e);
+	}
+}
+
+export async function refreshAccessToken(){
+	const myHeaders = new Headers();
+	let combined = 'dummy:dummy';
+	myHeaders.append("Content-Type", "application/json");
+	combined = btoa(combined);
+	myHeaders.append("Authorization", "Refresh " + combined);
+
+	const response = await fetch(authURL, {
+		headers:myHeaders,
+		method: "POST",
+		credentials: "include",
+
+	});
+
+	if (!response.ok){
+		console.error("Error getting token..." + response);
+		return false;
+	}
+
+	let token = await response.json();
+
+	localStorage.setItem("AccessToken", token["AccessToken"]);
+
+	return true;
 }
 
 export async function addQuestions(questionsToAdd){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
-		const response = await fetch(baseURL + addQuestionsURL, {
+
+		let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+		myHeaders.append("Authorization", accessToken);
+
+		const response = await fetch(questionURL + addQuestionsURL, {
 			headers:myHeaders,
 			method: "POST",
 			body: JSON.stringify(questionsToAdd),
@@ -258,8 +365,16 @@ export async function getQuestions(numQuest){
 	const params = new URLSearchParams();
 	params.append("NumQuestions", numQuest);
 
+	const myHeaders = new Headers();
+
+	let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+	myHeaders.append("Authorization", accessToken);
+
 	try{
-		const response = await fetch(baseURL + getRandomQuestionsURL + '?' + params);
+		const response = await fetch(questionURL + getRandomQuestionsURL + '?' + params, {
+			headers:myHeaders,
+		});
 		if (!response.ok){
 			console.log("Bad response: " + response.status);
 			return;
@@ -279,8 +394,16 @@ export async function getQuestions(numQuest){
 export async function getNumberQuestions(){
 	let numQuestions = 0;
 	let JSON = "";
+
+	const myHeaders = new Headers();
+
+	let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+	myHeaders.append("Authorization", accessToken);
 	try{
-		const response = await fetch(baseURL + getQuestionTotalURL);
+		const response = await fetch(questionURL + getQuestionTotalURL, {
+			headers:myHeaders,
+		});
 		if (!response.ok){
 			console.log("Bad response: " + response.status);
 			return;
@@ -302,13 +425,21 @@ export async function getNumberQuestions(){
 export async function getQuestionsFrom(start, end){
 	let Json = "";
 	let questionSet = [];
+
+	const myHeaders = new Headers();
+
+	let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+	myHeaders.append("Authorization", accessToken);
 	
 	const params = new URLSearchParams();
 	params.append("Start", start);
 	params.append("End", end);
 
 	try{
-		const response = await fetch(baseURL + getQuestionsFromURL + '?' + params);
+		const response = await fetch(questionURL + getQuestionsFromURL + '?' + params, {
+			headers:myHeaders,
+		});
 
 		if (!response.ok){
 			console.log("Bad response: " + response.status);
@@ -332,7 +463,12 @@ export async function deleteQuestion(prompt){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
-		const response = await fetch(baseURL + deleteQuestionURL,{
+
+		let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+		myHeaders.append("Authorization", accessToken);
+
+		const response = await fetch(questionURL + deleteQuestionURL,{
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompt":prompt}),
@@ -349,7 +485,11 @@ export async function updatePrompt(oldPrompt, newPrompt){
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 
-		const response = await fetch(baseURL + updateQuestionPromptURL,{
+		let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+		myHeaders.append("Authorization", accessToken);
+
+		const response = await fetch(questionURL + updateQuestionPromptURL,{
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompts":[oldPrompt, newPrompt]}),
@@ -370,7 +510,11 @@ export async function updateCorrectAnswer(prompt, newCorrectAnswer){
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 
-		const response = await fetch(baseURL + updateCorrectAnswerURL,{
+		let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+		myHeaders.append("Authorization", accessToken);
+
+		const response = await fetch(questionURL + updateCorrectAnswerURL,{
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompt and Answer":[prompt, newCorrectAnswer]}),
@@ -393,7 +537,11 @@ export async function updateWrongAnswer(prompt, answerId, wrongAnswer){
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 
-		const response = await fetch(baseURL + updateWrongAnswerURL,{
+		let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+		myHeaders.append("Authorization", accessToken);
+
+		const response = await fetch(questionURL + updateWrongAnswerURL,{
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompt":prompt, "Wrong Answer":wrongAnswer, "Answer Id":answerId}),
@@ -415,7 +563,11 @@ export async function deleteWrongAnswer(prompt, wrongAnswer){
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 
-		const response = await fetch(baseURL + deleteWrongAnswerURL,{
+		let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+		myHeaders.append("Authorization", accessToken);
+
+		const response = await fetch(questionURL + deleteWrongAnswerURL,{
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompt and Wrong Answer": [prompt, wrongAnswer]}),
@@ -437,7 +589,11 @@ export async function deleteImage(imageName){
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 
-		const response = await fetch(baseURL + deleteImageURL,{
+		let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+		myHeaders.append("Authorization", accessToken);
+
+		const response = await fetch(questionURL + deleteImageURL,{
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Image Name": imageName}),
@@ -459,7 +615,11 @@ export async function addWrongAnswer(prompt, wrongAnswer){
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 
-		const response = await fetch(baseURL + addWrongAnswerURL,{
+		let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+		myHeaders.append("Authorization", accessToken);
+
+		const response = await fetch(questionURL + addWrongAnswerURL,{
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompt and Wrong Answer": [prompt, wrongAnswer]}),
@@ -481,7 +641,11 @@ export async function addImage(prompt, image, imageType){
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 
-		const response = await fetch(baseURL + addImageURL,{
+		let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+		myHeaders.append("Authorization", accessToken);
+
+		const response = await fetch(questionURL + addImageURL,{
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"prompt": prompt,
@@ -506,7 +670,11 @@ export async function updateTaskLetter(prompt, taskLetter){
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 
-		const response = await fetch(baseURL + updateTaskLetterURL,{
+		let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+		myHeaders.append("Authorization", accessToken);
+
+		const response = await fetch(questionURL + updateTaskLetterURL,{
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompt and Task Letter":[prompt, taskLetter]}),
@@ -529,7 +697,11 @@ export async function updateJustification(prompt, justification){
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 
-		const response = await fetch(baseURL + updateJustificationURL,{
+		let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+		myHeaders.append("Authorization", accessToken);
+
+		const response = await fetch(questionURL + updateJustificationURL,{
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompt and Justification":[prompt, justification]}),
@@ -548,8 +720,15 @@ export async function updateJustification(prompt, justification){
 }
 
 export async function uploadFile(formData){
+	const myHeaders = new Headers();
+
+	let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+	myHeaders.append("Authorization", accessToken);
+
 	try{
-		const resp = await fetch(baseURL + fileUploadURL, {
+		const resp = await fetch(questionURL + fileUploadURL, {
+			headers:myHeaders,
 			method: 'POST',
 			body: formData
 		});
@@ -573,8 +752,16 @@ export async function getImage(imageName){
 	const params = new URLSearchParams();
 	params.append("ImageName", imageName);
 
+	const myHeaders = new Headers();
+
+	let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+	myHeaders.append("Authorization", accessToken);
+
 	try{
-		const resp = await fetch (baseURL + getImagesURL + "?" + params);
+		const resp = await fetch (questionURL + getImagesURL + "?" + params,{
+			headers:myHeaders,
+		});
 
 		if (!resp.ok){
 			console.error("Error fetching...");
@@ -588,6 +775,114 @@ export async function getImage(imageName){
 		return image;
 	}catch (e){
 		console.error("Error: ", e);
+	}
+}
+
+export async function getUser(){
+	const myHeaders = new Headers();
+
+	let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+	myHeaders.append("Authorization", accessToken);
+	try{
+		const response = await fetch(questionURL + getUserInfoURL, {
+			headers:myHeaders,
+		});
+		if (!response.ok){
+			console.log("Bad response: " + response.status);
+			return;
+		}
+
+		const json = await response.json();
+
+		const settingsJson = await getSettings();
+
+		if (settingsJson == null){
+			return;
+		}
+
+		let s = new Setting(settingsJson["numQuestions"], settingsJson["timeLimit"]);
+		s.setSettingId(settingsJson["settingId"]);
+
+		currentUser = new user(json["firstName"], json["lastName"], json["email"], s, permissions);	
+
+		return currentUser;
+	}catch (e){
+		console.error("Error: ", e);
+	}
+
+	return currentUser;
+}
+
+export async function changePassword(password){
+	const myHeaders = new Headers();
+
+	let accessToken = "Password " + btoa(localStorage.getItem("AccessToken"));
+	password = btoa(password);
+
+	myHeaders.append("Authorization", accessToken);
+	myHeaders.append("Password", password);
+	try{
+		const response = await fetch(authURL, {
+			headers:myHeaders,
+			method:'POST',
+			credentials: "include",
+		});
+		if (!response.ok){
+			console.log("Bad response: " + response.status);
+			return false;
+		}
+
+		return true;
+	}catch (e){
+		console.error("Error: ", e);
+		return false;
+	}
+}
+
+export async function getSettings(){
+	const myHeaders = new Headers();
+
+	let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+	myHeaders.append("Authorization", accessToken);
+	try{
+		const response = await fetch(settingsURL + getSettingsURL, {
+			headers:myHeaders,
+		});
+		if (!response.ok){
+			console.log("Bad response: " + response.status);
+			return null;
+		}
+
+		return await response.json();
+	}catch (e){
+		console.error("Error: ", e);
+		return null;
+	}
+}
+
+export async function updateSettings(s){
+	const myHeaders = new Headers();
+
+	let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+	myHeaders.append("Authorization", accessToken);
+	try{
+		const response = await fetch(settingsURL + updateSettingsURL, {
+			headers:myHeaders,
+			method:'POST',
+			body: JSON.stringify(s),
+		});
+		if (!response.ok){
+			console.log("Bad response: " + response.status);
+			return false;
+		}
+
+		return true;
+	}catch (e){
+		console.error("Error: ", e);
+		return null;
 	}
 }
 

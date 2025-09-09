@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Optional;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Database {
@@ -42,6 +42,39 @@ public class Database {
 		Image img = ImageDB.getInstance().getImage(imageLoc);
 		
 		return img;
+	}
+	
+	public String getUserInfo(String username) {
+		User user = getUser(username);
+		
+		if (user == null) {
+			return "";
+		}
+		
+		user.setPassword(null);
+		user.setSalt(null);
+		
+		return formatClassAsJson(user);
+	}
+	
+	public User getUser(String username) {
+		Optional<User> user = UserDB.getInstance().getUserByEmail(username);
+		
+		if (!user.isPresent()) {
+			return null;
+		}
+		
+		return user.get();
+	}
+	
+	public String getSettings(int settingId) {
+		Optional<Setting> settings = SettingDB.getInstance().getSettingById(settingId);
+		
+		if (!settings.isPresent()) {
+			return "";
+		}
+		
+		return formatClassAsJson(settings.get());
 	}
 	
 	//This function accesses the question and wrong answer table to get complete questions. First it checks how many questions are in the database, then it
@@ -216,6 +249,18 @@ public class Database {
 		}
 		
 		QuestionDB.getInstance().updateTaskLetter(questionId, taskLetter);
+		
+		return true;
+	}
+	
+	public Boolean updateSettings(String settingsJson) {	
+		Setting setting = getSettingFromJson(settingsJson);
+		
+		if (setting == null) {
+			return false;
+		}
+		
+		SettingDB.getInstance().updateSetting(setting);
 		
 		return true;
 	}
@@ -443,6 +488,31 @@ public class Database {
 		return image;
 	}
 	
+	public Setting getSettingFromJson(String json) {
+		ObjectMapper objectMapper = new ObjectMapper();
+		
+		try {
+			Setting t = objectMapper.readValue(json, Setting.class);
+			
+			return t;
+		}catch(Exception e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+		
+		return null;
+	}
+	
+	public <T> String formatClassAsJson(T user) {
+		ObjectMapper objectMapper = new ObjectMapper();
+		String json = "";
+		try {
+			json = objectMapper.writeValueAsString(user);
+		}catch(Exception e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+		return json;
+	}
+	
 	public String formatQuestionsAsJson(ArrayList<questions.Question>question) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		String json = "";
@@ -461,4 +531,16 @@ public class Database {
 //	
 //	return list;
 //}
+}
+
+class Box<T> {
+  T value; // T is a placeholder for any data type
+
+  void set(T value) {
+    this.value = value;
+  }
+
+  T get() {
+    return value;
+  }
 }

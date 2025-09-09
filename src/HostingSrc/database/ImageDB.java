@@ -1,7 +1,6 @@
 package database;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,10 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImageDB {
-	private static String user = System.getenv("DB_USER");
-	private static String pass = System.getenv("DB_PASSWORD");
-	private static String DB_URL = "jdbc:mariadb://localhost:3306/DTT_APP";
-	
 	private static String createQuestion = "CREATE TABLE IF NOT EXISTS Image (ImageId INT NOT NULL AUTO_INCREMENT, ImageLoc TEXT NOT NULL, QuestionId INT NOT NULL, PRIMARY KEY(ImageId));";
 	
 	private static ImageDB i = new ImageDB();
@@ -22,12 +17,8 @@ public class ImageDB {
 		return i;
 	}
 	
-	private Connection connect() throws SQLException {
-        return DriverManager.getConnection(DB_URL, user, pass);
-    }
-	
 	private ImageDB() {
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass)){
+		try (Connection conn = Connect.connect()){
 			Statement stmt = conn.createStatement();
 			if (stmt.execute(createQuestion)) {
 				System.out.println("Table created successfully.");
@@ -42,7 +33,7 @@ public class ImageDB {
 	// CREATE
     public void addImage(Image image) {
         String sql = "INSERT INTO Image (ImageLoc, QuestionId) VALUES (?, ?)";
-        try (Connection conn = connect();
+        try (Connection conn = Connect.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, image.getImageLoc());
@@ -56,7 +47,7 @@ public class ImageDB {
     // READ
     public Image getImage(int questionId, String imageLoc) {
         String sql = "SELECT * FROM Image WHERE QuestionId = ? AND ImageLoc=?";
-        try (Connection conn = connect();
+        try (Connection conn = Connect.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, questionId);
@@ -80,7 +71,7 @@ public class ImageDB {
     	String sql = "SELECT * FROM Image WHERE QuestionId = ?";
     	
     	ArrayList<Image> images = new ArrayList<>();
-        try (Connection conn = connect();
+        try (Connection conn = Connect.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, questionId);
@@ -105,7 +96,7 @@ public class ImageDB {
         
         
         
-        try (Connection conn = connect();
+        try (Connection conn = Connect.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, "%" + imageLoc + "%");
@@ -128,7 +119,7 @@ public class ImageDB {
     public List<Image> getAllImages() {
         List<Image> images = new ArrayList<>();
         String sql = "SELECT * FROM Image";
-        try (Connection conn = connect();
+        try (Connection conn = Connect.connect();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -148,7 +139,7 @@ public class ImageDB {
     // UPDATE
     public void updateImage(Image image) {
         String sql = "UPDATE Image SET ImageLoc = ?, QuestionId = ? WHERE ImageId = ?";
-        try (Connection conn = connect();
+        try (Connection conn = Connect.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, image.getImageLoc());
@@ -163,7 +154,7 @@ public class ImageDB {
     // DELETE
     public void deleteImages(int questionId) {
         String sql = "DELETE FROM Image WHERE QuestionId = ?";
-        try (Connection conn = connect();
+        try (Connection conn = Connect.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, questionId);
@@ -175,7 +166,7 @@ public class ImageDB {
     
     public void deleteImage(int imageId) {
     	String sql = "DELETE FROM Image WHERE ImageId = ?";
-        try (Connection conn = connect();
+        try (Connection conn = Connect.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, imageId);

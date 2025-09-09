@@ -4,17 +4,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import questions.Question;
 
 public class QuestionDB {
-	private static String user = System.getenv("DB_USER");
-	private static String pass = System.getenv("DB_PASSWORD");
-	private static String DB_URL = "jdbc:mariadb://localhost:3306/DTT_APP";
-	
 	private static String createQuestion = "CREATE TABLE IF NOT EXISTS Question (QuestionId INT NOT NULL AUTO_INCREMENT, Prompt TEXT UNIQUE, CorrectAnswer TEXT, Justification TEXT, TaskLetter CHAR(4), HasImage TINYINT(1) NOT NULL, PRIMARY KEY(QuestionId));";
 	
 	private static QuestionDB q = new QuestionDB();
@@ -24,7 +19,7 @@ public class QuestionDB {
 	}
 	
 	private QuestionDB() {
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass)){
+		try (Connection conn = Connect.connect()){
 			Statement stmt = conn.createStatement();
 			if (stmt.execute(createQuestion)) {
 				System.out.println("Table created successfully.");
@@ -45,7 +40,7 @@ public class QuestionDB {
 		String taskLetter = "";
 		boolean hasImage = false;
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setInt(1, id);
 			ResultSet set = pstmt.executeQuery();
@@ -91,7 +86,7 @@ public class QuestionDB {
 		
 		ArrayList<Integer> availableQuestions = new ArrayList<>();
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass)){
+		try (Connection conn = Connect.connect()){
 			Statement stmt = conn.createStatement();
 			
 			ResultSet set = stmt.executeQuery(sql);
@@ -110,7 +105,7 @@ public class QuestionDB {
 	void createQuestion(String prompt, String answer, String justification, String taskLetter, boolean hasImage) {
 		String sql = "INSERT INTO Question (Prompt, CorrectAnswer, Justification, TaskLetter, HasImage) VALUES (?, ?, ?, ?, ?);";
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setString(1, prompt);
 			pstmt.setString(2, answer);
@@ -133,7 +128,7 @@ public class QuestionDB {
 	void updateQuestion(questions.Question question) {
 		String sql = "UPDATE Question SET Prompt=?, CorrectAnswer=?, Justification=?, TaskLetter=?, HasImage=? WHERE QuestionId=?;";
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setString(1,  question.getPrompt());
 			pstmt.setString(2, question.getCorrectAnswer());
@@ -158,7 +153,7 @@ public class QuestionDB {
 	void deleteQuestion(int id) {
 		String sql = "DELETE FROM Question WHERE QuestionId=?;";
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setInt(1, id);
 			
@@ -177,7 +172,7 @@ public class QuestionDB {
 	void updateTaskLetter(int id, String taskLetter) {
 		String sql = "UPDATE Question SET TaskLetter=? WHERE QuestionId=?;";
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setString(1,  taskLetter);
 			pstmt.setInt(2, id);
@@ -197,7 +192,7 @@ public class QuestionDB {
 	void updateQuestionJustification(int id, String justification) {
 		String sql = "UPDATE Question SET Justification=? WHERE QuestionId=?;";
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setString(1, justification);
 			pstmt.setInt(2, id);
@@ -217,7 +212,7 @@ public class QuestionDB {
 	void updateQuestionPrompt(int id, String prompt) {
 		String sql = "UPDATE Question SET Prompt=? WHERE QuestionId=?;";
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setString(1, prompt);
 			pstmt.setInt(2, id);
@@ -237,7 +232,7 @@ public class QuestionDB {
 	void updateQuestionHasImage(int id, boolean hasImage) {
 		String sql = "UPDATE Question SET HasImage=? WHERE QuestionId=?;";
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setBoolean(1, hasImage);
 			pstmt.setInt(2, id);
@@ -257,7 +252,7 @@ public class QuestionDB {
 	void updateQuestionAnswer (int id, String answer) {
 		String sql = "UPDATE Question SET CorrectAnswer=? WHERE QuestionId=?;";
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setString(1, answer);
 			pstmt.setInt(2, id);
@@ -278,7 +273,7 @@ public class QuestionDB {
 		String sql = "SELECT QuestionId FROM Question WHERE Prompt=?;";
 		int questionId = -1;
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setString(1, prompt);
 			

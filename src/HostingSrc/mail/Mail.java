@@ -38,12 +38,12 @@ public class Mail implements Runnable{
                 }
             });
 
-            LocalTime time = LocalTime.now();
+            LocalDateTime dt = LocalDateTime.now();
 
             MimeMessage message = new MimeMessage(session);
             message.setFrom(new InternetAddress(config.getSender()));
             message.addRecipient(Message.RecipientType.TO, new InternetAddress(config.getRecipient()));
-            message.setSubject(title + " - " + String.valueOf(time));
+            message.setSubject(title + " - " + String.valueOf(dt));
             message.setText(body);
             System.out.println("Sending email...");
             Transport.send(message);

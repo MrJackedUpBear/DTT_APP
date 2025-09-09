@@ -1,7 +1,6 @@
 package database;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,10 +8,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 public class WrongAnswer {
-	private static String user = System.getenv("DB_USER");
-	private static String pass = System.getenv("DB_PASSWORD");
-	private static String DB_URL = "jdbc:mariadb://localhost:3306/DTT_APP";
-	
 	private static String createQuestion = "CREATE TABLE IF NOT EXISTS WrongAnswer (AnswerId INT, Answer TEXT, QuestionId INT, PRIMARY KEY (AnswerId, QuestionId));";
 	
 	private static WrongAnswer w = new WrongAnswer();
@@ -22,7 +17,7 @@ public class WrongAnswer {
 	}
 	
 	private WrongAnswer() {
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass)){
+		try (Connection conn = Connect.connect()){
 			Statement stmt = conn.createStatement();
 			if (stmt.execute(createQuestion)) {
 				System.out.println("Table created successfully.");
@@ -38,7 +33,7 @@ public class WrongAnswer {
 		String sql = "SELECT Answer FROM WrongAnswer WHERE QuestionId=?;";
 		ArrayList<String> wrongAnswers = new ArrayList<>();
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setInt(1, id);
 			
@@ -58,7 +53,7 @@ public class WrongAnswer {
 		String sql = "SELECT AnswerId FROM WrongAnswer WHERE Answer=? AND QuestionId=?;";
 		int wrongAnswerId = -1;
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setString(1, wrongAnswer);
 			pstmt.setInt(2, id);
@@ -79,7 +74,7 @@ public class WrongAnswer {
 		String sql = "SELECT AnswerId FROM WrongAnswer WHERE QuestionId=?;";
 		ArrayList<Integer> wrongAnswers = new ArrayList<>();
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setInt(1, id);
 			
@@ -98,7 +93,7 @@ public class WrongAnswer {
 	void addWrongAnswer(int answerId, String wrongAnswer, int questionId) {
 		String sql = "INSERT INTO WrongAnswer VALUES (?, ?, ?);";
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setInt(1, answerId);
 			pstmt.setString(2, wrongAnswer);
@@ -119,7 +114,7 @@ public class WrongAnswer {
 	void deleteWrongAnswer(int answerId, int questionId) {
 		String sql = "DELETE FROM WrongAnswer WHERE AnswerId=? AND QuestionId=?;";
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setInt(1, answerId);
 			pstmt.setInt(2, questionId);
@@ -139,7 +134,7 @@ public class WrongAnswer {
 	void updateWrongAnswer(int answerId, String wrongAnswer, int questionId) {
 		String sql = "UPDATE WrongAnswer SET Answer=? WHERE AnswerId=? AND QuestionId=?;";
 		
-		try (Connection conn = DriverManager.getConnection(DB_URL, user, pass);
+		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setString(1, wrongAnswer);
 			pstmt.setInt(2, answerId);

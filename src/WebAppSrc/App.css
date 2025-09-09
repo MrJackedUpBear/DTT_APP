@@ -26,6 +26,7 @@
   background-position: center center;
   height: 100vh;
   text-align: center;
+  margin:auto;
 
   .loginButton{
     width: 200px;
@@ -41,21 +42,22 @@
   background-color: #FFCC8E;
   text-align: center;
   margin: auto;
-  width: 100%;
+  overflow: auto;
+  display:flex;
   
-
   .title{
     margin-top: 0;
     height:100%;
     color: #1000A5;
-    font-size:4cqw;
+    font-size:3vw;
+    width:100%;
+    margin:auto;
   }
   
   img{
-    max-width: 69px;
-    min-width: 20px;
-    width:100%;
+    width:3vw;
     height: auto;
+    margin:auto;
   }
 
   button{
@@ -69,27 +71,23 @@
   }
 
   .settings{
-    width:5%;
-    height:auto;
     float: right;
-    top: 0;
+    margin:auto;
+    top:0;
+    display:flex;
   }
 
   .landingPage{
-    width:5%;
-    height: auto;
     float: left;
   }
 
   .home{
-    width: 5%;
-    height: auto;
     float: left;
   }
 
   .exit{
     float: left;
-    font-size:4cqw;
+    font-size:3vw;
     background-color: lightgray;
     color:red;
   }
@@ -114,12 +112,19 @@
     font:bold;
     font-size:20px;
     margin-bottom:60px;
+    font-size:2vw;
   }
 
   .timeSetting{
     font:bold;
     font-size:20px;
     margin-bottom: 500px;
+    font-size:2vw;
+
+    .time{
+      width:2vw;
+      height:fit-content;
+    }
   }
 }
 
@@ -128,10 +133,11 @@
 
   .greeting{
     background-color: #D9D9D9;
-    width: 400px;
+    width: 10vw;
     margin: auto;
     margin-bottom: 100px;
     border-radius: 10px;
+    font-size:2vw
   }
 
   .takeQuiz{
@@ -140,6 +146,7 @@
     margin-bottom: 200px;
     background-color: #D9D9D9;
     border-radius: 10px;
+    font-size:2vw;
   }
 
   .editQuestions{
@@ -147,6 +154,7 @@
     height:50px;
     background-color: #D9D9D9;
     border-radius:10px;
+    font-size:2vw;
   }
   
   button{
@@ -178,48 +186,35 @@
         background-color: darkgray;
         width: 85%;
         height: auto;
+        max-height: fit-content;
         margin: auto;
         flex-shrink: 1;
         flex-wrap:wrap;
 
-        .taskLetterAndPrompt{
-          display:flex;
-          flex-direction: column;
-          float: left;
-          text-align: center;
-          margin: auto;
-          align-items: center;
-          justify-content: center;
-          align-content: center;
+        .taskLetter{
+            background-color: lightgrey;
+            border: 20px solid darkgray;
+            padding: 20px;
+            font-size:1vw;
+            font-weight:normal;
+            height:1px;
+          }
+
+        .prompt{
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 20px;
+          word-wrap:break-word;
           max-width:20%;
-          max-height:20%;
+          flex-shrink: 1;
+          flex-wrap:wrap;
+          font-size:1vw;
+          font-weight:normal;
+        }
 
-          .questionNum{
-            float:left;
-            text-align: center;
-            display: flex;
-            font-size:3cqw;
-
-          }
-
-          .taskLetter{
-            background-color: lightgrey;
-            border: 20px solid darkgray;
-            padding: 20px;
-            max-width:100%;
-            font-size:2cqw;
-          }
-
-          .prompt{
-            background-color: lightgrey;
-            border: 20px solid darkgray;
-            padding: 20px;
-            word-wrap:break-word;
-            min-width:100%;
-            flex-shrink: 1;
-            flex-wrap:wrap;
-            font-size:2cqw;
-          }
+        .questionNum{
+          display:flex;
+          font-size:3vw;
         }
 
         .wrongAnswers{
@@ -233,7 +228,8 @@
           flex-shrink: 1;
           flex-wrap:wrap;
           margin: auto;
-          font-size:2cqw;
+          font-size:1vw;
+          font-weight:normal;
         }
 
         .correctAnswer{
@@ -243,8 +239,9 @@
           border: 20px solid darkgray;
           padding: 20px;
           word-wrap:break-word;
-          max-width:20%;
-          font-size:2cqw;
+          max-width:25%;
+          font-size:1vw;
+          font-weight:normal;
         }
 
         .justification{
@@ -255,7 +252,8 @@
           padding: 20px;
           word-wrap:break-word;
           max-width:20%;
-          font-size:1cqw;
+          font-size:1vw;
+          font-weight:normal;
         }
 
         .image{
@@ -264,9 +262,9 @@
           border:20px solid darkgrey;
           padding: 20px;
           word-wrap:break-word;
-          max-width:20%;
-          font-size:3cqw;
-
+          max-width:30%;
+          font-size:1vw;
+          font-weight:normal;
 
           img{
             max-width: 400px;
@@ -290,6 +288,46 @@
           width:100%;
           background-color: lightgray;
           margin:auto;
+        }
+
+        .editTaskLetter{
+          font-size: 1vw;
+        }
+
+        .editPrompt{
+          font-size: 1vw;
+        }
+
+        .editWrongAnswer{
+          font-size: 1vw;
+        }
+
+        .editCorrectAnswer{
+          font-size: 1vw;
+        }
+
+        .deleteWrongAnswer{
+          font-size: 1vw;
+        }
+
+        .editJustification{
+          font-size: 1vw;
+        }
+
+        .addImage{
+          font-size: 1vw;
+        }
+
+        .deleteImage{
+          font-size: 1vw;
+        }
+
+        .addWrongAnswer{
+          font-size: 1vw;
+        }
+
+        .submit{
+          font-size: 1vw;
         }
     }
   }
