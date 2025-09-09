@@ -130,7 +130,14 @@ public class Auth extends HttpServlet {
 			
 			String s = toCookieExpiresDate(expiryDate);
 			
-			response.setHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; path=/; SameSite=None; Secure=true; Expires=" + s);
+			String cookie = "RefreshToken=" + refreshToken +
+	                "; HttpOnly" +
+	                "; Path=/" +
+	                "; SameSite=None" +
+	                "; Secure" +
+	                "; Expires=" + s; // s must be in RFC 1123 format (e.g., "Wed, 09 Sep 2025 15:00:00 GMT")
+
+			response.setHeader("Set-Cookie", cookie);	
 			
 			response.getWriter().print("{\"AccessToken\":" + "\"" + accessToken + "\"}");
 		}else if (authType.equals("Email")) {
@@ -149,7 +156,14 @@ public class Auth extends HttpServlet {
 			
 			String s = toCookieExpiresDate(expiryDate);
 			
-			response.setHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; path=/; SameSite=None; Secure=true; Expires=" + s);
+			String cookie = "RefreshToken=" + refreshToken +
+	                "; HttpOnly" +
+	                "; Path=/" +
+	                "; SameSite=None" +
+	                "; Secure" +
+	                "; Expires=" + s; // s must be in RFC 1123 format (e.g., "Wed, 09 Sep 2025 15:00:00 GMT")
+
+			response.setHeader("Set-Cookie", cookie);	
 			
 			response.getWriter().print("{\"AccessToken\":" + "\"" + accessToken + "\"}");
 		}else if (authType.equals("Refresh")) {
