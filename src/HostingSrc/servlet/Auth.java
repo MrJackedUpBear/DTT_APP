@@ -3,9 +3,13 @@ package servlet;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
+import java.util.Locale;
 import java.util.Optional;
 
 import database.RefreshToken;
@@ -155,13 +159,18 @@ public class Auth extends HttpServlet {
 			LocalDate expiryDate = LocalDate.now().plusMonths(6);
 			
 			String s = toCookieExpiresDate(expiryDate);
+			long maxAgeSeconds = java.time.Duration.between(
+			        LocalDateTime.now(),
+			        expiryDate.atStartOfDay()
+			).getSeconds();
 			
 			String cookie = "RefreshToken=" + refreshToken +
 	                "; HttpOnly" +
 	                "; Path=/" +
 	                "; SameSite=None" +
 	                "; Secure" +
-	                "; Expires=" + s; // s must be in RFC 1123 format (e.g., "Wed, 09 Sep 2025 15:00:00 GMT")
+	                "; Expires=" + s +
+	                "; Max-Age=" + maxAgeSeconds; // s must be in RFC 1123 format (e.g., "Wed, 09 Sep 2025 15:00:00 GMT")
 
 			response.setHeader("Set-Cookie", cookie);	
 			
@@ -212,11 +221,12 @@ public class Auth extends HttpServlet {
 	}
 	
 	public static String toCookieExpiresDate(LocalDate localDate) {
-        // Step 1: Convert the LocalDate to a LocalDateTime at the start of the day.
-        // Step 2: Convert to an OffsetDateTime in UTC using ZoneOffset.UTC.
-        // Step 3: Format the OffsetDateTime using the RFC 1123 date-time format.
-        return localDate.atStartOfDay()
-                        .atOffset(ZoneOffset.UTC)
-                        .format(DateTimeFormatter.RFC_1123_DATE_TIME);
-    }
+	    ZonedDateTime zdt = localDate
+	            .atStartOfDay(ZoneOffset.UTC)
+	            .withZoneSameInstant(ZoneId.of("GMT"));
+
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US);
+
+	    return zdt.format(formatter);
+	}
 }
