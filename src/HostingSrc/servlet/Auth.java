@@ -130,7 +130,7 @@ public class Auth extends HttpServlet {
 			
 			String s = toCookieExpiresDate(expiryDate);
 			
-			response.setHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; path:/; SameSite:None; Secure:true; Expires:" + s);
+			response.setHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; path=/; SameSite=None; Secure=true; Expires=" + s);
 			
 			response.getWriter().print("{\"AccessToken\":" + "\"" + accessToken + "\"}");
 		}else if (authType.equals("Email")) {
@@ -149,7 +149,7 @@ public class Auth extends HttpServlet {
 			
 			String s = toCookieExpiresDate(expiryDate);
 			
-			response.setHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; path:/; SameSite:None; Secure:true; Expires:" + s);
+			response.setHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; path=/; SameSite=None; Secure=true; Expires=" + s);
 			
 			response.getWriter().print("{\"AccessToken\":" + "\"" + accessToken + "\"}");
 		}else if (authType.equals("Refresh")) {
