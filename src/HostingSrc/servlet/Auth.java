@@ -122,7 +122,7 @@ public class Auth extends HttpServlet {
 			String refreshToken = TokenGenerator.getInstance().putRefreshToken(username);
 			String accessToken = TokenGenerator.getInstance().putAccessToken(username);
 			
-			response.setHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; path:/");
+			response.setHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; path:/; SameSite:None; Secure:true");
 			
 			response.getWriter().print("{\"AccessToken\":" + "\"" + accessToken + "\"}");
 		}else if (authType.equals("Email")) {
@@ -137,7 +137,7 @@ public class Auth extends HttpServlet {
 			
 			String refreshToken = TokenGenerator.getInstance().putRefreshToken(username);
 			
-			response.setHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; path:/");
+			response.setHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; path:/; SameSite:None; Secure:true");
 			
 			response.getWriter().print("{\"AccessToken\":" + "\"" + accessToken + "\"}");
 		}else if (authType.equals("Refresh")) {
