@@ -33,7 +33,10 @@ async function submit(message){
     try{
         const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
-		const response = await fetch(baseURL + sendEmailURL,{
+        let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
+
+	    myHeaders.append("Authorization", accessToken);
+		const response = await fetch(baseURL + 'Quiz/' + sendEmailURL,{
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Message":message}),
