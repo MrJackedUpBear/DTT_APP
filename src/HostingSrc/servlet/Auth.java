@@ -189,11 +189,16 @@ public class Auth extends HttpServlet {
 				return;
 			}
 			
+			User system = new User();
+			system.setFirstName("System");
+			system.setLastName("System");
+			system.setUserId(-1000000);
+			
 			LogInfo logInfo = new LogInfo();
 			
 			logInfo.setLevel("Info");
 			logInfo.setTypeOfRequest("VerifyEmailToken");
-			logInfo.setUser(Database.getInstance().getUser(username, logInfo));
+			logInfo.setUser(system);
 			logInfo.setLogInfo("Verifying email token...");
 			logInfo.setLevel("Info");
 			
