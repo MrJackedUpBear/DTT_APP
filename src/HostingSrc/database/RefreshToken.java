@@ -8,6 +8,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 
+import logging.Log;
+import logging.LogInfo;
+
 public class RefreshToken {
 	String createRefreshTokenTable = "CREATE TABLE IF NOT EXISTS RefreshToken (Token VARCHAR(255) NOT NULL, ExpirationDate DATE NOT NULL, UserId INT NOT NULL, CreationDate DATE, PRIMARY KEY(Token));";
 
@@ -37,7 +40,7 @@ public class RefreshToken {
 		}
 	}
 	
-	public void addToken(String token, LocalDate expirationDate, int userId) {
+	public void addToken(String token, LocalDate expirationDate, int userId, LogInfo logInfo) {
 		String sql = "INSERT INTO RefreshToken VALUES (?, ?, ?, ?);";
 		
 		try (Connection conn = Connect.connect();
@@ -51,10 +54,19 @@ public class RefreshToken {
 			
 			if (rowsAffected == 0) {
 				System.out.println("Error adding token");
+				logInfo.setLevel("Error");
+				logInfo.setLogInfo("Unknown error adding token.");
+			}else {
+				logInfo.setLevel("Info");
+				logInfo.setLogInfo("Successfully added refresh token.");
 			}
 		} catch(SQLException e) {
 			System.out.println("Error: " + e.getMessage());
+			logInfo.setLevel("Error");
+			logInfo.setLogInfo("Error adding refresh token: " + e.getStackTrace());
 		}
+		
+		Log.getInstance().log(logInfo);
 	}
 	
 	public void deleteToken(String token) {
@@ -74,7 +86,7 @@ public class RefreshToken {
 		}
 	}
 	
-	public int getUser(String token) {
+	public int getUser(String token, LogInfo logInfo) {
 		String sql = "SELECT ExpirationDate, UserId FROM RefreshToken WHERE Token=?;";
 		
 		int userId = -1;
@@ -89,14 +101,22 @@ public class RefreshToken {
 				Date expirationDate = rs.getDate(1);
 				LocalDate currentDate = LocalDate.now();
 				if (expirationDate.after(Date.valueOf(currentDate))) {
+					logInfo.setLevel("Info");
+					logInfo.setLogInfo("Successfully got user.");
 					userId = rs.getInt(2);
 				}else {
 					deleteToken(token);
+					logInfo.setLevel("Info");
+					logInfo.setLogInfo("Token has expired.");
 				}
-			}
+							}
 		}catch(SQLException e) {
 			System.out.println("Error: " + e.getMessage());
+			logInfo.setLevel("Error");
+			logInfo.setLogInfo("Error getting user: " + e.getStackTrace());
 		}
+		
+		Log.getInstance().log(logInfo);
 		
 		return userId;
 	}

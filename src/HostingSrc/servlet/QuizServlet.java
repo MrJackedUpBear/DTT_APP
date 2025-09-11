@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
+import logging.Log;
+import logging.LogInfo;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,7 +22,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Optional;
 
 import database.Database;
 import mail.Mail;
@@ -28,7 +29,6 @@ import questions.QuestionGenerator;
 import token.TokenGenerator;
 import questions.Question;
 import database.Image;
-import database.QuestionDB;
 import database.User;
 
 
@@ -75,7 +75,24 @@ public class QuizServlet extends HttpServlet {
 		String encodedAuth = auth.substring(auth.indexOf(' ') + 1);
 		String accessToken = new String(Base64.getDecoder().decode(encodedAuth));
 		
-		String user = TokenGenerator.getInstance().getUsername(accessToken);
+		LogInfo baseLog = new LogInfo();
+		
+		User system = new User();
+    	system.setFirstName("System");
+    	system.setLastName("System");
+    	system.setUserId(-1000000);
+		
+		baseLog.setLevel("Info");
+		baseLog.setTypeOfRequest("GetUser");
+		baseLog.setUser(system);
+		baseLog.setLogInfo("Getting user...");
+		baseLog.setLevel("Info");
+		
+		
+		Log.getInstance().log(baseLog);
+		
+		
+		String user = TokenGenerator.getInstance().getUsername(accessToken, baseLog);
 		
 		if (user == null) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -88,13 +105,26 @@ public class QuizServlet extends HttpServlet {
 		if (infoRequest.equals("RandomQuestions")) {
 			String temp = request.getParameter("NumQuestions");
 			
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("GetRandomQuestions");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Getting random questions...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
 			if (!isNum(temp)) {
+				logInfo.setLevel("Error");
+				logInfo.setLogInfo("Not an integer");
+				Log.getInstance().log(logInfo);
 				response.sendError(HttpServletResponse.SC_UNPROCESSABLE_CONTENT);
 				return;
 			}
 			
 			int numQuestions = Integer.parseInt(temp);
-			response.getWriter().println(Database.getInstance().getRandomQuestions(numQuestions));
+			response.getWriter().println(Database.getInstance().getRandomQuestions(numQuestions, logInfo));
 		}else if (infoRequest.equals("SpecificQuestion")){
 			String prompt = request.getParameter("Prompt");
 			if (prompt == null || prompt.isEmpty()) {
@@ -102,14 +132,48 @@ public class QuizServlet extends HttpServlet {
 				return;
 			}
 			
-			response.getWriter().print(Database.getInstance().getQuestion(prompt));
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("GetSpecificQuestion");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Getting specified question...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			response.getWriter().print(Database.getInstance().getQuestion(prompt, logInfo));
 		}else if (infoRequest.equals("QuestionTotal")) {
-			response.getWriter().print(Database.getInstance().getTotalQuestions());
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("GetNumberQuestions");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Getting total number of questions...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			response.getWriter().print(Database.getInstance().getTotalQuestions(logInfo));
 		}else if (infoRequest.equals("QuestionsFrom")) {
 			String temp1 = request.getParameter("Start");
 			String temp2 = request.getParameter("End");
 			
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("GetQuestionsFrom");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Getting questions from start to end...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
 			if (!isNum(temp1) || !isNum(temp2)) {
+				logInfo.setLevel("Error");
+				logInfo.setLogInfo("Either value provided is not an integer.");
+				Log.getInstance().log(logInfo);
+				
 				response.sendError(HttpServletResponse.SC_UNPROCESSABLE_CONTENT);
 				return;
 			}
@@ -117,11 +181,21 @@ public class QuizServlet extends HttpServlet {
 			int start = Integer.parseInt(temp1);
 			int end = Integer.parseInt(temp2);
 			
-			response.getWriter().print(Database.getInstance().getQuestionsFrom(start, end));
+			response.getWriter().print(Database.getInstance().getQuestionsFrom(start, end, logInfo));
 		}else if (infoRequest.equals("Image")) {
 			String imageName = request.getParameter("ImageName");
 			
-			Image image = Database.getInstance().getImage(imageName);
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("GetImage");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Getting image...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			Image image = Database.getInstance().getImage(imageName, logInfo);
 			
 			if (image == null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -145,7 +219,17 @@ public class QuizServlet extends HttpServlet {
 				}
 			}
 		}else if (infoRequest.equals("User")) {
-			response.getWriter().print(Database.getInstance().getUserInfo(user));
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("GetUser");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Getting image...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			response.getWriter().print(Database.getInstance().getUserInfo(user, logInfo));
 		}
 		else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -175,7 +259,23 @@ public class QuizServlet extends HttpServlet {
 		String encodedAuth = auth.substring(auth.indexOf(' ') + 1);
 		String accessToken = new String(Base64.getDecoder().decode(encodedAuth));
 		
-		String user = TokenGenerator.getInstance().getUsername(accessToken);
+		LogInfo baseLog = new LogInfo();
+		
+		User system = new User();
+    	system.setFirstName("System");
+    	system.setLastName("System");
+    	system.setUserId(-1000000);
+		
+		baseLog.setLevel("Info");
+		baseLog.setTypeOfRequest("GetUser");
+		baseLog.setUser(system);
+		baseLog.setLogInfo("Getting user...");
+		baseLog.setLevel("Info");
+		
+		
+		Log.getInstance().log(baseLog);
+		
+		String user = TokenGenerator.getInstance().getUsername(accessToken, baseLog);
 		
 		if (user == null) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -218,8 +318,16 @@ public class QuizServlet extends HttpServlet {
 			
 			pathUpload += "\\";
 			
+			LogInfo logInfo = new LogInfo();
 			
-			if (!Database.getInstance().addQuestions(questionJson, pathUpload)) {
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("AddQuestions");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Adding questions to db...");
+			
+			
+			Log.getInstance().log(logInfo);
+			if (!Database.getInstance().addQuestions(questionJson, pathUpload, logInfo)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
@@ -243,7 +351,17 @@ public class QuizServlet extends HttpServlet {
 			
 			newPrompt = newPrompt.replaceAll("\"\\]\\}", "");
 			
-			if (!Database.getInstance().updateQuestionPrompt(oldPrompt, newPrompt)) {
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("UpdatePrompt");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Updating question prompt...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			if (!Database.getInstance().updateQuestionPrompt(oldPrompt, newPrompt, logInfo)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
@@ -268,7 +386,17 @@ public class QuizServlet extends HttpServlet {
 			
 			answer = answer.replaceAll("\"\\]\\}", "");
 			
-			if (!Database.getInstance().updateQuestionAnswer(prompt, answer)) {
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("UpdateCorrectAnswer");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Updating correct answer...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			if (!Database.getInstance().updateQuestionAnswer(prompt, answer, logInfo)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
@@ -298,8 +426,17 @@ public class QuizServlet extends HttpServlet {
 			
 			pathUpload += "\\";
 			
+			LogInfo logInfo = new LogInfo();
 			
-			if (!Database.getInstance().deleteQuestion(prompt, pathUpload)) {
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("DeleteQuestion");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Deleting Question...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			if (!Database.getInstance().deleteQuestion(prompt, pathUpload, logInfo)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
@@ -334,7 +471,17 @@ public class QuizServlet extends HttpServlet {
 			String prompt = req.split("\"Prompt\":\"")[1];
 			prompt = prompt.split("\",")[0];
 			
-			if (!Database.getInstance().updateWrongAnswer(prompt, wrongAnswer, questionId)) {
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("UpdateWrongAnswer");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Updating wrong answer...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			if (!Database.getInstance().updateWrongAnswer(prompt, wrongAnswer, questionId, logInfo)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			}
 			
@@ -355,7 +502,17 @@ public class QuizServlet extends HttpServlet {
 			req = req.split("\"Message\":")[0];
 			message = message.replaceAll("}", "");
 			
-			Runnable run = new Mail(message);
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("SendSuggestion");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Sending suggestion...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			Runnable run = new Mail(message, logInfo);
 			
 			new Thread(run).run();
 		}else if (postRequest.equals("ReadPDF")) {
@@ -378,13 +535,35 @@ public class QuizServlet extends HttpServlet {
 				
 				Files.copy(fileContent, filePath, StandardCopyOption.REPLACE_EXISTING);
 				
-				ArrayList<Question> questions = QuestionGenerator.readPDF(filePath);
+				LogInfo logInfo = new LogInfo();
 				
-				String json = Database.getInstance().formatQuestionsAsJson(questions);
+				logInfo.setLevel("Info");
+				logInfo.setTypeOfRequest("ReadPDF");
+				logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+				logInfo.setLogInfo("Reading PDF...");
+				
+				
+				Log.getInstance().log(logInfo);
+				
+				ArrayList<Question> questions = QuestionGenerator.readPDF(filePath, logInfo);
+				
+				logInfo.setLogInfo("Formatting as Json...");
+				Log.getInstance().log(logInfo);
+				
+				String json = Database.getInstance().formatQuestionsAsJson(questions, logInfo);
 				
 				response.getWriter().println(json);
 			}catch (Exception e) {
 				System.out.println("Error: " + e.getMessage());
+				LogInfo logInfo = new LogInfo();
+				
+				logInfo.setLevel("Error");
+				logInfo.setTypeOfRequest("ReadPDF");
+				logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+				logInfo.setLogInfo("Error reading PDF: " + e.getStackTrace());
+				
+				
+				Log.getInstance().log(logInfo);
 				response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
 			}
 		}else if (postRequest.equals("UpdateJustification")) {
@@ -407,7 +586,17 @@ public class QuizServlet extends HttpServlet {
 			
 			justification = justification.replaceAll("\"\\]\\}", "");
 			
-			if (!Database.getInstance().updateQuestionJustification(prompt, justification)) {
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("UpdateJustification");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Updating justification...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			if (!Database.getInstance().updateQuestionJustification(prompt, justification, logInfo)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			}
 		}else if (postRequest.equals("UpdateTaskLetter")) {
@@ -430,7 +619,17 @@ public class QuizServlet extends HttpServlet {
 			
 			taskLetter = taskLetter.replaceAll("\"\\]\\}", "");
 			
-			if (!Database.getInstance().updateQuestionTaskLetter(prompt, taskLetter)){
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("UpdateTaskLetter");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Updating task letter...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			if (!Database.getInstance().updateQuestionTaskLetter(prompt, taskLetter, logInfo)){
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
@@ -453,8 +652,18 @@ public class QuizServlet extends HttpServlet {
 			
 			wrongAnswer = wrongAnswer.replaceAll("\"\\]\\}", "");
 			
+			LogInfo logInfo = new LogInfo();
 			
-			if (!Database.getInstance().deleteWrongAnswer(wrongAnswer, prompt)) {
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("DeleteWrongAnswer");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Deleting wrong answer...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			
+			if (!Database.getInstance().deleteWrongAnswer(wrongAnswer, prompt, logInfo)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
@@ -478,7 +687,17 @@ public class QuizServlet extends HttpServlet {
 			
 			wrongAnswer = wrongAnswer.replaceAll("\"\\]\\}", "");
 			
-			if (!Database.getInstance().addWrongAnswer(wrongAnswer, prompt)) {
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("AddWrongAnswer");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Adding wrong answer...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			if (!Database.getInstance().addWrongAnswer(wrongAnswer, prompt, logInfo)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
@@ -505,7 +724,17 @@ public class QuizServlet extends HttpServlet {
 			
 			String req = stringRequest.toString();
 			
-			Database.getInstance().addImage(req, pathUpload);
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("AddImage");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Adding image...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			Database.getInstance().addImage(req, pathUpload, logInfo);
 		}else if (postRequest.equals("DeleteImage")) {
 			StringBuilder stringRequest = new StringBuilder();
 			
@@ -522,7 +751,17 @@ public class QuizServlet extends HttpServlet {
 			
 			imageName = imageName.replaceAll("\"\\}", "");
 			
-			Image image = Database.getInstance().getImage(imageName);
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("DeleteImage");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Deleting image...");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			Image image = Database.getInstance().getImage(imageName, logInfo);
 			
 			if (image == null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -531,7 +770,7 @@ public class QuizServlet extends HttpServlet {
 			
 			String typeOfImage = image.getImageLoc().substring(image.getImageLoc().lastIndexOf('.') + 1);
 			
-			if (!Database.getInstance().deleteImage(image, typeOfImage)) {
+			if (!Database.getInstance().deleteImage(image, typeOfImage, logInfo)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}

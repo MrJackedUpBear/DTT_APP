@@ -13,6 +13,9 @@ import java.util.Optional;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import logging.Log;
+import logging.LogInfo;
+
 public class Database {
 	private static Database db = new Database();
 	
@@ -29,8 +32,8 @@ public class Database {
 	    }
 	}
 	
-	public String getTotalQuestions() {
-		ArrayList<Integer> questions = QuestionDB.getInstance().getAvailableQuestions();
+	public String getTotalQuestions(LogInfo logInfo) {
+		ArrayList<Integer> questions = QuestionDB.getInstance().getAvailableQuestions(logInfo);
 		
 		int totalQuestions = questions.size();
 		
@@ -38,14 +41,14 @@ public class Database {
 		return json;
 	}
 	
-	public Image getImage(String imageLoc) {
-		Image img = ImageDB.getInstance().getImage(imageLoc);
+	public Image getImage(String imageLoc, LogInfo logInfo) {
+		Image img = ImageDB.getInstance().getImage(imageLoc, logInfo);
 		
 		return img;
 	}
 	
-	public String getUserInfo(String username) {
-		User user = getUser(username);
+	public String getUserInfo(String username, LogInfo logInfo) {
+		User user = getUser(username, logInfo);
 		
 		if (user == null) {
 			return "";
@@ -57,8 +60,8 @@ public class Database {
 		return formatClassAsJson(user);
 	}
 	
-	public User getUser(String username) {
-		Optional<User> user = UserDB.getInstance().getUserByEmail(username);
+	public User getUser(String username, LogInfo logInfo) {
+		Optional<User> user = UserDB.getInstance().getUserByEmail(username, logInfo);
 		
 		if (!user.isPresent()) {
 			return null;
@@ -79,13 +82,19 @@ public class Database {
 	
 	//This function accesses the question and wrong answer table to get complete questions. First it checks how many questions are in the database, then it
 	//shuffles the question id's to get a random set of questions to return back as a JSON String
-	public String getRandomQuestions(int numQuestions) {
-		ArrayList<Integer> possibleQuestions = QuestionDB.getInstance().getAvailableQuestions();
+	public String getRandomQuestions(int numQuestions, LogInfo logInfo) {
+		ArrayList<Integer> possibleQuestions = QuestionDB.getInstance().getAvailableQuestions(logInfo);
 		
 		//If there are no possible questions, return.
 		if (possibleQuestions.size() == 0) {
+			logInfo.setLevel("Info");
+			logInfo.setLogInfo("No questions available.");
+			Log.getInstance().log(logInfo);
 			return "";
 		} else if (numQuestions > possibleQuestions.size()) {
+			logInfo.setLevel("Error");
+			logInfo.setLogInfo("Number of questions requested greater than available.");
+			Log.getInstance().log(logInfo);
 			return "";
 		}
 		
@@ -100,21 +109,21 @@ public class Database {
 		for (int i = 0; i < numQuestions; i++) {
 			//Initializes a question variable that is obtained by getting questions from the question table with the id provided from the possible questions
 			//ArrayList
-			questions.Question question = QuestionDB.getInstance().getQuestion(possibleQuestions.get(i));
+			questions.Question question = QuestionDB.getInstance().getQuestion(possibleQuestions.get(i), logInfo);
 			//Creates a temporary variable that will hold an ArrayList of the wrong answers; this also initializes the wrong answers string to put in the question
 			//HashMap.
 			que.add(question);
 		}
 		
-		json = formatQuestionsAsJson(que);
+		json = formatQuestionsAsJson(que, logInfo);
 		
 		return json;
 	}
 	
-	public String getQuestionsFrom(int start, int end) {
+	public String getQuestionsFrom(int start, int end, LogInfo logInfo) {
 		String json;
 		
-		ArrayList<Integer> possibleQuestions = QuestionDB.getInstance().getAvailableQuestions();
+		ArrayList<Integer> possibleQuestions = QuestionDB.getInstance().getAvailableQuestions(logInfo);
 				
 		//If there are no possible questions, return.
 		if (possibleQuestions.size() == 0) {
@@ -125,17 +134,17 @@ public class Database {
 		
 		ArrayList<questions.Question> que = new ArrayList<>();
 		for (int i = start; i < end; i++) {
-			questions.Question question = QuestionDB.getInstance().getQuestion(possibleQuestions.get(i));
+			questions.Question question = QuestionDB.getInstance().getQuestion(possibleQuestions.get(i), logInfo);
 			
 			que.add(question);
 		}
-		
-		json = formatQuestionsAsJson(que);
+				
+		json = formatQuestionsAsJson(que, logInfo);
 		
 		return json;
 	}
 	
-	public Boolean addQuestions(String questionsJson, String fileUpload) {
+	public Boolean addQuestions(String questionsJson, String fileUpload, LogInfo logInfo) {
 		ArrayList<questions.Question> allQuestions = getQuestionsFromJson(questionsJson);
 		String prompt = "";
 		String correctAnswer = "";
@@ -153,11 +162,11 @@ public class Database {
 			taskLetter = question.getTaskLetter();
 			hasImage = question.getHasImage();
 			
-			if (!prompt.isEmpty() && !correctAnswer.isEmpty() && !wrongAnswers.isEmpty() && QuestionDB.getInstance().getQuestionId(prompt) == -1) {
+			if (!prompt.isEmpty() && !correctAnswer.isEmpty() && !wrongAnswers.isEmpty() && QuestionDB.getInstance().getQuestionId(prompt, logInfo) == -1) {
 				if (hasImage) {
-					addQuestion(prompt, correctAnswer, wrongAnswers, justification, taskLetter, hasImage, fileUpload, question.getImages(i));
+					addQuestion(prompt, correctAnswer, wrongAnswers, justification, taskLetter, hasImage, fileUpload, question.getImages(i), logInfo);
 				}else {
-					addQuestion(prompt, correctAnswer, wrongAnswers, justification, taskLetter, hasImage, fileUpload, new ArrayList<Image>());
+					addQuestion(prompt, correctAnswer, wrongAnswers, justification, taskLetter, hasImage, fileUpload, new ArrayList<Image>(), logInfo);
 				}
 			}
 			i++;
@@ -165,15 +174,15 @@ public class Database {
 		return true;
 	}
 	
-	public void addQuestion(String prompt, String correctAnswer, ArrayList<String> wrongAnswers, String justification, String taskLetter, boolean hasImage, String fileUpload, ArrayList<Image> images) {
-		QuestionDB.getInstance().createQuestion(prompt, correctAnswer, justification, taskLetter, hasImage);
-		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+	public void addQuestion(String prompt, String correctAnswer, ArrayList<String> wrongAnswers, String justification, String taskLetter, boolean hasImage, String fileUpload, ArrayList<Image> images, LogInfo logInfo) {
+		QuestionDB.getInstance().createQuestion(prompt, correctAnswer, justification, taskLetter, hasImage, logInfo);
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt, logInfo);
 		
 		if (questionId == -1) {
 			return;
 		}
 		
-		addWrongAnswers(wrongAnswers, questionId);
+		addWrongAnswers(wrongAnswers, questionId, logInfo);
 		
 		if (hasImage) {
 			for (Image img : images) {
@@ -181,8 +190,8 @@ public class Database {
 				String imageData = img.getImageLoc();
 				img.setImageLoc("temp");
 				img.setQuestionId(questionId);
-				ImageDB.getInstance().addImage(img);
-				img = ImageDB.getInstance().getImage(questionId, "temp");
+				ImageDB.getInstance().addImage(img, logInfo);
+				img = ImageDB.getInstance().getImage(questionId, "temp", logInfo);
 				img.setImageType(imageType);
 				fileUpload += String.valueOf("ImageID - " + img.getImageId()) + ", QuestionID - " + String.valueOf(img.getQuestionId()) + "." + img.getImageType();
 								
@@ -193,7 +202,7 @@ public class Database {
 					
 					System.out.println("Image file created successfully at: " + fileUpload);
 					img.setImageLoc(fileUpload);
-					ImageDB.getInstance().updateImage(img);
+					ImageDB.getInstance().updateImage(img, logInfo);
 				}catch(IOException e) {
 					System.out.println("Error: " + e.getMessage());
 				}
@@ -201,14 +210,14 @@ public class Database {
 		}
 	}
 	
-	public Boolean deleteQuestion(String prompt, String filePath) {
-		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+	public Boolean deleteQuestion(String prompt, String filePath, LogInfo logInfo) {
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt, logInfo);
 		
 		if (questionId == -1) {
 			return false;
 		}
 		
-		questions.Question q = QuestionDB.getInstance().getQuestion(questionId);
+		questions.Question q = QuestionDB.getInstance().getQuestion(questionId, logInfo);
 		
 		if (q.getHasImage()) {
 			try {
@@ -220,35 +229,38 @@ public class Database {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			ImageDB.getInstance().deleteImages(questionId);
+			ImageDB.getInstance().deleteImages(questionId, logInfo);
 		}
 		
-		QuestionDB.getInstance().deleteQuestion(questionId);
-		deleteAllWrongAnswers(questionId);
+		QuestionDB.getInstance().deleteQuestion(questionId, logInfo);
+		deleteAllWrongAnswers(questionId, logInfo);
 		
 		return true;
 	}
 	
-	public Boolean updateQuestionPrompt(String oldPrompt, String prompt) {
-		int questionId = QuestionDB.getInstance().getQuestionId(oldPrompt);
+	public Boolean updateQuestionPrompt(String oldPrompt, String prompt, LogInfo logInfo) {
+		int questionId = QuestionDB.getInstance().getQuestionId(oldPrompt, new LogInfo());
 		
 		if (questionId == -1){
+			logInfo.setLevel("Error");
+			logInfo.setLogInfo("Error getting question id from prompt.");
+			Log.getInstance().log(logInfo);
 			return false;
 		}
 		
-		QuestionDB.getInstance().updateQuestionPrompt(questionId, prompt);
+		QuestionDB.getInstance().updateQuestionPrompt(questionId, prompt, logInfo);
 		
 		return true;
 	}
 	
-	public Boolean updateQuestionTaskLetter(String prompt, String taskLetter) {
-		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+	public Boolean updateQuestionTaskLetter(String prompt, String taskLetter, LogInfo logInfo) {
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt, logInfo);
 		
 		if (questionId == -1) {
 			return false;
 		}
 		
-		QuestionDB.getInstance().updateTaskLetter(questionId, taskLetter);
+		QuestionDB.getInstance().updateTaskLetter(questionId, taskLetter, logInfo);
 		
 		return true;
 	}
@@ -265,66 +277,69 @@ public class Database {
 		return true;
 	}
 	
-	public Boolean updateQuestionJustification(String prompt, String justification) {
-		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+	public Boolean updateQuestionJustification(String prompt, String justification, LogInfo logInfo) {
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt, logInfo);
 		
 		if (questionId == -1) {
 			return false;
 		}
 		
-		QuestionDB.getInstance().updateQuestionJustification(questionId, justification);
+		QuestionDB.getInstance().updateQuestionJustification(questionId, justification, logInfo);
 		
 		return true;
 	}
 	
-	public Boolean updateQuestionAnswer(String prompt, String answer) {
-		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+	public Boolean updateQuestionAnswer(String prompt, String answer, LogInfo logInfo) {
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt, logInfo);
 		
 		if (questionId == -1) {
+			logInfo.setLevel("Error");
+			logInfo.setLogInfo("Error getting question id from prompt.");
+			Log.getInstance().log(logInfo);
 			return false;
 		}
 		
-		QuestionDB.getInstance().updateQuestionAnswer(questionId, answer);
+		QuestionDB.getInstance().updateQuestionAnswer(questionId, answer, logInfo);
 		
 		return true;
 	}
 	
-	public String getQuestion(String prompt) {
-		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+	public String getQuestion(String prompt, LogInfo logInfo) {
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt, logInfo);
 		
-		questions.Question question = QuestionDB.getInstance().getQuestion(questionId);
+		questions.Question question = QuestionDB.getInstance().getQuestion(questionId, logInfo);
 		if (question == null) {
 			return "{}";
 		}
 				
 		ArrayList<questions.Question>que = new ArrayList<>();
 		que.add(question);
-		
-		return formatQuestionsAsJson(que);
+				
+		return formatQuestionsAsJson(que, logInfo);
 	}
 	
-	public void addWrongAnswers(ArrayList<String> wrongAnswers, int questionId) {
+	public void addWrongAnswers(ArrayList<String> wrongAnswers, int questionId, LogInfo logInfo) {
 		int val = 0;
 		for (String wrongAnswer : wrongAnswers) {
-			WrongAnswer.getInstance().addWrongAnswer(val, wrongAnswer, questionId);
+			WrongAnswer.getInstance().addWrongAnswer(val, wrongAnswer, questionId, logInfo);
 			val++;
 		}
 	}
 	
-	public Boolean addWrongAnswer(String answer, String prompt) {
-		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+	public Boolean addWrongAnswer(String answer, String prompt, LogInfo logInfo) {
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt, logInfo);
 		
 		if (questionId == -1) {
 			return false;
 		}
 		
-		addWrongAnswer(answer, questionId);
+		addWrongAnswer(answer, questionId, logInfo);
 		
 		return true;
 	}
 	
-	public void addImage(String imageJson, String fileUpload) {
-		Image image = getImageFromJson(imageJson);
+	public void addImage(String imageJson, String fileUpload, LogInfo logInfo) {
+		Image image = getImageFromJson(imageJson, logInfo);
 		
 		int questionId = image.getQuestionId();
 		String imageData = image.getImageLoc();
@@ -332,9 +347,9 @@ public class Database {
 		
 		image.setImageLoc("temp");
 		
-		ImageDB.getInstance().addImage(image);
+		ImageDB.getInstance().addImage(image, logInfo);
 		
-		image = ImageDB.getInstance().getImage(questionId, "temp");
+		image = ImageDB.getInstance().getImage(questionId, "temp", logInfo);
 		
 		image.setImageType(imageType);
 		fileUpload += String.valueOf("ImageID - " + image.getImageId()) + ", QuestionID - " + String.valueOf(image.getQuestionId()) + "." + image.getImageType();
@@ -346,18 +361,21 @@ public class Database {
 			
 			System.out.println("Image file created successfully at: " + fileUpload);
 			image.setImageLoc(fileUpload);
-			ImageDB.getInstance().updateImage(image);
-			if (!QuestionDB.getInstance().getQuestion(questionId).getHasImage()) {
-				QuestionDB.getInstance().updateQuestionHasImage(questionId, true);
+			ImageDB.getInstance().updateImage(image, logInfo);
+			if (!QuestionDB.getInstance().getQuestion(questionId, logInfo).getHasImage()) {
+				QuestionDB.getInstance().updateQuestionHasImage(questionId, true, logInfo);
 			}
 		}catch(IOException e) {
 			System.out.println("Error: " + e.getMessage());
+			logInfo.setLevel("Error");
+			logInfo.setLogInfo("Error getting image data: " + e.getStackTrace());
+			Log.getInstance().log(logInfo);
 		}
 	}
 	
-	public void addWrongAnswer(String answer, int questionId) {
-		ArrayList<Integer> wrongAnswerIds = WrongAnswer.getInstance().getWrongAnswerId(questionId);
-		
+	public void addWrongAnswer(String answer, int questionId, LogInfo logInfo) {
+		ArrayList<Integer> wrongAnswerIds = WrongAnswer.getInstance().getWrongAnswerId(questionId, logInfo);
+				
 		int maxVal = 0;
 		
 		for (int wrongAnswerId : wrongAnswerIds) {
@@ -366,52 +384,58 @@ public class Database {
 			}
 		}
 		
-		WrongAnswer.getInstance().addWrongAnswer(maxVal, answer, questionId);
+		WrongAnswer.getInstance().addWrongAnswer(maxVal, answer, questionId, logInfo);
 	}
 	
-	public Boolean deleteImage(Image image, String imageType) {
+	public Boolean deleteImage(Image image, String imageType, LogInfo logInfo) {
 		int questionId = image.getQuestionId();
 		
 		if (questionId == -1) {
 			return false;
 		}
 		
-		questions.Question question = QuestionDB.getInstance().getQuestion(questionId);
+		questions.Question question = QuestionDB.getInstance().getQuestion(questionId, logInfo);
 		
 		question.deleteImage(image);
 		
 		if (!question.getHasImage()) {
-			QuestionDB.getInstance().updateQuestionHasImage(questionId, question.getHasImage());
+			QuestionDB.getInstance().updateQuestionHasImage(questionId, question.getHasImage(), logInfo);
 		}
 		
-		ImageDB.getInstance().deleteImage(image.getImageId());
+		ImageDB.getInstance().deleteImage(image.getImageId(), logInfo);
 		
 		Path filePath = Paths.get(image.getImageLoc());
 		
 		try {
 			Files.delete(filePath);
 			System.out.println("Deleted image.");
+			logInfo.setLevel("Info");
+			logInfo.setLogInfo("Successfully deleted image from file system.");
 		}catch (IOException e) {
 			System.out.println("Error deleting image: " + e.getMessage());
+			logInfo.setLevel("Error");
+			logInfo.setLogInfo("Error deleting image from file system: " + e.getStackTrace());
 		}
+		
+		Log.getInstance().log(logInfo);
 		
 		return true;
 	}
 	
-	public Boolean deleteWrongAnswer(int wrongAnswerId, String prompt) {
-		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+	public Boolean deleteWrongAnswer(int wrongAnswerId, String prompt, LogInfo logInfo) {
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt, logInfo);
 		
 		if (questionId == -1) {
 			return false;
 		}
 		
-		WrongAnswer.getInstance().deleteWrongAnswer(wrongAnswerId, questionId);
+		WrongAnswer.getInstance().deleteWrongAnswer(wrongAnswerId, questionId, logInfo);
 		
 		return true;
 	}
 	
-	public Boolean deleteWrongAnswer(String wrongAnswer, String prompt) {
-		int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+	public Boolean deleteWrongAnswer(String wrongAnswer, String prompt, LogInfo logInfo) {
+		int questionId = QuestionDB.getInstance().getQuestionId(prompt, logInfo);
 		
 		if (questionId == -1) {
 			return false;
@@ -419,26 +443,26 @@ public class Database {
 		
 		int wrongAnswerId = WrongAnswer.getInstance().getWrongAnswerId(questionId, wrongAnswer);
 		
-		WrongAnswer.getInstance().deleteWrongAnswer(wrongAnswerId, questionId);
+		WrongAnswer.getInstance().deleteWrongAnswer(wrongAnswerId, questionId, logInfo);
 		
 		return true;
 	}
 	
-	public void deleteAllWrongAnswers(int questionId) {
-		ArrayList<Integer> wrongAnswerIds = WrongAnswer.getInstance().getWrongAnswerId(questionId);
+	public void deleteAllWrongAnswers(int questionId, LogInfo logInfo) {
+		ArrayList<Integer> wrongAnswerIds = WrongAnswer.getInstance().getWrongAnswerId(questionId, logInfo);
 		
-		questions.Question q = QuestionDB.getInstance().getQuestion(questionId);
+		questions.Question q = QuestionDB.getInstance().getQuestion(questionId, logInfo);
 		String prompt = q.getPrompt();
 		
 		for (int wrongAnswerId: wrongAnswerIds) {
-			deleteWrongAnswer(wrongAnswerId, prompt);
+			deleteWrongAnswer(wrongAnswerId, prompt, logInfo);
 		}
 	}
 	
-	public Boolean updateWrongAnswer(String prompt, String wrongAnswer, int answerId) {
+	public Boolean updateWrongAnswer(String prompt, String wrongAnswer, int answerId, LogInfo logInfo) {
 		int questionId = -1;
 		
-		questionId = QuestionDB.getInstance().getQuestionId(prompt);
+		questionId = QuestionDB.getInstance().getQuestionId(prompt, logInfo);
 		
 		if (answerId == -1) {
 			return false;
@@ -446,13 +470,13 @@ public class Database {
 		
 		
 		System.out.println(answerId);
-		WrongAnswer.getInstance().updateWrongAnswer(answerId, wrongAnswer, questionId);
+		WrongAnswer.getInstance().updateWrongAnswer(answerId, wrongAnswer, questionId, logInfo);
 		
 		return true;
 	}
 	
-	public String getTaskDesc(String taskLetter) {
-		return TaskList.getInstance().getTask(taskLetter);
+	public String getTaskDesc(String taskLetter, LogInfo logInfo) {
+		return TaskList.getInstance().getTask(taskLetter, logInfo);
 	}
 	
 	public String escapeQuote(String input) {
@@ -474,16 +498,22 @@ public class Database {
 		return allQuestions;
 	}
 	
-	private Image getImageFromJson(String imageJson){
+	private Image getImageFromJson(String imageJson, LogInfo logInfo){
 		Image image = new Image();
 		
 		ObjectMapper objectMapper = new ObjectMapper();
 		
 		try {
 			image = objectMapper.readValue(imageJson, Image.class);
+			logInfo.setLevel("Info");
+			logInfo.setLogInfo("Successfully got image from JSON object.");
 		}catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
+			logInfo.setLevel("Error");
+			logInfo.setLogInfo("Error getting image from JSON object: " + e.getStackTrace());
 		}
+		
+		Log.getInstance().log(logInfo);
 		
 		return image;
 	}
@@ -513,16 +543,22 @@ public class Database {
 		return json;
 	}
 	
-	public String formatQuestionsAsJson(ArrayList<questions.Question>question) {
+	public String formatQuestionsAsJson(ArrayList<questions.Question>question, LogInfo logInfo) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		String json = "";
 		try {
 			HashMap<String, ArrayList<questions.Question>> finalBoss = new HashMap<>();
 			finalBoss.put("Questions", question);
 			json = objectMapper.writeValueAsString(finalBoss);
+			logInfo.setLevel("Info");
+			logInfo.setLogInfo("Successfully converted questions into JSON String.");
 		}catch(Exception e) {
 			System.out.println("Error: " + e.getMessage());
+			logInfo.setLevel("Error");
+			logInfo.setLogInfo("Error converting questions into JSON String: " + e.getStackTrace());
 		}
+		
+		Log.getInstance().log(logInfo);
 		return json;
 	}
 	

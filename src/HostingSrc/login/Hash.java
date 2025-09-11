@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import logging.Log;
+import logging.LogInfo;
+
 public class Hash {
 	private static Hash hash = new Hash();
 	
@@ -62,16 +65,23 @@ public class Hash {
 		return null;
 	}
 	
-	byte[] hashPass(byte[] salt, String pass) {
+	byte[] hashPass(byte[] salt, String pass, LogInfo logInfo) {
 		KeySpec spec = new PBEKeySpec(pass.toCharArray(), salt, 65536, 128);
 		SecretKeyFactory factory;
 		try {
 			factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 			byte[] hash = factory.generateSecret(spec).getEncoded();
+			
+			logInfo.setLevel("Info");
+			logInfo.setLogInfo("Successfully hashed password.");
+			Log.getInstance().log(logInfo);
 			return hash;
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			logInfo.setLevel("Error");
+			logInfo.setLogInfo("Error hashing password: " + e.getStackTrace());
+			Log.getInstance().log(logInfo);
 		}
 		
 		return null;

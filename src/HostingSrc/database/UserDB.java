@@ -7,6 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
 
+import logging.Log;
+import logging.LogInfo;
+
 public class UserDB {
 	private static String createUserDB = "CREATE TABLE IF NOT EXISTS User (UserId INT NOT NULL AUTO_INCREMENT, FirstName VARCHAR(255) NOT NULL, LastName VARCHAR(255), Email VARCHAR(255) NOT NULL, Password VARBINARY(255), "
 			+ "SettingId INT NOT NULL, Salt VARBINARY(255), RefreshToken VARCHAR(255), PRIMARY KEY(UserId), UNIQUE(Email), UNIQUE(RefreshToken));";
@@ -83,18 +86,24 @@ public class UserDB {
     }
 
     // READ by Email
-    public Optional<User> getUserByEmail(String email) {
+    public Optional<User> getUserByEmail(String email, LogInfo logInfo) {
         String sql = "SELECT UserId, FirstName, LastName, Email, Password, Salt, SettingId FROM User WHERE Email = ?";
         try (Connection conn = Connect.connect();
         		PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, email);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
+                	logInfo.setLevel("Info");
+                	logInfo.setLogInfo("Successfully got user.");
+                	Log.getInstance().log(logInfo);
                     return Optional.of(mapRow(rs));
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            logInfo.setLevel("Error");
+            logInfo.setLogInfo("Error getting user: " + e.getStackTrace());
+            Log.getInstance().log(logInfo);
         }
         return Optional.empty();
     }

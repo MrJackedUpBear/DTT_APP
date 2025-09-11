@@ -7,6 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import logging.Log;
+import logging.LogInfo;
+
 public class WrongAnswer {
 	private static String createQuestion = "CREATE TABLE IF NOT EXISTS WrongAnswer (AnswerId INT, Answer TEXT, QuestionId INT, PRIMARY KEY (AnswerId, QuestionId));";
 	
@@ -29,7 +32,7 @@ public class WrongAnswer {
 		}
 	}
 	
-	ArrayList<String> getWrongAnswers(int id) {
+	ArrayList<String> getWrongAnswers(int id, LogInfo logInfo) {
 		String sql = "SELECT Answer FROM WrongAnswer WHERE QuestionId=?;";
 		ArrayList<String> wrongAnswers = new ArrayList<>();
 		
@@ -41,9 +44,15 @@ public class WrongAnswer {
 			
 			while (set.next()) {
 				wrongAnswers.add(set.getString(1));
+				logInfo.setLevel("Info");
+				logInfo.setLogInfo("Successfully got wrong answer: " + wrongAnswers.getLast());
+				Log.getInstance().log(logInfo);
 			}
 		} catch (SQLException e) {
 			System.out.println("Error establishing connection: " + e.getMessage());
+			logInfo.setLevel("Error");
+			logInfo.setLogInfo("Error getting wrong answers: " + e.getStackTrace());
+			Log.getInstance().log(logInfo);
 		}
 		
 		return wrongAnswers;
@@ -70,7 +79,7 @@ public class WrongAnswer {
 		return wrongAnswerId;
 	}
 	
-	ArrayList<Integer> getWrongAnswerId(int id){
+	ArrayList<Integer> getWrongAnswerId(int id, LogInfo logInfo){
 		String sql = "SELECT AnswerId FROM WrongAnswer WHERE QuestionId=?;";
 		ArrayList<Integer> wrongAnswers = new ArrayList<>();
 		
@@ -82,15 +91,21 @@ public class WrongAnswer {
 			
 			while (set.next()) {
 				wrongAnswers.add(set.getInt(1));
+				logInfo.setLevel("Info");
+				logInfo.setLogInfo("Successfully got wrong answer: " + wrongAnswers.getLast());
 			}
 		} catch (SQLException e) {
 			System.out.println("Error establishing connection: " + e.getMessage());
+			logInfo.setLevel("Error");
+			logInfo.setLogInfo("Error getting wrong answers: " + e.getStackTrace());
 		}
+		
+		Log.getInstance().log(logInfo);
 		
 		return wrongAnswers;
 	}
 	
-	void addWrongAnswer(int answerId, String wrongAnswer, int questionId) {
+	void addWrongAnswer(int answerId, String wrongAnswer, int questionId, LogInfo logInfo) {
 		String sql = "INSERT INTO WrongAnswer VALUES (?, ?, ?);";
 		
 		try (Connection conn = Connect.connect();
@@ -103,15 +118,21 @@ public class WrongAnswer {
 			
 			if (rowsAffected > 0) {
 				System.out.println("Successfully added wrong answer");
+				logInfo.setLogInfo("Successfully added wrong answer: " + wrongAnswer);
 			}else {
 				System.out.println("Error adding wrong answer");
+				logInfo.setLogInfo("Error adding wrong answer: " + wrongAnswer);
 			}
 		}catch (SQLException e) {
 			System.out.println("Error establishing connection: " + e.getMessage());
+			logInfo.setLogInfo("Error adding wrong answer: " + wrongAnswer + "\n Error: " + String.valueOf(e.getStackTrace()));
+            logInfo.setLevel("Error");
 		}
+		
+		Log.getInstance().log(logInfo);
 	}
 	
-	void deleteWrongAnswer(int answerId, int questionId) {
+	void deleteWrongAnswer(int answerId, int questionId, LogInfo logInfo) {
 		String sql = "DELETE FROM WrongAnswer WHERE AnswerId=? AND QuestionId=?;";
 		
 		try (Connection conn = Connect.connect();
@@ -123,15 +144,22 @@ public class WrongAnswer {
 			
 			if (affectedRows > 0) {
 				System.out.println("Successfully deleted answer");
+				logInfo.setLogInfo("Successfully deleted answer: " + answerId);
 			}else {
 				System.out.println("Error deleting answer");
+				logInfo.setLogInfo("Error deleting answer: " + answerId);
+				logInfo.setLevel("Error");
 			}
 		}catch (SQLException e) {
 			System.out.println("Error establishing connection: " + e.getMessage());
+			logInfo.setLogInfo("Error deleting answer: " + e.getStackTrace());
+			logInfo.setLevel("Error");
 		}
+		
+		Log.getInstance().log(logInfo);
 	}
 	
-	void updateWrongAnswer(int answerId, String wrongAnswer, int questionId) {
+	void updateWrongAnswer(int answerId, String wrongAnswer, int questionId, LogInfo logInfo) {
 		String sql = "UPDATE WrongAnswer SET Answer=? WHERE AnswerId=? AND QuestionId=?;";
 		
 		try (Connection conn = Connect.connect();
@@ -144,11 +172,19 @@ public class WrongAnswer {
 			
 			if (affectedRows > 0) {
 				System.out.println("Successfully updated answer.");
+				logInfo.setLogInfo("Successfully updated answer: " + wrongAnswer);
+	            logInfo.setLevel("Info");
 			}else {
 				System.out.println("Error updating answer.");
+				logInfo.setLogInfo("Error updating answer: " + wrongAnswer);
+				logInfo.setLevel("Error");
 			}
 		}catch (SQLException e) {
 			System.out.println("Error establishing connection: " + e.getMessage());
+			logInfo.setLogInfo("Error updating answer: " + e.getStackTrace());
+			logInfo.setLevel("Error");
 		}
+		
+		Log.getInstance().log(logInfo);
 	}
 }

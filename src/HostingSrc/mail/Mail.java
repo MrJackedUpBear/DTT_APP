@@ -3,6 +3,10 @@ package mail;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
+import logging.Log;
+import logging.LogInfo;
+
 import java.util.Properties;
 import java.time.*;
 
@@ -11,10 +15,12 @@ public class Mail implements Runnable{
     private final Config config = new Config();
     private final String title;
     private final String body;
+    private LogInfo logInfo;
     
-    public Mail(String body){
+    public Mail(String body, LogInfo logInfo){
         title = "DTT App Suggestions";
         this.body = body;
+        this.logInfo = logInfo;
     }
 
     @Override
@@ -48,8 +54,14 @@ public class Mail implements Runnable{
             System.out.println("Sending email...");
             Transport.send(message);
             System.out.println("Mail successfully sent");
+            logInfo.setLogInfo("Successfully sent email.");   
+            logInfo.setLevel("Info");
         }catch(Exception e){
             System.out.println("Error for " + title + ": " + e.getMessage());
+            logInfo.setLogInfo("Error sending email: " + e.getStackTrace());
+            logInfo.setLevel("Error");
         }
+        
+        Log.getInstance().log(logInfo);
     }
 }

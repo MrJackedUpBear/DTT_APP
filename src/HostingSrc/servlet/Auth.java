@@ -1,6 +1,5 @@
 package servlet;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,7 +11,7 @@ import java.util.Base64;
 import java.util.Locale;
 import java.util.Optional;
 
-import database.RefreshToken;
+import database.Database;
 import database.User;
 import database.UserDB;
 import jakarta.servlet.ServletException;
@@ -21,11 +20,11 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import logging.Log;
+import logging.LogInfo;
 import login.Password;
 import token.TokenGenerator;
 import mail.EmailAuth;
-import mail.Mail;
 
 /**
  * Servlet implementation class Auth
@@ -56,8 +55,19 @@ public class Auth extends HttpServlet {
 			return;
 		}
 		
-		if (infoRequest.equals("EmailAuth")) {			
-			Optional<User> user = UserDB.getInstance().getUserByEmail(username);
+		if (infoRequest.equals("EmailAuth")) {
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("SendEmailAuth");
+			logInfo.setUser(Database.getInstance().getUser(username, logInfo));
+			logInfo.setLogInfo("Sending email auth...");
+			logInfo.setLevel("Info");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			Optional<User> user = UserDB.getInstance().getUserByEmail(username, logInfo);
 			
 			if (!user.isPresent()) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -72,7 +82,23 @@ public class Auth extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_OK);
 			return;
 		}else if (infoRequest.equals("IsValid")) {
-			String u = TokenGenerator.getInstance().getUsername(token);
+			User system = new User();
+			system.setFirstName("System");
+			system.setLastName("System");
+			system.setUserId(-1000000);
+			
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("CheckIfTokenIsValid");
+			logInfo.setUser(system);
+			logInfo.setLogInfo("Verifying access token...");
+			logInfo.setLevel("Info");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			String u = TokenGenerator.getInstance().getUsername(token, logInfo);
 			
 			if (u == null) {
 				response.getWriter().println("{\"IsValid\":false}");
@@ -122,12 +148,23 @@ public class Auth extends HttpServlet {
 		}
 		
 		if (authType.equals("Basic")) {
-			if (!Password.getInstance().checkPassword(username, password)) {
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("SendEmailAuth");
+			logInfo.setUser(Database.getInstance().getUser(username, logInfo));
+			logInfo.setLogInfo("Sending email auth...");
+			logInfo.setLevel("Info");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			if (!Password.getInstance().checkPassword(username, password, logInfo)) {
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}
 						
-			String refreshToken = TokenGenerator.getInstance().putRefreshToken(username);
+			String refreshToken = TokenGenerator.getInstance().putRefreshToken(username, logInfo);
 			String accessToken = TokenGenerator.getInstance().putAccessToken(username);
 			
 			LocalDate expiryDate = LocalDate.now().plusMonths(6);
@@ -152,9 +189,20 @@ public class Auth extends HttpServlet {
 				return;
 			}
 			
-			username = TokenGenerator.getInstance().getUsername(accessToken);
+			LogInfo logInfo = new LogInfo();
 			
-			String refreshToken = TokenGenerator.getInstance().putRefreshToken(username);
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("VerifyEmailToken");
+			logInfo.setUser(Database.getInstance().getUser(username, logInfo));
+			logInfo.setLogInfo("Verifying email token...");
+			logInfo.setLevel("Info");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			username = TokenGenerator.getInstance().getUsername(accessToken, logInfo);
+			
+			String refreshToken = TokenGenerator.getInstance().putRefreshToken(username, logInfo);
 			
 			LocalDate expiryDate = LocalDate.now().plusMonths(6);
 			
@@ -194,7 +242,23 @@ public class Auth extends HttpServlet {
 		    	return;
 		    }
 		    
-			String accessToken = TokenGenerator.getInstance().refreshAccessToken(refreshToken);
+		    User system = new User();
+		    system.setFirstName("System");
+		    system.setLastName("System");
+		    system.setUserId(-1000000);
+		    
+		    LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("RefreshingToken");
+			logInfo.setUser(system);
+			logInfo.setLogInfo("Refreshing access token...");
+			logInfo.setLevel("Info");
+			
+			
+			Log.getInstance().log(logInfo);
+		    
+			String accessToken = TokenGenerator.getInstance().refreshAccessToken(refreshToken, logInfo);
 				
 				if (accessToken == null) {
 					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -213,7 +277,18 @@ public class Auth extends HttpServlet {
 			
 			String pass = new String(Base64.getDecoder().decode(passHeader));
 			
-			if (!Password.getInstance().changePassword(token, pass)) {
+			LogInfo logInfo = new LogInfo();
+			
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("PasswordChange");
+			logInfo.setUser(Database.getInstance().getUser(username, logInfo));
+			logInfo.setLogInfo("Changing password...");
+			logInfo.setLevel("Info");
+			
+			
+			Log.getInstance().log(logInfo);
+			
+			if (!Password.getInstance().changePassword(token, pass, logInfo)) {
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}

@@ -11,6 +11,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import logging.Log;
+import logging.LogInfo;
 import token.TokenGenerator;
 
 /**
@@ -50,7 +52,21 @@ public class Settings extends HttpServlet {
 		String encodedAuth = auth.substring(auth.indexOf(' ') + 1);
 		String accessToken = new String(Base64.getDecoder().decode(encodedAuth));
 		
-		String user = TokenGenerator.getInstance().getUsername(accessToken);
+		LogInfo baseLog = new LogInfo();
+    	baseLog.setTypeOfRequest("GetUser");
+    	baseLog.setLevel("Info");
+    	
+    	User admin = new User();
+    	admin.setFirstName("System");
+    	admin.setLastName("System");
+    	admin.setUserId(-1000000);
+    	
+    	baseLog.setUser(admin);
+    	baseLog.setLogInfo("Getting user...");
+    	
+    	Log.getInstance().log(baseLog);
+		
+		String user = TokenGenerator.getInstance().getUsername(accessToken, baseLog);
 		
 		if (user == null) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -61,7 +77,15 @@ public class Settings extends HttpServlet {
 		String infoRequest = requestURI.substring("/DTT_APP/Settings/".length());
 		
 		if (infoRequest.equals("AppSettings")) {
-			User u = Database.getInstance().getUser(user);
+			LogInfo logInfo = new LogInfo();
+			logInfo.setLevel("Info");
+			logInfo.setTypeOfRequest("GetAppSettings");
+			logInfo.setUser(Database.getInstance().getUser(user, logInfo));
+			logInfo.setLogInfo("Getting app settings...");
+			
+			
+			Log.getInstance().log(logInfo);
+			User u = Database.getInstance().getUser(user, logInfo);
 			
 			String settings = Database.getInstance().getSettings(u.getSettingId());
 			
@@ -94,7 +118,21 @@ String auth = request.getHeader("Authorization");
 		String encodedAuth = auth.substring(auth.indexOf(' ') + 1);
 		String accessToken = new String(Base64.getDecoder().decode(encodedAuth));
 		
-		String user = TokenGenerator.getInstance().getUsername(accessToken);
+		LogInfo baseLog = new LogInfo();
+    	baseLog.setTypeOfRequest("GetUser");
+    	baseLog.setLevel("Info");
+    	
+    	User admin = new User();
+    	admin.setFirstName("System");
+    	admin.setLastName("System");
+    	admin.setUserId(-1000000);
+    	
+    	baseLog.setUser(admin);
+    	baseLog.setLogInfo("Getting user...");
+    	
+    	Log.getInstance().log(baseLog);
+		
+		String user = TokenGenerator.getInstance().getUsername(accessToken, baseLog);
 		
 		if (user == null) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);

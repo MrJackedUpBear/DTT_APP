@@ -6,6 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import logging.Log;
+import logging.LogInfo;
+
 public class TaskList {
 	private static String createQuestion = "CREATE TABLE IF NOT EXISTS TaskList (TaskLetter CHAR(2) NOT NULL PRIMARY KEY, Description TEXT NOT NULL);";
 	
@@ -32,7 +35,7 @@ public class TaskList {
         return Connect.connect();
     }
 	
-	String getTask(String tl) {
+	String getTask(String tl, LogInfo logInfo) {
 		String task = "";
 		String sql = "SELECT Description FROM TaskList WHERE TaskLetter = ?;";
 		
@@ -44,10 +47,17 @@ public class TaskList {
 			while (s.next()) {
 				task = s.getString(1);
 			}
+			
+			logInfo.setLevel("Info");
+			logInfo.setLogInfo("Successfully got task: " + task);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			System.out.println("Error: " + e.getMessage());
+			logInfo.setLevel("Error");
+			logInfo.setLogInfo("Error getting task: " + e.getStackTrace());
 		}
+		
+		Log.getInstance().log(logInfo);
 		
 		return task;
 	}

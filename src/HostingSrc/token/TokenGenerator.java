@@ -6,10 +6,11 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
 
-import database.Database;
 import database.RefreshToken;
 import database.User;
 import database.UserDB;
+import logging.Log;
+import logging.LogInfo;
 
 public class TokenGenerator {
 	private final int NUM_MONTHS = 6;
@@ -26,9 +27,9 @@ public class TokenGenerator {
 		
 	}
 	
-	public String refreshAccessToken(String token) {
+	public String refreshAccessToken(String token, LogInfo logInfo) {
 		int userId;
-		if ((userId = RefreshToken.getInstance().getUser(token)) != -1) {
+		if ((userId = RefreshToken.getInstance().getUser(token, logInfo)) != -1) {
 			Optional<User> user = UserDB.getInstance().getUserById(userId);
 			
 			if (!user.isPresent()) {
@@ -49,10 +50,10 @@ public class TokenGenerator {
 		return token;
 	}
 	
-	public String putRefreshToken(String username) {
+	public String putRefreshToken(String username, LogInfo logInfo) {
 		String token = UUID.randomUUID().toString();
 		
-		Optional<User> user = UserDB.getInstance().getUserByEmail(username);
+		Optional<User> user = UserDB.getInstance().getUserByEmail(username, logInfo);
 		
 		if (!user.isPresent()) {
 			System.out.println("User not present");
@@ -61,7 +62,7 @@ public class TokenGenerator {
 		
 		LocalDate expirationDate = LocalDate.now().plusMonths(NUM_MONTHS);
 		
-		RefreshToken.getInstance().addToken(token, expirationDate, user.get().getUserId());
+		RefreshToken.getInstance().addToken(token, expirationDate, user.get().getUserId(), logInfo);
 		
 		return token;
 	}
@@ -88,11 +89,17 @@ public class TokenGenerator {
 	}
 	*/
 
-	public String getUsername(String token) {
+	public String getUsername(String token, LogInfo logInfo) {
 		if (tokenMap.containsKey(token)) {
 			if (tokenMap.get(token).expirationTime > System.currentTimeMillis()) {
+				logInfo.setLevel("Info");
+				logInfo.setLogInfo("Access token is valid.");
+				Log.getInstance().log(logInfo);
 				return tokenMap.get(token).username;
 			}else {
+				logInfo.setLevel("Invalid");
+				logInfo.setLogInfo("Access token is invalid.");
+				Log.getInstance().log(logInfo);
 				tokenMap.remove(token);
 			}
 		}

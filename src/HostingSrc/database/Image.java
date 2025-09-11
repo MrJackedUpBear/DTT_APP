@@ -5,6 +5,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Base64;
 
+import logging.Log;
+import logging.LogInfo;
+
 public class Image {
     private int imageId;
     private String imageLoc;
@@ -60,7 +63,20 @@ public class Image {
     public void setImageType(String imageType) {this.imageType = imageType;}
     public void setImage(String image) {setImageLoc(image);}
     public void setPrompt(String prompt) {
-    	int questionId = QuestionDB.getInstance().getQuestionId(prompt);
+    	LogInfo logInfo = new LogInfo();
+    	logInfo.setTypeOfRequest("SetPrompt");
+    	logInfo.setLevel("Info");
+    	
+    	User user = new User();
+    	user.setFirstName("System");
+    	user.setLastName("System");
+    	user.setUserId(-1000000);
+    	
+    	logInfo.setUser(user);
+    	logInfo.setLogInfo("Setting prompt...");
+    	
+    	Log.getInstance().log(logInfo);
+    	int questionId = QuestionDB.getInstance().getQuestionId(prompt, logInfo);
     	
     	this.questionId = questionId;
     }

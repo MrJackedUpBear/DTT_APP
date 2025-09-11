@@ -7,7 +7,7 @@ import java.util.Optional;
 import database.RefreshToken;
 import database.User;
 import database.UserDB;
-import token.TokenGenerator;
+import logging.LogInfo;
 
 public class Password {
 	private static Password p = new Password();
@@ -16,8 +16,8 @@ public class Password {
 		return p;
 	}
 	
-	public Boolean changePassword(String token, String password) {
-		int userId = RefreshToken.getInstance().getUser(token);
+	public Boolean changePassword(String token, String password, LogInfo logInfo) {
+		int userId = RefreshToken.getInstance().getUser(token, logInfo);
 		
 		if (userId == -1) {
 			return false;
@@ -36,14 +36,14 @@ public class Password {
 		return true;
 	}
 	
-	public Boolean checkPassword(String email, String pass) {
-		Optional<User> user = UserDB.getInstance().getUserByEmail(email);
+	public Boolean checkPassword(String email, String pass, LogInfo logInfo) {
+		Optional<User> user = UserDB.getInstance().getUserByEmail(email, logInfo);
 		
 		if (!user.isPresent()) {
 			return false;
 		}
 		
-		byte[] hashedPass = Hash.getInstance().hashPass(user.get().getSalt(), pass);
+		byte[] hashedPass = Hash.getInstance().hashPass(user.get().getSalt(), pass, logInfo);
 		
 		if (hashedPass == null) {
 			return false;

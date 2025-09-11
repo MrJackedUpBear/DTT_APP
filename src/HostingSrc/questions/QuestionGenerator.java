@@ -11,6 +11,9 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
+import logging.Log;
+import logging.LogInfo;
+
 	/**
 	 * Hello world!
 	 *
@@ -64,7 +67,7 @@ import org.apache.pdfbox.text.PDFTextStripper;
 	        }
 	    }
 
-	    public static ArrayList<Question> readPDF(Path file){
+	    public static ArrayList<Question> readPDF(Path file, LogInfo logInfo){
 	        ArrayList<Question> questions = new ArrayList<>();
 	        Scanner scanner = new Scanner(System.in);
 	        try{
@@ -168,10 +171,16 @@ import org.apache.pdfbox.text.PDFTextStripper;
 	                    }
 
 	                    questions.add(new Question(prompt, correctAnswer, wrongAnswers));
+	                    logInfo.setLevel("Info");
+	                    logInfo.setLogInfo("Successfully added question to list: " + prompt);
+	                    Log.getInstance().log(logInfo);
 	                }
 	            }
 	        }catch(IOException e){
 	            System.out.println("Error: " + e.getMessage());
+	            logInfo.setLevel("Error");
+	            logInfo.setLogInfo("Error getting questions from file: " + e.getStackTrace());
+	            Log.getInstance().log(logInfo);
 	        }
 	        scanner.close();
 	        return questions;

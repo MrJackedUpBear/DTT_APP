@@ -5,18 +5,17 @@ import java.util.HashMap;
 
 import database.Image;
 import database.ImageDB;
-import database.QuestionDB;
+import database.User;
+import logging.LogInfo;
 
 public class Question {
     private String prompt;
     private String correctAnswer;
     private ArrayList<String> wrongAnswers;
     private String justification;
-    private String image;
     private String taskLetter;
     private String taskLetterDesc;
     private boolean hasImage;
-    private String imageType;
     ArrayList<Image> imgs = new ArrayList<>();
     ArrayList<HashMap<String, String>> images = new ArrayList<>();
     
@@ -25,11 +24,9 @@ public class Question {
     	correctAnswer = "";
     	wrongAnswers = new ArrayList<>();
     	justification = "";
-    	image = "";
     	taskLetter = "";
     	hasImage = false;
     	taskLetterDesc = "";
-    	imageType = "";
     }
     
     public Question(String prompt, String correctAnswer, ArrayList<String> wrongAnswers){
@@ -126,7 +123,19 @@ public class Question {
     		this.hasImage = false;
     	}
     	
-    	imgs = ImageDB.getInstance().getImages(image.getQuestionId());
+    	LogInfo logInfo = new LogInfo();
+    	logInfo.setTypeOfRequest("DeleteImage");
+    	logInfo.setLevel("Info");
+    	
+    	User user = new User();
+    	user.setFirstName("System");
+    	user.setLastName("System");
+    	user.setUserId(-1000000);
+    	
+    	logInfo.setUser(user);
+    	logInfo.setLogInfo("Deleting image...");
+    	
+    	imgs = ImageDB.getInstance().getImages(image.getQuestionId(), logInfo);
     	
     	ArrayList<Image> i = new ArrayList<>();
     	for (Image img : imgs) {

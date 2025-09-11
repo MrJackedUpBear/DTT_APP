@@ -13,5 +13,6 @@ Set Environment Variables:
 	6. EMAIL_RECIPIENT
 	7. EMAIL_SENDER
 	8. EMAIL_PASSWORD
+	9. DTT_LOGS
 
 Restart the Tomcat server to deploy the application
