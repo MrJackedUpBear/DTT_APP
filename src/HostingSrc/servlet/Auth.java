@@ -282,11 +282,16 @@ public class Auth extends HttpServlet {
 			
 			String pass = new String(Base64.getDecoder().decode(passHeader));
 			
+			User system = new User();
+			system.setFirstName("System");
+			system.setLastName("System");
+			system.setUserId(-1000000);
+			
 			LogInfo logInfo = new LogInfo();
 			
 			logInfo.setLevel("Info");
 			logInfo.setTypeOfRequest("PasswordChange");
-			logInfo.setUser(Database.getInstance().getUser(username, logInfo));
+			logInfo.setUser(system);
 			logInfo.setLogInfo("Changing password...");
 			logInfo.setLevel("Info");
 			
