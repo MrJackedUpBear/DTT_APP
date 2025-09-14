@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import logging.Log;
 import logging.LogInfo;
 
 public class TaskList {
@@ -57,7 +56,7 @@ public class TaskList {
 			logInfo.setLogInfo("Error getting task: " + e.getStackTrace());
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 		
 		return task;
 	}

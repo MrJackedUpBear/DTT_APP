@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 
-import logging.Log;
 import logging.LogInfo;
 
 public class RefreshToken {
@@ -66,7 +65,7 @@ public class RefreshToken {
 			logInfo.setLogInfo("Error adding refresh token: " + e.getStackTrace());
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 	}
 	
 	public void deleteToken(String token) {
@@ -104,10 +103,14 @@ public class RefreshToken {
 					logInfo.setLevel("Info");
 					logInfo.setLogInfo("Successfully got user.");
 					userId = rs.getInt(2);
+					logInfo.setUser(UserDB.getInstance().getUserById(userId).get());
 				}else {
+					userId = rs.getInt(2);
 					deleteToken(token);
 					logInfo.setLevel("Info");
 					logInfo.setLogInfo("Token has expired.");
+					logInfo.setUser(UserDB.getInstance().getUserById(userId).get());
+					userId = -1;
 				}
 							}
 		}catch(SQLException e) {
@@ -116,7 +119,7 @@ public class RefreshToken {
 			logInfo.setLogInfo("Error getting user: " + e.getStackTrace());
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 		
 		return userId;
 	}

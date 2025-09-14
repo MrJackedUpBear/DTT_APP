@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
 
-import logging.Log;
 import logging.LogInfo;
 
 public class UserDB {
@@ -95,7 +94,7 @@ public class UserDB {
                 if (rs.next()) {
                 	logInfo.setLevel("Info");
                 	logInfo.setLogInfo("Successfully got user.");
-                	Log.getInstance().log(logInfo);
+                	logInfo.addLog(logInfo);
                     return Optional.of(mapRow(rs));
                 }
             }
@@ -103,7 +102,7 @@ public class UserDB {
             e.printStackTrace();
             logInfo.setLevel("Error");
             logInfo.setLogInfo("Error getting user: " + e.getStackTrace());
-            Log.getInstance().log(logInfo);
+            logInfo.addLog(logInfo);
         }
         return Optional.empty();
     }

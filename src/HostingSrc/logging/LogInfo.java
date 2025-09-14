@@ -2,6 +2,7 @@ package logging;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 
 import database.User;
 
@@ -10,12 +11,23 @@ public class LogInfo {
 	private User user;
 	private String level;
 	private String logInfo;
+	private ArrayList<LogInfo> logs = new ArrayList<>();
 	
 	public LogInfo() {
 		typeOfRequest = "";
 		user = new User();
 		level = "";
 		logInfo = "";
+	}
+	
+	public void addLog(LogInfo logInfo) {		
+		LogInfo l = new LogInfo();
+		l.setLevel(logInfo.getLevel());
+		l.setLogInfo(logInfo.getLogInfo());
+		l.setTypeOfRequest(logInfo.getTypeOfRequest());
+		l.setUser(logInfo.getUser());
+		
+		logs.add(l);
 	}
 	
 	public void setTypeOfRequest(String typeOfRequest) {
@@ -32,6 +44,10 @@ public class LogInfo {
 	
 	public void setLogInfo(String logInfo) {
 		this.logInfo = logInfo;
+	}
+	
+	public void log() {
+		Log.getInstance().log(logs);
 	}
 	
 	public String getTypeOfRequest() {

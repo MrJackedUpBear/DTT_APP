@@ -20,7 +20,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import logging.Log;
 import logging.LogInfo;
 import login.Password;
 import token.TokenGenerator;
@@ -65,11 +64,12 @@ public class Auth extends HttpServlet {
 			logInfo.setLevel("Info");
 			
 			
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 			
 			Optional<User> user = UserDB.getInstance().getUserByEmail(username, logInfo);
 			
 			if (!user.isPresent()) {
+				logInfo.log();
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
@@ -79,6 +79,8 @@ public class Auth extends HttpServlet {
 			Runnable run = new EmailAuth(emailAccessToken, username);
 			
 			new Thread(run).run();
+			logInfo.log();
+			
 			response.sendError(HttpServletResponse.SC_OK);
 			return;
 		}else if (infoRequest.equals("IsValid")) {
@@ -96,9 +98,11 @@ public class Auth extends HttpServlet {
 			logInfo.setLevel("Info");
 			
 			
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 			
 			String u = TokenGenerator.getInstance().getUsername(token, logInfo);
+			
+			logInfo.log();
 			
 			if (u == null) {
 				response.getWriter().println("{\"IsValid\":false}");
@@ -157,9 +161,10 @@ public class Auth extends HttpServlet {
 			logInfo.setLevel("Info");
 			
 			
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 			
 			if (!Password.getInstance().checkPassword(username, password, logInfo)) {
+				logInfo.log();
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}
@@ -178,6 +183,7 @@ public class Auth extends HttpServlet {
 	                "; Secure" +
 	                "; Expires=" + s; // s must be in RFC 1123 format (e.g., "Wed, 09 Sep 2025 15:00:00 GMT")
 
+			logInfo.log();
 			response.setHeader("Set-Cookie", cookie);	
 			
 			response.getWriter().print("{\"AccessToken\":" + "\"" + accessToken + "\"}");
@@ -203,7 +209,7 @@ public class Auth extends HttpServlet {
 			logInfo.setLevel("Info");
 			
 			
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 			
 			username = TokenGenerator.getInstance().getUsername(accessToken, logInfo);
 			
@@ -227,6 +233,7 @@ public class Auth extends HttpServlet {
 
 			response.setHeader("Set-Cookie", cookie);	
 			
+			logInfo.log();
 			response.getWriter().print("{\"AccessToken\":" + "\"" + accessToken + "\"}");
 		}else if (authType.equals("Refresh")) {
 			String refreshToken = "";
@@ -261,14 +268,16 @@ public class Auth extends HttpServlet {
 			logInfo.setLevel("Info");
 			
 			
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 		    
 			String accessToken = TokenGenerator.getInstance().refreshAccessToken(refreshToken, logInfo);
 				
 				if (accessToken == null) {
+					logInfo.log();
 					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					return;
 				}
+				logInfo.log();
 				
 				response.getWriter().print("{\"AccessToken\":" + "\"" + accessToken + "\"}");
 				return;
@@ -296,12 +305,14 @@ public class Auth extends HttpServlet {
 			logInfo.setLevel("Info");
 			
 			
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 			
 			if (!Password.getInstance().changePassword(token, pass, logInfo)) {
+				logInfo.log();
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}
+			logInfo.log();
 		}
 	}
 	

@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import logging.Log;
 import logging.LogInfo;
 
 public class WrongAnswer {
@@ -46,13 +45,13 @@ public class WrongAnswer {
 				wrongAnswers.add(set.getString(1));
 				logInfo.setLevel("Info");
 				logInfo.setLogInfo("Successfully got wrong answer: " + wrongAnswers.getLast());
-				Log.getInstance().log(logInfo);
+				logInfo.addLog(logInfo);
 			}
 		} catch (SQLException e) {
 			System.out.println("Error establishing connection: " + e.getMessage());
 			logInfo.setLevel("Error");
 			logInfo.setLogInfo("Error getting wrong answers: " + e.getStackTrace());
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 		}
 		
 		return wrongAnswers;
@@ -100,7 +99,7 @@ public class WrongAnswer {
 			logInfo.setLogInfo("Error getting wrong answers: " + e.getStackTrace());
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 		
 		return wrongAnswers;
 	}
@@ -129,7 +128,7 @@ public class WrongAnswer {
             logInfo.setLevel("Error");
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 	}
 	
 	void deleteWrongAnswer(int answerId, int questionId, LogInfo logInfo) {
@@ -156,7 +155,7 @@ public class WrongAnswer {
 			logInfo.setLevel("Error");
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 	}
 	
 	void updateWrongAnswer(int answerId, String wrongAnswer, int questionId, LogInfo logInfo) {
@@ -185,6 +184,6 @@ public class WrongAnswer {
 			logInfo.setLevel("Error");
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 	}
 }

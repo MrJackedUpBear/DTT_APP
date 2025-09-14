@@ -8,7 +8,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import logging.Log;
 import logging.LogInfo;
 
 public class ImageDB {
@@ -50,7 +49,7 @@ public class ImageDB {
             logInfo.setLevel("Error");
         }
         
-        Log.getInstance().log(logInfo);
+        logInfo.addLog(logInfo);
     }
 
     // READ
@@ -66,7 +65,7 @@ public class ImageDB {
             if (rs.next()) {
             	logInfo.setLevel("Info");
             	logInfo.setLogInfo("Successfully added image: " + imageLoc);
-            	Log.getInstance().log(logInfo);
+            	logInfo.addLog(logInfo);
                 return new Image(
                     rs.getInt("ImageId"),
                     rs.getString("ImageLoc"),
@@ -77,7 +76,7 @@ public class ImageDB {
             e.printStackTrace();
             logInfo.setLevel("Error");
             logInfo.setLogInfo("Error adding image: " + e.getStackTrace());
-            Log.getInstance().log(logInfo);
+            logInfo.addLog(logInfo);
         }
         return null;
     }
@@ -102,13 +101,13 @@ public class ImageDB {
                 
                 logInfo.setLevel("Info");
                 logInfo.setLogInfo("Successfully got image at: " + imageLoc);
-                Log.getInstance().log(logInfo);
+                logInfo.addLog(logInfo);
             }
         } catch (SQLException e) {
             e.printStackTrace();
             logInfo.setLevel("Error");
             logInfo.setLogInfo("Error getting images: " + e.getStackTrace());
-            Log.getInstance().log(logInfo);
+            logInfo.addLog(logInfo);
         }
         return images;
     }
@@ -127,7 +126,7 @@ public class ImageDB {
             if (rs.next()) {
             	logInfo.setLevel("Info");
             	logInfo.setLogInfo("Successfully got image.");
-            	Log.getInstance().log(logInfo);
+            	logInfo.addLog(logInfo);
                 return new Image(
                     rs.getInt("ImageId"),
                     rs.getString("ImageLoc"),
@@ -137,7 +136,7 @@ public class ImageDB {
         } catch (SQLException e) {
         	logInfo.setLevel("Error");
         	logInfo.setLogInfo("Error getting image: " + e.getStackTrace());
-        	Log.getInstance().log(logInfo);
+        	logInfo.addLog(logInfo);
             e.printStackTrace();
         }
         return null;
@@ -183,7 +182,7 @@ public class ImageDB {
             logInfo.setLogInfo("Error updating image: " + e.getStackTrace());
         }
         
-        Log.getInstance().log(logInfo);
+        logInfo.addLog(logInfo);
     }
 
     // DELETE
@@ -202,7 +201,7 @@ public class ImageDB {
             logInfo.setLevel("Error");
         }
         
-        Log.getInstance().log(logInfo);
+        logInfo.addLog(logInfo);
     }
     
     public void deleteImage(int imageId, LogInfo logInfo) {
@@ -221,7 +220,7 @@ public class ImageDB {
             logInfo.setLogInfo("Error deleting image: " + e.getStackTrace());
         }
         
-        Log.getInstance().log(logInfo);
+        logInfo.addLog(logInfo);
     }
 }
 

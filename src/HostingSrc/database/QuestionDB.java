@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import logging.Log;
 import logging.LogInfo;
 
 import java.sql.Connection;
@@ -64,7 +63,7 @@ public class QuestionDB {
 			logInfo.setLogInfo("Error getting question: " + e.getStackTrace());
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 		
 		ArrayList<String> wrongAnswers = WrongAnswer.getInstance().getWrongAnswers(id, logInfo);
 		
@@ -105,13 +104,13 @@ public class QuestionDB {
 				availableQuestions.add(set.getInt("QuestionId"));
 				logInfo.setLevel("Info");
 				logInfo.setLogInfo("Successfully got question: " + availableQuestions.getLast());
-				Log.getInstance().log(logInfo);
+				logInfo.addLog(logInfo);
 			}
 		}catch (SQLException e) {
 			System.out.println("Error establishing connection: " + e.getMessage());
 			logInfo.setLevel("Error");
 			logInfo.setLogInfo("Error getting questions: " + e.getStackTrace());
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 		}
 		
 		return availableQuestions;
@@ -146,7 +145,7 @@ public class QuestionDB {
             logInfo.setLevel("Error");
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 	}
 	
 	void updateQuestion(questions.Question question) {
@@ -198,7 +197,7 @@ public class QuestionDB {
 			logInfo.setLevel("Error");
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 	}
 	
 	void updateTaskLetter(int id, String taskLetter, LogInfo logInfo) {
@@ -226,7 +225,7 @@ public class QuestionDB {
 			logInfo.setLogInfo("Error updating task letter: " + e.getStackTrace());
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 	}
 	
 	void updateQuestionJustification(int id, String justification, LogInfo logInfo) {
@@ -254,7 +253,7 @@ public class QuestionDB {
 			logInfo.setLogInfo("Error updating justification: " + e.getStackTrace());
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 	}
 	
 	void updateQuestionPrompt(int id, String prompt, LogInfo logInfo) {
@@ -282,7 +281,7 @@ public class QuestionDB {
 			logInfo.setLevel("Error");
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 	}
 	
 	void updateQuestionHasImage(int id, boolean hasImage, LogInfo logInfo) {
@@ -310,7 +309,7 @@ public class QuestionDB {
 			logInfo.setLogInfo("Error updating has image: " + e.getStackTrace());
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 	}
 	
 	void updateQuestionAnswer (int id, String answer, LogInfo logInfo) {
@@ -338,7 +337,7 @@ public class QuestionDB {
 			logInfo.setLevel("Error");
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 	}
 	
 	int getQuestionId(String prompt, LogInfo logInfo) {
@@ -362,7 +361,7 @@ public class QuestionDB {
 			logInfo.setLogInfo("Error getting question id: " + e.getStackTrace());
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 		return questionId;
 	}
 }

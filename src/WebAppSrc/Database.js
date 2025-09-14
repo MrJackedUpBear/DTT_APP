@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {user, Setting} from './User.js';
+import router from './index.js';
 
 //Creates an user class that can be used to handle multiple users in the database
 
@@ -188,16 +189,6 @@ export function getBaseURL(){
 export async function verifyTokens(){
 	let token = localStorage.getItem("AccessToken");
 	if (token !== null){
-		if (!await verifyToken(token)){
-			await refreshAccessToken();
-			token = localStorage.getItem("AccessToken");
-			if (await verifyToken(token)){
-				return true;
-			}
-
-			return false;
-		}
-
 		return true;
 	}else{
 		return false;
@@ -338,7 +329,7 @@ export async function refreshAccessToken(){
 	return true;
 }
 
-export async function addQuestions(questionsToAdd){
+export async function addQuestions(questionsToAdd, iteration = 0){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -353,13 +344,24 @@ export async function addQuestions(questionsToAdd){
 			body: JSON.stringify(questionsToAdd),
 		});
 
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await addQuestions(questionsToAdd, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
+
 		console.log(response.status);
 	}catch(error) {
 		console.log("Error Adding: " + error);
 	}
 }
 
-export async function getQuestions(numQuest){
+export async function getQuestions(numQuest, iteration = 0){
 	let questionSet = [];
 	let Json = "";
 	const params = new URLSearchParams();
@@ -375,6 +377,18 @@ export async function getQuestions(numQuest){
 		const response = await fetch(questionURL + getRandomQuestionsURL + '?' + params, {
 			headers:myHeaders,
 		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await getQuestions(numQuest, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
+
 		if (!response.ok){
 			console.log("Bad response: " + response.status);
 			return;
@@ -391,7 +405,7 @@ export async function getQuestions(numQuest){
 	}
 }
 
-export async function getNumberQuestions(){
+export async function getNumberQuestions(iteration = 0){
 	let numQuestions = 0;
 	let JSON = "";
 
@@ -404,6 +418,18 @@ export async function getNumberQuestions(){
 		const response = await fetch(questionURL + getQuestionTotalURL, {
 			headers:myHeaders,
 		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await getNumberQuestions(1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
+
 		if (!response.ok){
 			console.log("Bad response: " + response.status);
 			return;
@@ -422,7 +448,7 @@ export async function getNumberQuestions(){
 	return numQuestions;
 }
 
-export async function getQuestionsFrom(start, end){
+export async function getQuestionsFrom(start, end, iteration = 0){
 	let Json = "";
 	let questionSet = [];
 
@@ -440,6 +466,17 @@ export async function getQuestionsFrom(start, end){
 		const response = await fetch(questionURL + getQuestionsFromURL + '?' + params, {
 			headers:myHeaders,
 		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await getQuestionsFrom(start, end, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
 
 		if (!response.ok){
 			console.log("Bad response: " + response.status);
@@ -459,7 +496,7 @@ export async function getQuestionsFrom(start, end){
 	}
 }
 
-export async function deleteQuestion(prompt){
+export async function deleteQuestion(prompt, iteration = 0){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -474,13 +511,24 @@ export async function deleteQuestion(prompt){
 			body: JSON.stringify({"Prompt":prompt}),
 		});
 
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await deleteQuestion(prompt, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
+
 		console.log(response.status);
 	}catch(error){
 		console.error("Error: ", error);
 	}
 }
 
-export async function updatePrompt(oldPrompt, newPrompt){
+export async function updatePrompt(oldPrompt, newPrompt, iteration = 0){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -493,7 +541,18 @@ export async function updatePrompt(oldPrompt, newPrompt){
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompts":[oldPrompt, newPrompt]}),
-		})
+		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await updatePrompt(oldPrompt, newPrompt, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
 
 		if (!response.ok){
 			console.log(response);
@@ -505,7 +564,7 @@ export async function updatePrompt(oldPrompt, newPrompt){
 	}
 }
 
-export async function updateCorrectAnswer(prompt, newCorrectAnswer){
+export async function updateCorrectAnswer(prompt, newCorrectAnswer, iteration = 0){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -518,7 +577,18 @@ export async function updateCorrectAnswer(prompt, newCorrectAnswer){
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompt and Answer":[prompt, newCorrectAnswer]}),
-		})
+		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await updateCorrectAnswer(prompt, newCorrectAnswer, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
 
 		if (!response.ok){
 			console.log(response);
@@ -532,7 +602,7 @@ export async function updateCorrectAnswer(prompt, newCorrectAnswer){
 	}
 }
 
-export async function updateWrongAnswer(prompt, answerId, wrongAnswer){
+export async function updateWrongAnswer(prompt, answerId, wrongAnswer, iteration = 0){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -545,7 +615,18 @@ export async function updateWrongAnswer(prompt, answerId, wrongAnswer){
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompt":prompt, "Wrong Answer":wrongAnswer, "Answer Id":answerId}),
-		})
+		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await updateWrongAnswer(prompt, answerId, wrongAnswer, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
 
 		if (!response.ok){
 			console.log(response);
@@ -558,7 +639,7 @@ export async function updateWrongAnswer(prompt, answerId, wrongAnswer){
 	}
 }
 
-export async function deleteWrongAnswer(prompt, wrongAnswer){
+export async function deleteWrongAnswer(prompt, wrongAnswer, iteration = 0){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -571,7 +652,18 @@ export async function deleteWrongAnswer(prompt, wrongAnswer){
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompt and Wrong Answer": [prompt, wrongAnswer]}),
-		})
+		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await deleteWrongAnswer(prompt, wrongAnswer, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
 
 		if (!response.ok){
 			console.log(response);
@@ -584,7 +676,7 @@ export async function deleteWrongAnswer(prompt, wrongAnswer){
 	}
 }
 
-export async function deleteImage(imageName){
+export async function deleteImage(imageName, iteration = 0){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -597,7 +689,18 @@ export async function deleteImage(imageName){
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Image Name": imageName}),
-		})
+		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await deleteImage(imageName, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
 
 		if (!response.ok){
 			console.log(response);
@@ -610,7 +713,7 @@ export async function deleteImage(imageName){
 	}
 }
 
-export async function addWrongAnswer(prompt, wrongAnswer){
+export async function addWrongAnswer(prompt, wrongAnswer, iteration = 0){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -623,7 +726,18 @@ export async function addWrongAnswer(prompt, wrongAnswer){
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompt and Wrong Answer": [prompt, wrongAnswer]}),
-		})
+		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await getNumberQuestions(prompt, wrongAnswer, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
 
 		if (!response.ok){
 			console.log(response);
@@ -636,7 +750,7 @@ export async function addWrongAnswer(prompt, wrongAnswer){
 	}
 }
 
-export async function addImage(prompt, image, imageType){
+export async function addImage(prompt, image, imageType, iteration = 0){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -652,7 +766,18 @@ export async function addImage(prompt, image, imageType){
 				"image":image,
 				"imageType":imageType
 			}),
-		})
+		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await addImage(prompt, image, imageType, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
 
 		if (!response.ok){
 			console.log(response);
@@ -665,7 +790,7 @@ export async function addImage(prompt, image, imageType){
 	}
 }
 
-export async function updateTaskLetter(prompt, taskLetter){
+export async function updateTaskLetter(prompt, taskLetter, iteration = 0){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -678,7 +803,18 @@ export async function updateTaskLetter(prompt, taskLetter){
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompt and Task Letter":[prompt, taskLetter]}),
-		})
+		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await updateTaskLetter(prompt, taskLetter, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
 
 		if (!response.ok){
 			console.log(response);
@@ -692,7 +828,7 @@ export async function updateTaskLetter(prompt, taskLetter){
 	}
 }
 
-export async function updateJustification(prompt, justification){
+export async function updateJustification(prompt, justification, iteration = 0){
 	try{
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -705,7 +841,18 @@ export async function updateJustification(prompt, justification){
 			headers:myHeaders,
 			method:"POST",
 			body: JSON.stringify({"Prompt and Justification":[prompt, justification]}),
-		})
+		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await updateJustification(prompt, justification, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
 
 		if (!response.ok){
 			console.log(response);
@@ -719,7 +866,7 @@ export async function updateJustification(prompt, justification){
 	}
 }
 
-export async function uploadFile(formData){
+export async function uploadFile(formData, iteration = 0){
 	const myHeaders = new Headers();
 
 	let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
@@ -732,6 +879,17 @@ export async function uploadFile(formData){
 			method: 'POST',
 			body: formData
 		});
+
+		let responseCode = resp.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await uploadFile(formData, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
 
 		if (!resp.ok){
 			console.log(resp.body);
@@ -748,7 +906,7 @@ export async function uploadFile(formData){
 	}
 }
 
-export async function getImage(imageName){
+export async function getImage(imageName, iteration = 0){
 	const params = new URLSearchParams();
 	params.append("ImageName", imageName);
 
@@ -762,6 +920,17 @@ export async function getImage(imageName){
 		const resp = await fetch (questionURL + getImagesURL + "?" + params,{
 			headers:myHeaders,
 		});
+
+		let responseCode = resp.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await getImage(imageName, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
 
 		if (!resp.ok){
 			console.error("Error fetching...");
@@ -778,7 +947,7 @@ export async function getImage(imageName){
 	}
 }
 
-export async function getUser(){
+export async function getUser(iteration = 0){
 	const myHeaders = new Headers();
 
 	let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
@@ -788,6 +957,18 @@ export async function getUser(){
 		const response = await fetch(questionURL + getUserInfoURL, {
 			headers:myHeaders,
 		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await getUser(1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
+
 		if (!response.ok){
 			console.log("Bad response: " + response.status);
 			return;
@@ -814,7 +995,7 @@ export async function getUser(){
 	return currentUser;
 }
 
-export async function changePassword(password){
+export async function changePassword(password, iteration = 0){
 	const myHeaders = new Headers();
 
 	let accessToken = "Password " + btoa(localStorage.getItem("AccessToken"));
@@ -828,6 +1009,18 @@ export async function changePassword(password){
 			method:'POST',
 			credentials: "include",
 		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await changePassword(password, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
+
 		if (!response.ok){
 			console.log("Bad response: " + response.status);
 			return false;
@@ -840,7 +1033,7 @@ export async function changePassword(password){
 	}
 }
 
-export async function getSettings(){
+export async function getSettings(iteration = 0){
 	const myHeaders = new Headers();
 
 	let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
@@ -850,6 +1043,18 @@ export async function getSettings(){
 		const response = await fetch(settingsURL + getSettingsURL, {
 			headers:myHeaders,
 		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await getSettings(1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
+
 		if (!response.ok){
 			console.log("Bad response: " + response.status);
 			return null;
@@ -862,7 +1067,7 @@ export async function getSettings(){
 	}
 }
 
-export async function updateSettings(s){
+export async function updateSettings(s, iteration = 0){
 	const myHeaders = new Headers();
 
 	let accessToken = "Bearer " + btoa(localStorage.getItem("AccessToken"));
@@ -874,6 +1079,18 @@ export async function updateSettings(s){
 			method:'POST',
 			body: JSON.stringify(s),
 		});
+
+		let responseCode = response.status;
+
+		if (responseCode === 401 && iteration === 0){
+			await refreshAccessToken();
+			await updateSettings(s, 1);
+			return;
+		}else if (iteration > 0){
+			router.navigate("/Login");
+			return;
+		}
+
 		if (!response.ok){
 			console.log("Bad response: " + response.status);
 			return false;

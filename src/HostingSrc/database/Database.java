@@ -13,7 +13,6 @@ import java.util.Optional;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import logging.Log;
 import logging.LogInfo;
 
 public class Database {
@@ -89,12 +88,12 @@ public class Database {
 		if (possibleQuestions.size() == 0) {
 			logInfo.setLevel("Info");
 			logInfo.setLogInfo("No questions available.");
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 			return "";
 		} else if (numQuestions > possibleQuestions.size()) {
 			logInfo.setLevel("Error");
 			logInfo.setLogInfo("Number of questions requested greater than available.");
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 			return "";
 		}
 		
@@ -244,7 +243,7 @@ public class Database {
 		if (questionId == -1){
 			logInfo.setLevel("Error");
 			logInfo.setLogInfo("Error getting question id from prompt.");
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 			return false;
 		}
 		
@@ -295,7 +294,7 @@ public class Database {
 		if (questionId == -1) {
 			logInfo.setLevel("Error");
 			logInfo.setLogInfo("Error getting question id from prompt.");
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 			return false;
 		}
 		
@@ -369,7 +368,7 @@ public class Database {
 			System.out.println("Error: " + e.getMessage());
 			logInfo.setLevel("Error");
 			logInfo.setLogInfo("Error getting image data: " + e.getStackTrace());
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 		}
 	}
 	
@@ -417,7 +416,7 @@ public class Database {
 			logInfo.setLogInfo("Error deleting image from file system: " + e.getStackTrace());
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 		
 		return true;
 	}
@@ -513,7 +512,7 @@ public class Database {
 			logInfo.setLogInfo("Error getting image from JSON object: " + e.getStackTrace());
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 		
 		return image;
 	}
@@ -558,7 +557,7 @@ public class Database {
 			logInfo.setLogInfo("Error converting questions into JSON String: " + e.getStackTrace());
 		}
 		
-		Log.getInstance().log(logInfo);
+		logInfo.addLog(logInfo);
 		return json;
 	}
 	

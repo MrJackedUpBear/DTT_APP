@@ -84,10 +84,12 @@ public class Settings extends HttpServlet {
 			logInfo.setLogInfo("Getting app settings...");
 			
 			
-			Log.getInstance().log(logInfo);
+			logInfo.addLog(logInfo);
 			User u = Database.getInstance().getUser(user, logInfo);
 			
 			String settings = Database.getInstance().getSettings(u.getSettingId());
+			
+			logInfo.log();
 			
 			response.getWriter().println(settings);
 		}else {
