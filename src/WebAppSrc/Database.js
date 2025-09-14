@@ -348,9 +348,8 @@ export async function addQuestions(questionsToAdd, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await addQuestions(questionsToAdd, 1);
-			return;
-		}else if (iteration > 0){
+			return await addQuestions(questionsToAdd, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -382,9 +381,8 @@ export async function getQuestions(numQuest, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await getQuestions(numQuest, 1);
-			return;
-		}else if (iteration > 0){
+			return await getQuestions(numQuest, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -423,9 +421,8 @@ export async function getNumberQuestions(iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await getNumberQuestions(1);
-			return;
-		}else if (iteration > 0){
+			return await getNumberQuestions(1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -471,9 +468,8 @@ export async function getQuestionsFrom(start, end, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await getQuestionsFrom(start, end, 1);
-			return;
-		}else if (iteration > 0){
+			return await getQuestionsFrom(start, end, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -515,9 +511,8 @@ export async function deleteQuestion(prompt, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await deleteQuestion(prompt, 1);
-			return;
-		}else if (iteration > 0){
+			return await deleteQuestion(prompt, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -547,9 +542,8 @@ export async function updatePrompt(oldPrompt, newPrompt, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await updatePrompt(oldPrompt, newPrompt, 1);
-			return;
-		}else if (iteration > 0){
+			return await updatePrompt(oldPrompt, newPrompt, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -583,9 +577,8 @@ export async function updateCorrectAnswer(prompt, newCorrectAnswer, iteration = 
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await updateCorrectAnswer(prompt, newCorrectAnswer, 1);
-			return;
-		}else if (iteration > 0){
+			return await updateCorrectAnswer(prompt, newCorrectAnswer, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -621,9 +614,8 @@ export async function updateWrongAnswer(prompt, answerId, wrongAnswer, iteration
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await updateWrongAnswer(prompt, answerId, wrongAnswer, 1);
-			return;
-		}else if (iteration > 0){
+			return await updateWrongAnswer(prompt, answerId, wrongAnswer, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -658,9 +650,8 @@ export async function deleteWrongAnswer(prompt, wrongAnswer, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await deleteWrongAnswer(prompt, wrongAnswer, 1);
-			return;
-		}else if (iteration > 0){
+			return await deleteWrongAnswer(prompt, wrongAnswer, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -695,9 +686,8 @@ export async function deleteImage(imageName, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await deleteImage(imageName, 1);
-			return;
-		}else if (iteration > 0){
+			return await deleteImage(imageName, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -732,9 +722,8 @@ export async function addWrongAnswer(prompt, wrongAnswer, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await getNumberQuestions(prompt, wrongAnswer, 1);
-			return;
-		}else if (iteration > 0){
+			return await getNumberQuestions(prompt, wrongAnswer, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -772,9 +761,8 @@ export async function addImage(prompt, image, imageType, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await addImage(prompt, image, imageType, 1);
-			return;
-		}else if (iteration > 0){
+			return await addImage(prompt, image, imageType, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -809,9 +797,8 @@ export async function updateTaskLetter(prompt, taskLetter, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await updateTaskLetter(prompt, taskLetter, 1);
-			return;
-		}else if (iteration > 0){
+			return await updateTaskLetter(prompt, taskLetter, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -847,9 +834,8 @@ export async function updateJustification(prompt, justification, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await updateJustification(prompt, justification, 1);
-			return;
-		}else if (iteration > 0){
+			return await updateJustification(prompt, justification, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -884,9 +870,8 @@ export async function uploadFile(formData, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await uploadFile(formData, 1);
-			return;
-		}else if (iteration > 0){
+			return await uploadFile(formData, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -925,9 +910,8 @@ export async function getImage(imageName, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await getImage(imageName, 1);
-			return;
-		}else if (iteration > 0){
+			return await getImage(imageName, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -962,9 +946,8 @@ export async function getUser(iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await getUser(1);
-			return;
-		}else if (iteration > 0){
+			return await getUser(1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -1014,9 +997,8 @@ export async function changePassword(password, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await changePassword(password, 1);
-			return;
-		}else if (iteration > 0){
+			return await changePassword(password, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -1048,9 +1030,8 @@ export async function getSettings(iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await getSettings(1);
-			return;
-		}else if (iteration > 0){
+			return await getSettings(1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
@@ -1084,9 +1065,8 @@ export async function updateSettings(s, iteration = 0){
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
-			await updateSettings(s, 1);
-			return;
-		}else if (iteration > 0){
+			return await updateSettings(s, 1);
+		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
 		}
