@@ -113,7 +113,9 @@ export class question{
 	}
 
 	removeWrongAnswers(){
-		this.wrongAnswers = [];
+		while (this.wrongAnswers.length > 0){
+			this.wrongAnswers.pop();
+		}
 	}
 
 	setWrongAnswer(answer, id){

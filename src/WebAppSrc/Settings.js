@@ -106,8 +106,6 @@ async function verifyTokens(){
 }
 
 export function Settings(){
-    verifyTokens();
-
     const changePassword = async (e) =>{
         e.preventDefault();
         let formData = new FormData(e.target);

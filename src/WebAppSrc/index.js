@@ -73,6 +73,10 @@ import * as settings from './Settings';
     {
       path: 'Login',
       element: <app.LoginPage/>
+    },
+    {
+      path: 'MainPage/Questions/Edit',
+      element: <qfend.EditQuestions/>
     }
   ]);
 
