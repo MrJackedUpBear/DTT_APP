@@ -119,7 +119,7 @@ public class QuestionDB {
 	
 	void createQuestion(String prompt, String answer, String justification, String taskLetter, boolean hasImage, LogInfo logInfo) {
 		String sql = "INSERT INTO Question (Prompt, CorrectAnswer, Justification, TaskLetter, HasImage) VALUES (?, ?, ?, ?, ?);";
-		
+				
 		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setString(1, prompt);
@@ -344,6 +344,10 @@ public class QuestionDB {
 		String sql = "SELECT QuestionId FROM Question WHERE Prompt=?;";
 		int questionId = -1;
 		
+		prompt = prompt.replaceAll("\\\\\"", "\"");
+		
+		System.out.println(prompt);
+		
 		try (Connection conn = Connect.connect();
 				PreparedStatement pstmt = conn.prepareStatement(sql)){
 			pstmt.setString(1, prompt);
@@ -352,9 +356,14 @@ public class QuestionDB {
 			
 			while (set.next()) {
 				questionId = set.getInt("QuestionId");
+				logInfo.setLogInfo("Successfully got question id: " + questionId);
+				logInfo.setLevel("Info");
 			}
-			logInfo.setLogInfo("Successfully got question id.");
-			logInfo.setLevel("Info");
+			
+			if (questionId == -1) {
+				logInfo.setLevel("Error");
+				logInfo.setLogInfo("Could not find question id for: " + prompt);
+			}
 		}catch (SQLException e) {
 			System.out.println("Error establishing connection: " + e.getMessage());
 			logInfo.setLevel("Error");

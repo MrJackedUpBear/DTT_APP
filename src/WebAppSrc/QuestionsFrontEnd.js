@@ -7,7 +7,8 @@ import * as db from './Database.js';
 import settings from './settings-svgrepo-com.svg';
 import landingPage from './landing-page-web-design-svgrepo-com.svg';
 import home from './home-svgrepo-com.svg';
-import back from './back-svgrepo-com.svg'
+import back from './back-svgrepo-com.svg';
+import { toast, ToastContainer } from 'react-toastify';
 
 let page = 1;
 let numOnPage = 15;
@@ -320,7 +321,9 @@ function LoadQuestions(){
             }
         };
 
-        fetchData();
+        if (data === null){
+            fetchData();
+        }
     }, []);
 
     const handleClick = async (event, prompt, index, wrongAnswer = '', wrongAnswerInput = '', imageName = '') => {
@@ -353,7 +356,7 @@ function LoadQuestions(){
         }
     }
 
-    const [currentq, setCurrentq] = useState(new db.question);
+    const [currentq, setCurrentq] = useState(new db.question());
     
     //getCurrentQuestion();
     return (<h1>
@@ -385,6 +388,9 @@ function LoadQuestions(){
                     </div>
                 
                 <div className="afterQuestion"> </div>
+                <div>
+                    <ToastContainer position="top-right" autoClose={3000} />
+                </div>
                 </div>
                 
             ))}
@@ -394,8 +400,44 @@ function LoadQuestions(){
     </h1>);
 }
 
+const showTimedMessage = (settingUpdated) => {
+    toast.success("Successfully updated " + settingUpdated + "!", {
+        position: "top-right", // Can override the default from ToastContainer
+        autoClose: 5000,      // Can override the default from ToastContainer
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+    });
+};
+
+const showDeleteMessage = (settingUpdated) => {
+    toast.success("Successfully deleted " + settingUpdated + "!", {
+        position: "top-right", // Can override the default from ToastContainer
+        autoClose: 5000,      // Can override the default from ToastContainer
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+    });
+};
+
+const showAddedMessage = (settingUpdated) => {
+    toast.success("Successfully added " + settingUpdated + "!", {
+        position: "top-right", // Can override the default from ToastContainer
+        autoClose: 5000,      // Can override the default from ToastContainer
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+    });
+};
+
 export function EditQuestions(){
-    const handleClick = async (event, prompt, wrongAnswer = '', wrongAnswerInput = '', imageName = '') => {
+    const handleClick = async (event, prompt, wrongAnswer = '', wrongAnswerInput = '', imageName = '', imageId = -1) => {
         allQuestions = " ";
         const resetAll = () =>{
             setEditTaskLetter(false);
@@ -418,7 +460,7 @@ export function EditQuestions(){
             }
 
             questions.deleteQuestion(prompt);
-            alert("Successfully deleted: " + prompt);
+            showTimedMessage(prompt);
             page++;
             router.navigate('Back');
         }else if (className === 'editTaskLetter'){
@@ -472,6 +514,11 @@ export function EditQuestions(){
                 setAddImage(true);
             }
         }else if (className === 'deleteImage'){
+            if (imageName === ""){
+                alert("It seems you have just added this image. Please try leaving this question and coming back to delete it.");
+                return;
+            }
+
             let confirmation = window.confirm("Are you sure you want to delete: \"" + imageName + "\"?");
 
             if (!confirmation){
@@ -480,9 +527,17 @@ export function EditQuestions(){
 
             if (!await questions.deleteImage(imageName)){
                 alert("Error deleting.");
-            }
+            }else{
+                currentQuestion.removeImage(imageId);
+                let temp = [];
 
-            router.navigate('/MainPage/Questions');
+                for (let i = 0; i < currentQuestion.getImages().length; i++){
+                    temp.push(currentQuestion.getImages()[i]);
+                }
+
+                setImages(temp);
+                showDeleteMessage(imageName);
+            }
         }else if (className === 'addWrongAnswer'){
             if (addWrongAnswer){
                 resetAll();
@@ -492,19 +547,24 @@ export function EditQuestions(){
                 setAddWrongAnswer(true);
             }
         }else if (className === 'deleteWrongAnswer'){
+            let confirmation = window.confirm("Are you sure you want to delete: \"" + wrongAnswerInput + "\"?");
+
+            if (!confirmation){
+                return;
+            }
+
             if (!await questions.deleteWrongAnswer(prompt, wrongAnswerInput)){
                 alert("Error updating");
             }else{
-                let wrongAnswers = currentQuestion.getWrongAnswers();
+                currentQuestion.removeWrongAnswer(wrongAnswer);
+                let newWrongAnswers = [];
 
-                currentQuestion.removeWrongAnswers();
-                for (let i = 0; i < wrongAnswers.length; i++){
-                    if (wrongAnswers[i] !== wrongAnswerInput){
-                        alert("Wrong answers: " +wrongAnswers[i]);
-                        alert("Wrong answer input: " + wrongAnswerInput);
-                        currentQuestion.addWrongAnswer(wrongAnswers[i]);
-                    }
+                for (let i = 0; i < currentQuestion.getWrongAnswers().length; i++){
+                    newWrongAnswers.push(currentQuestion.getWrongAnswers()[i]);
                 }
+
+                showDeleteMessage(wrongAnswerInput);
+                setWrongAnswers(newWrongAnswers);
             }
         }else if (className === 'Edit'){
             router.navigate('Edit');
@@ -526,6 +586,7 @@ export function EditQuestions(){
             }else{
                 currentQuestion.setTaskLetter(newTaskLetter);
                 currentQuestion.setTaskLetterDesc("");
+                showTimedMessage("task letter");
             }
             
             setEditTaskLetter(false);
@@ -535,6 +596,7 @@ export function EditQuestions(){
                 alert("Error updating");
             }else{
                 currentQuestion.setQuestion(newPrompt);
+                showTimedMessage("prompt");
             }
 
             setEditPrompt(false);
@@ -543,7 +605,18 @@ export function EditQuestions(){
             if (!await questions.updateWrongAnswer(prompt, wrongAnswer, newWrongAnswer)){
                 alert('Error updating.');
             }else{
-                currentQuestion.setWrongAnswer(newWrongAnswer, wrongAnswer);
+                currentQuestion.removeWrongAnswer(wrongAnswer);
+                currentQuestion.addWrongAnswer(newWrongAnswer);
+                
+                let newWrongAnswers = [];
+
+                for (let i = 0; i < currentQuestion.getWrongAnswers().length; i++){
+                    newWrongAnswers.push(currentQuestion.getWrongAnswers()[i]);
+                }
+
+                setWrongAnswers(newWrongAnswers);
+
+                showTimedMessage("wrong answer");
             }
 
             setEditWrongAnswer(false);
@@ -553,6 +626,7 @@ export function EditQuestions(){
                 alert("Error updating.");
             }else{
                 currentQuestion.setCorrectAnswer(newCorrectAnswer);
+                showTimedMessage("correct answer");
             }
             setEditCorrectAnswer(false);
         }else if (className === 'submitEditJustification'){
@@ -561,6 +635,7 @@ export function EditQuestions(){
                 alert("Error updating.");
             }else{
                 currentQuestion.setJustification(newJustification);
+                showTimedMessage("justification");
             }
             setEditJustification(false);
         }else if (className === 'submitAddImage'){
@@ -590,6 +665,15 @@ export function EditQuestions(){
                     alert("Error adding image.")
                 }else{
                     currentQuestion.addImage(img);
+                    let temp = [];
+
+                    for (let i = 0; i < currentQuestion.getImages().length; i++){
+                        temp.push(currentQuestion.getImages()[i]);
+                    }
+
+                    setImages(temp);
+
+                    showAddedMessage("image");
                 }
             }
 
@@ -600,6 +684,15 @@ export function EditQuestions(){
                 alert("Error updating.");
             }else{
                 currentQuestion.addWrongAnswer(newWrongAnswer);
+
+                let newWrongAnswers = [];
+
+                for (let i = 0; i < currentQuestion.getWrongAnswers().length; i++){
+                    newWrongAnswers.push(currentQuestion.getWrongAnswers()[i]);
+                }
+
+                setWrongAnswers(newWrongAnswers);
+                showAddedMessage("wrong answer");
             }
 
             setAddWrongAnswer(false);
@@ -616,6 +709,9 @@ export function EditQuestions(){
     const [editCorrectAnswer, setEditCorrectAnswer] = useState(false);
     const [editJustification, setEditJustification] = useState(false);
     const [addImage, setAddImage] = useState(false);
+
+    const [wrongAnswers, setWrongAnswers] = useState(currentQuestion.getWrongAnswers());
+    const [images, setImages] = useState(currentQuestion.getImages());
 
     if (currentQuestion === undefined){
         router.navigate("/MainPage/Questions");
@@ -676,20 +772,20 @@ export function EditQuestions(){
                             </form>
                             <button className="editPrompt" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Cancel</button>
                         </div> : 
-                        <button className="editPrompt" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), )}>Edit Prompt</button>}
+                        <button className="editPrompt" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Edit Prompt</button>}
                     </td>
                 </tr>
 
                 <tr className="topRow">
                     <td className="wrongAnswers">
                             <h3>Wrong Answers:</h3>
-                        {currentQuestion.getWrongAnswers().map((wrongAnswer, wrongAnswerIndex) => (
+                        {wrongAnswers.map((wrongAnswer, wrongAnswerIndex) => (
                             <div>{wrongAnswerIndex + 1}: {' '} {wrongAnswer}
                                 <br/>
                                 
                                 {editWrongAnswer && (currentWrongAnswer === wrongAnswerIndex) ? 
                                 <div>
-                                    <form onSubmit={(e) => handleSubmit(e, currentQuestion.getQuestion(), wrongAnswerIndex)} className="submitEditWrongAnswer">
+                                    <form onSubmit={(e) => handleSubmit(e, currentQuestion.getQuestion(), wrongAnswer)} className="submitEditWrongAnswer">
                                         <label>Enter New Wrong Answer: </label>
                                         <input type="text" id="newWrongAnswer" name="newWrongAnswer"></input>
                                         <br/>
@@ -698,7 +794,7 @@ export function EditQuestions(){
                                     <button className="editWrongAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), wrongAnswerIndex)}>Cancel</button>
                                 </div> : 
                                 <button className="editWrongAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), wrongAnswerIndex)}>Edit Wrong Answer {wrongAnswerIndex + 1}</button>}
-                                <button className="deleteWrongAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), '', wrongAnswer)}>Delete Wrong Answer?</button>
+                                <button className="deleteWrongAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), wrongAnswerIndex, wrongAnswer)}>Delete Wrong Answer?</button>
                             </div>
                         ))}
                         {addWrongAnswer ? 
@@ -750,10 +846,10 @@ export function EditQuestions(){
 
                     <td className="image">
                         <h3>Image:</h3>
-                        {currentQuestion.getImages().map((image, imageIndex) => (
+                        {images.map((image, imageIndex) => (
                             <div>
                                 <img src={image[0]} alt=""/>
-                                <button className="deleteImage" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), '', '', currentQuestion.getImageNames()[imageIndex])}>Delete Image?</button>
+                                <button className="deleteImage" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), '', '', currentQuestion.getImageNames()[imageIndex], imageIndex)}>Delete Image?</button>
                                 <br/>
                                 <br/>
                             </div>
@@ -772,6 +868,9 @@ export function EditQuestions(){
                     </td>
                 </tr>
             </table>
+            </div>
+            <div>
+                <ToastContainer position="top-right" autoClose={3000} />
             </div>
         </div>
     );

@@ -458,18 +458,24 @@ public class Database {
 		}
 	}
 	
-	public Boolean updateWrongAnswer(String prompt, String wrongAnswer, int answerId, LogInfo logInfo) {
+	public Boolean updateWrongAnswer(String prompt, String newWrongAnswer, String wrongAnswer, LogInfo logInfo) {
 		int questionId = -1;
 		
 		questionId = QuestionDB.getInstance().getQuestionId(prompt, logInfo);
 		
-		if (answerId == -1) {
+		if (questionId == -1) {
 			return false;
 		}
 		
+		int wrongAnswerId = WrongAnswer.getInstance().getWrongAnswerId(questionId, wrongAnswer);
 		
-		System.out.println(answerId);
-		WrongAnswer.getInstance().updateWrongAnswer(answerId, wrongAnswer, questionId, logInfo);
+		System.out.println("New wrong answer: " + newWrongAnswer + "\nWrong answer: " + wrongAnswer + "\nWrong answer Id: " + wrongAnswerId);
+		
+		if (wrongAnswerId == -1) {
+			return false;
+		}
+		
+		WrongAnswer.getInstance().updateWrongAnswer(wrongAnswerId, newWrongAnswer, questionId, logInfo);
 		
 		return true;
 	}

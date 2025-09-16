@@ -36,7 +36,6 @@ export function MainPage(){
     <button onClick={() => quiz.getInfo()} className="takeQuiz">Take Quiz</button>
     <br/>
     <button onClick={handleClick} className="editQuestions">View Questions</button>
-    
   </div>);
 }
 

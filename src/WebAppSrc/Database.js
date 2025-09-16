@@ -86,6 +86,13 @@ export class question{
 		this.imageNames.push(imageName);
 	}
 
+	removeImage(imageId){
+		if (imageId !== -1){
+			this.images.splice(imageId, 1);
+			this.imageNames.splice(imageId, 1);
+		}
+	}
+
 	setImage(image, imageType){
 		this.image = image;
 		this.imageType = imageType;
@@ -115,6 +122,12 @@ export class question{
 	removeWrongAnswers(){
 		while (this.wrongAnswers.length > 0){
 			this.wrongAnswers.pop();
+		}
+	}
+
+	removeWrongAnswer(wrongAnswer){
+		if (wrongAnswer !== -1){
+			this.wrongAnswers.splice(wrongAnswer, 1);
 		}
 	}
 

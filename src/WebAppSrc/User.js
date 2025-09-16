@@ -7,8 +7,8 @@ async function getCurrentUser(){
 	return await db.getUser();
 }
 
-export async function getUser(check = false){
-	if (currentUser === undefined || check){
+export async function getUser(){
+	if (currentUser === undefined){
 		currentUser = await getCurrentUser();
 	}
 
@@ -78,5 +78,9 @@ export class user{
 
 	getPermissions(){
 		return this.permissions;
+	}
+
+	setSettings(settings){
+		this.settings = settings;
 	}
 }

@@ -474,19 +474,14 @@ public class QuizServlet extends HttpServlet {
 			
 			String req = stringRequest.toString();
 			
-			String tempQuestionId = req.split("\"Answer Id\":")[1];
+			String tempQuestionId = req.split("\"Answer Id\":\"")[1];
+			tempQuestionId = tempQuestionId.substring(0, tempQuestionId.lastIndexOf("\""));
 			req = req.split("\"Answer Id\":")[0];
-			tempQuestionId = tempQuestionId.replaceAll("}", "");
+			String wrongAnswer = tempQuestionId.replaceAll("}", "");
 			
-			if (!isNum(tempQuestionId)) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-				return;
-			}
 			
-			int questionId = Integer.parseInt(tempQuestionId);
-			
-			String wrongAnswer = req.split("\"Wrong Answer\":\"")[1];
-			wrongAnswer = wrongAnswer.split("\",")[0];
+			String newWrongAnswer = req.split("\"Wrong Answer\":\"")[1];
+			newWrongAnswer = newWrongAnswer.split("\",")[0];
 			req = req.split("\"Wrong Answer\":\"")[0];
 			
 			String prompt = req.split("\"Prompt\":\"")[1];
@@ -502,7 +497,7 @@ public class QuizServlet extends HttpServlet {
 			
 			logInfo.addLog(logInfo);
 			
-			if (!Database.getInstance().updateWrongAnswer(prompt, wrongAnswer, questionId, logInfo)) {
+			if (!Database.getInstance().updateWrongAnswer(prompt, newWrongAnswer, wrongAnswer, logInfo)) {
 				logInfo.log();
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			}

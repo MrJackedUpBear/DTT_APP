@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import home from './home-svgrepo-com.svg';
 import landingPage from './landing-page-web-design-svgrepo-com.svg'
 import * as User from './User.js';
+import { toast, ToastContainer } from 'react-toastify';
 
 let totalQuestions;
 let totalTime;
@@ -46,15 +47,22 @@ function GetUserSettings(){
         s.setSettingId(settingId);
 
         await db.updateSettings(s);
-        router.navigate("/MainPage")
+
+        let user = await User.getUser();
+
+        user.setSettings(s);
+
+        //router.navigate("/MainPage");
+        showTimedMessage("question settings");
     }
+
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() =>{
     const fetchData = async () =>{
         try{
-            let u = await User.getUser(true);
+            let u = await User.getUser();
             setTime(u.getSettings().getTimeLimit());
             setNumQuestions(u.getSettings().getNumQuestions());
             setSettingId(u.getSettings().getSettingId());
@@ -93,11 +101,27 @@ function GetUserSettings(){
                 <br/>
             <input
                 type="submit" value="Apply"/>
-        </form></span>
+        </form>
+            <div>
+                <ToastContainer position="top-right" autoClose={3000} />
+            </div>
+        </span>
         )}
     </span>
     );
 }
+
+const showTimedMessage = (settingUpdated) => {
+    toast.success("Successfully updated " + settingUpdated + "!", {
+        position: "top-right", // Can override the default from ToastContainer
+        autoClose: 5000,      // Can override the default from ToastContainer
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+    });
+};
 
 async function verifyTokens(){
   if (!await db.verifyTokens()){
@@ -120,9 +144,10 @@ export function Settings(){
 
         if (!await db.changePassword(pass1)){
             alert("Error changing password.");
+        }else{
+            showTimedMessage("password");
+            e.target.reset();
         }
-
-        router.navigate("/MainPage");
     }
 
     return (<div className="Settings">
@@ -145,7 +170,7 @@ export function Settings(){
             <br/>
 
             User Settings
-            <form onSubmit={changePassword}>
+            <form onSubmit={changePassword} id="passwordChange">
                 <label>Password Reset <br/>Enter new password:</label>
                 <input type="password" id="pass1" name="pass1"/>
                 <br/>
@@ -153,12 +178,15 @@ export function Settings(){
                 <input type="password" id="pass2" name="pass2"/>
                 <input type="submit"/>
             </form>
+            <div>
+                <ToastContainer position="top-right" autoClose={3000} />
+            </div>
         </div>
     </div>);
 }
 
 export async function getNumQuestions(){
-    let u = await User.getUser(true);
+    let u = await User.getUser();
 
     if (u === undefined){
         return;
@@ -168,7 +196,7 @@ export async function getNumQuestions(){
 }
 
 export async function getTime(){
-    let u = await User.getUser(true);
+    let u = await User.getUser();
 
     if (u === undefined){
         return;
