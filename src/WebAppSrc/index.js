@@ -63,7 +63,7 @@ import * as settings from './Settings';
       element:<qfend.Back/>
     },
     {
-      path:'',
+      path:'/',
       element:<app.LandingPage/>
     },
     {

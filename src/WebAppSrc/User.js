@@ -1,7 +1,6 @@
 import * as db from './Database';
 
-let currentUser;
-
+let currentUser = undefined;
 
 async function getCurrentUser(){
 	return await db.getUser();

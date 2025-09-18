@@ -60,18 +60,18 @@ function GetUserSettings(){
     const [loading, setLoading] = useState(true);
 
     useEffect(() =>{
-    const fetchData = async () =>{
-        try{
-            let u = await User.getUser();
-            setTime(u.getSettings().getTimeLimit());
-            setNumQuestions(u.getSettings().getNumQuestions());
-            setSettingId(u.getSettings().getSettingId());
-        }catch(e){
-            setError(e);
-        }finally{
-            setLoading(false);
-        }
-    };
+        const fetchData = async () =>{
+            try{
+                let u = await User.getUser();
+                setTime(u.getSettings().getTimeLimit());
+                setNumQuestions(u.getSettings().getNumQuestions());
+                setSettingId(u.getSettings().getSettingId());
+            }catch(e){
+                setError(e);
+            }finally{
+                setLoading(false);
+            }
+        };
 
     fetchData();
     }, []);

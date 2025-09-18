@@ -1,33 +1,42 @@
 import './App.css';
 import React from 'react';
 import {useState, useEffect} from 'react';
-import router from './index.js';
 import * as quiz from './Quiz.js';
 import {setPage} from './QuestionsFrontEnd.js';
 import settings from './settings-svgrepo-com.svg';
 import landingPage from './landing-page-web-design-svgrepo-com.svg';
 import * as db from './Database.js';
 import * as User from './User.js';
+import { useNavigate } from 'react-router-dom';
 
 export function MainPage(){
+  console.log("Rendering main page...");
+  const navigate = useNavigate();
   const handleClick = () => {
     setPage(1);
-    router.navigate("Questions")
+    navigate("/MainPage/Questions");
   }
   document.body.style = 'background: white;';
 
-  verifyTokens();
+   useEffect(() => {
+  const check = async () => {
+    if (!await db.verifyTokens()) {
+      navigate("/");
+    }
+  };
+  check();
+}, [navigate]);
 
   return (<div className="MainPage">
     <div className="navBar">
       <div className="landingPage">
-        <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
+        <button onClick={() => navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
       </div>
       <h1 className="title">
         DTT Quiz App - Main Page
       </h1>
       <div className="settings">
-        <button onClick={() => router.navigate('Settings')}><img src={settings} alt="Settings"/></button>
+        <button onClick={() => navigate('Settings')}><img src={settings} alt="Settings"/></button>
       </div>
     </div>
     <h1 className="greeting">
@@ -69,15 +78,10 @@ function GetUserName(){
   );
 }
 
-async function verifyTokens(){
-  if (!await db.verifyTokens()){
-    router.navigate("/");
-  }
-}
-
 export function LoginPage(){
   const [emailAuth, setEmailAuth] = useState(false);
   const [emailCode, setEmailCode] = useState(false);
+  const navigate = useNavigate();
 
   const changeEmailAuthValue = async () => {
     if (emailAuth){
@@ -97,7 +101,7 @@ export function LoginPage(){
     let password = formData.get("passwordInput");
 
     if (await db.getToken(username, password)){
-      router.navigate("/MainPage");
+      navigate("/MainPage");
     }else{
       alert("Wrong username or password... Try again.");
     }
@@ -119,7 +123,7 @@ export function LoginPage(){
     let emailCode = formData.get("emailCode");
     
     if (await db.verifyEmailAuth(emailCode)){
-      router.navigate('/MainPage');
+      navigate("/MainPage");
       setEmailAuth(false);
       setEmailCode(false);
     }else{
@@ -130,7 +134,7 @@ export function LoginPage(){
   return (<div className="MainPage">
     <div className="navBar">
       <div className="landingPage">
-        <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
+        <button onClick={() => navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
       </div>
       <h1 className="title">
         DTT Quiz App - Login
@@ -177,6 +181,8 @@ export function LoginPage(){
 }
 
 export function LandingPage(){
+  console.log("Rendering landing page...");
+  const navigate = useNavigate();
   const handleClick = async (e) =>{
     //Need to add logic to check if there is already a valid token set up. If there is, let the user get in. If there is not, check if there is a refresh token available and see if
     //we can get a new access token. If there is no refresh token, send them to the login page.
@@ -185,9 +191,9 @@ export function LandingPage(){
     }
     
     if (await db.verifyTokens()){
-      router.navigate("/MainPage");
+      navigate("/MainPage");
     }else{
-      router.navigate("/Login");
+      navigate("/Login");
     }
   }
 
@@ -205,4 +211,4 @@ export function LandingPage(){
   </div>);
 }
 
-export default MainPage();
+export default LandingPage;
