@@ -9,6 +9,7 @@ import landingPage from './landing-page-web-design-svgrepo-com.svg';
 import home from './home-svgrepo-com.svg';
 import back from './back-svgrepo-com.svg';
 import { toast, ToastContainer } from 'react-toastify';
+import hamburger from './burger-menu-svgrepo-com.svg';
 
 let page = 1;
 let numOnPage = 15;
@@ -222,7 +223,7 @@ export function SubmitAddQuestions(){
     return (<div>
         Questions added.
         <button onClick={() => router.navigate("/MainPage/Questions/Add")}>Add Another Question</button>
-        <button onClick={() => router.navigate("/MainPage")}>Go Home</button>
+        <button onClick={() => router.navigate("/MainPage/Questions")}>Back to Questions</button>
     </div>);
 }
 
@@ -231,16 +232,20 @@ export function ViewAndUpdate(){
 
     return (<div>
         <div className="navBar">
-            <div className="landingPage">
+            <div className="hamburgerMenu">
+                <button onClick={toggleHamburgerMenu}><img src={hamburger} alt="Hamburger"/></button>
+            </div>
+
+            <div className="landingPage" id="landingPage">
                 <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
             </div>
-            <div className="home">
+            <div className="home" id="home">
                 <button onClick={() => router.navigate("/MainPage")}><img src={home} alt="Home"/></button>
             </div>
             <h1 className="title">
                 DTT Quiz App - Questions
             </h1>
-            <div className="settings">
+            <div className="settings" id="settings">
                 <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settings} alt="Settings"/></button>
             </div>
         </div>
@@ -253,6 +258,21 @@ export function ViewAndUpdate(){
         </div>
         <footer className="Pages">{addPageNums()}</footer>
     </div>);
+}
+
+function toggleHamburgerMenu(){
+  const landingButton = document.getElementById("landingPage");
+  const settingButton = document.getElementById("settings");
+  const homeButton = document.getElementById("home");
+  if (landingButton.style.display === 'none' || landingButton.style.display === ''){
+    landingButton.style.display = 'block';
+    settingButton.style.display = 'block';
+    homeButton.style.display = 'block';
+  }else{
+    landingButton.style.display = 'none';
+    settingButton.style.display = 'none';
+    homeButton.style.display = 'none';
+  }
 }
 
 function addPageNums(){
@@ -721,19 +741,23 @@ export function EditQuestions(){
     return (
         <div>
             <div className="navBar">
-                <div className="landingPage">
+                <div className="hamburgerMenu">
+                    <button onClick={toggleHamburgerMenu}><img src={hamburger} alt="Hamburger"/></button>
+                </div>
+
+                <div className="landingPage" id="landingPage">
                     <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
                 </div>
-                <div className="home">
+                <div className="home" id="home">
                     <button onClick={() => router.navigate("/MainPage")}><img src={home} alt="Home"/></button>
                 </div>
-                <div className="back">
+                <div className="back" id="back">
                     <button onClick={() => router.navigate("/MainPage/Questions")}><img src={back} alt="Back"/></button>
                 </div>
                 <h1 className="title">
                     DTT Quiz App - Questions
                 </h1>
-                <div className="settings">
+                <div className="settings" id="settings">
                     <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settings} alt="Settings"/></button>
                 </div>
             </div>

@@ -8,6 +8,7 @@ import landingPage from './landing-page-web-design-svgrepo-com.svg';
 import * as db from './Database.js';
 import * as User from './User.js';
 import { useNavigate } from 'react-router-dom';
+import hamburger from './burger-menu-svgrepo-com.svg'
 
 export function MainPage(){
   console.log("Rendering main page...");
@@ -29,16 +30,20 @@ export function MainPage(){
 
   return (<div className="MainPage">
     <div className="navBar">
-      <div className="landingPage">
+      <div className="hamburgerMenu">
+        <button onClick={toggleHamburgerMenu}><img src={hamburger} alt="Hamburger"/></button>
+      </div>
+      <div className="landingPage" id="landingPage">
         <button onClick={() => navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
       </div>
       <h1 className="title">
         DTT Quiz App - Main Page
       </h1>
-      <div className="settings">
+      <div className="settings" id="settings">
         <button onClick={() => navigate('Settings')}><img src={settings} alt="Settings"/></button>
       </div>
     </div>
+
     <h1 className="greeting">
       Welcome <GetUserName/>!
     </h1>
@@ -46,6 +51,18 @@ export function MainPage(){
     <br/>
     <button onClick={handleClick} className="editQuestions">View Questions</button>
   </div>);
+}
+
+function toggleHamburgerMenu(){
+  const landingButton = document.getElementById("landingPage");
+  const settingButton = document.getElementById("settings");
+  if (landingButton.style.display === 'none' || landingButton.style.display === ''){
+    landingButton.style.display = 'block';
+    settingButton.style.display = 'block';
+  }else{
+    landingButton.style.display = 'none';
+    settingButton.style.display = 'none';
+  }
 }
 
 function GetUserName(){
@@ -139,6 +156,9 @@ export function LoginPage(){
       <h1 className="title">
         DTT Quiz App - Login
       </h1>
+    </div>
+    <div className="hamburgerMenu">
+      <button><img src={hamburger} alt="Hamburger"/></button>
     </div>
     
     <div className="login">

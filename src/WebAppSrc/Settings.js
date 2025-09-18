@@ -5,6 +5,7 @@ import home from './home-svgrepo-com.svg';
 import landingPage from './landing-page-web-design-svgrepo-com.svg'
 import * as User from './User.js';
 import { toast, ToastContainer } from 'react-toastify';
+import hamburger from './burger-menu-svgrepo-com.svg';
 
 let totalQuestions;
 let totalTime;
@@ -152,10 +153,14 @@ export function Settings(){
 
     return (<div className="Settings">
         <div className="navBar">
-            <div className="landingPage">
+            <div className="hamburgerMenu">
+                <button onClick={toggleHamburgerMenu}><img src={hamburger} alt="Hamburger"/></button>
+            </div>
+
+            <div className="landingPage" id="landingPage">
                 <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
             </div>
-            <div className="home">
+            <div className="home" id="home">
                 <button onClick={() => router.navigate("/MainPage")}><img src={home} alt="Home" className="home"/></button>
             </div>
             <h1 className="title">
@@ -183,6 +188,18 @@ export function Settings(){
             </div>
         </div>
     </div>);
+}
+
+function toggleHamburgerMenu(){
+  const landingButton = document.getElementById("landingPage");
+  const homeButton = document.getElementById("home");
+  if (landingButton.style.display === 'none' || landingButton.style.display === ''){
+    landingButton.style.display = 'block';
+    homeButton.style.display = 'block';
+  }else{
+    landingButton.style.display = 'none';
+    homeButton.style.display = 'none';
+  }
 }
 
 export async function getNumQuestions(){

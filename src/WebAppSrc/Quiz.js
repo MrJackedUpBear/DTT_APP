@@ -9,6 +9,7 @@ import * as settings from './Settings.js';
 import settingsMenu from './settings-svgrepo-com.svg';
 import landingPage from './landing-page-web-design-svgrepo-com.svg';
 import home from './home-svgrepo-com.svg';
+import hamburger from './burger-menu-svgrepo-com.svg';
 
 
 let correctAnswerVoice = null;
@@ -54,16 +55,10 @@ export function StartQuiz() {
   return (
     <div>
       <h1 className="navBar">
-        <div className="landingPage">
-            <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
-        </div>
         <button onClick={confirmExit} className="exit">EXIT</button>
         <h1 className="title">
           DTT Quiz App - Quiz
         </h1>
-        <div className="settings">
-            <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settingsMenu} alt="Settings"/></button>
-        </div>
     </h1>
     <div className="quiz">
       <h1 className="quizHeader">
@@ -72,17 +67,16 @@ export function StartQuiz() {
 
       <div className="quizSection">
         <div className="quizQuestion" style={{wordWrap: 'break-word'}}>
-        {ShowCurrentQuestion()}
+          {ShowCurrentQuestion()}
+        </div>
+        <div className="quizAnswers">
+          {GetAnswerChoices()}
+        </div>
       </div>
-      <div className="quizAnswers">
-        {GetAnswerChoices()}
-      </div>
-    </div>
     </div>
   </div>
   );
 } 
-
 
 function Countdown(){
   const CountdownTimer = ({initialSeconds}) =>{
@@ -141,16 +135,10 @@ export function CorrectAnswer(){
     correctChoice = false;
     return (<div>
       <h1 className="navBar">
-          <div className="landingPage">
-              <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
-          </div>
           <button onClick={confirmExit} className="exit">EXIT</button>
           <h1 className="title">
             DTT Quiz App - Quiz
           </h1>
-          <div className="settings">
-              <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settingsMenu} alt="Settings"/></button>
-          </div>
       </h1>
       <div className="finishedQuiz">
         Well done! You got {totalCorrect} out of {totalQuestions}<br />
@@ -160,16 +148,10 @@ export function CorrectAnswer(){
 
   return (<div>
     <h1 className="navBar">
-        <div className="landingPage">
-            <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
-        </div>
         <button onClick={confirmExit} className="exit">EXIT</button>
         <h1 className="title">
           DTT Quiz App - Quiz
         </h1>
-        <div className="settings">
-            <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settingsMenu} alt="Settings"/></button>
-        </div>
     </h1>
     <div className="correct">
       Correct!
@@ -197,17 +179,10 @@ export function WrongAnswer(){
 
   return (<div>
     <div className="navBar">
-        <div className="landingPage">
-            <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
-        </div>
         <button onClick={confirmExit} className="exit">EXIT</button>
         <h1 className="title">
           DTT Quiz App - Quiz
         </h1>
-        
-        <div className="settings">
-            <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settingsMenu} alt="Settings"/></button>
-        </div>
     </div>
     <div className="wrong">
       Incorrect!
@@ -263,8 +238,6 @@ function ShowCurrentQuestion(){
       {error && <p>Error: {error.message}</p>}
       {data && (
         <div className="quizQuestion">
-        <View style={{justifyContent: 'center', alignItems: 'center', flexShrink: 1}}> 
-          <Text style={{flex: 1, flexWrap: 'wrap', fontSize: 30, flexShrink: 1}}> 
             {data.getQuestion()}
             <br/>
             {data.getImages().map((image, imageIndex) => (
@@ -273,8 +246,6 @@ function ShowCurrentQuestion(){
                     <br/>
                 </div>
             ))}
-          </Text>
-        </View>
         </div>
       )}
     </h1>);
