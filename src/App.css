@@ -1,0 +1,1377 @@
+@media (min-width:768px){
+  .App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: darkgray;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 40px;
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.correct {
+  background-color:green;
+}
+
+.LandingPage{
+  background-image: url('./test.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 100vh;
+  text-align: center;
+  margin:auto;
+
+  .loginButton{
+    width: 200px;
+    height:50px;
+    size: 100px;
+
+    text-align: center;
+    margin: auto;
+  }
+}
+
+.hamburgerMenu{
+  display:none;
+}
+
+.navBar{
+  background-color: #FFCC8E;
+  text-align: center;
+  margin: auto;
+  overflow: auto;
+  display:flex;
+  
+  .title{
+    margin-top: 0;
+    height:100%;
+    color: #1000A5;
+    font-size:40px;
+    width:100%;
+    margin:auto;
+  }
+  
+  img{
+    width:50px;
+    height: auto;
+    margin:auto;
+  }
+
+  button{
+    background-color: #FFCC8E;
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover{
+    background-color: grey;
+  }
+
+  .settings{
+    float: right;
+    margin:auto;
+    top:0;
+    display:flex;
+  }
+
+  .landingPage{
+    float: left;
+  }
+
+  .home{
+    float: left;
+  }
+
+  .exit{
+    float: left;
+    font-size:3vw;
+    background-color: lightgray;
+    color:red;
+  }
+
+  .exit:hover{
+    background-color: gray;
+  }
+}
+
+.Settings{
+  text-align: center;
+
+  .settings{
+    background-color: #C8C8C8;
+    width: 75%;
+    margin: auto;
+    padding:5%;
+    border-radius: 10px;
+  }
+
+  .numQuestionsSetting{
+    font:bold;
+    font-size:20px;
+    margin-bottom:60px;
+    font-size:2vw;
+  }
+
+  .timeSetting{
+    font:bold;
+    font-size:20px;
+    margin-bottom: 500px;
+    font-size:2vw;
+
+    .time{
+      width:2vw;
+      height:fit-content;
+    }
+  }
+}
+
+.MainPage{
+  text-align: center;
+
+  .greeting{
+    background-color: #D9D9D9;
+    width: 10vw;
+    margin: auto;
+    margin-bottom: 100px;
+    border-radius: 10px;
+    font-size:2vw
+  }
+
+  .takeQuiz{
+    width: 15%;
+    height:50px;
+    margin-bottom: 200px;
+    background-color: #D9D9D9;
+    border-radius: 10px;
+    font-size:2vw;
+  }
+
+  .editQuestions{
+    width: 15%;
+    height:50px;
+    background-color: #D9D9D9;
+    border-radius:10px;
+    font-size:2vw;
+  }
+  
+  button{
+    cursor: pointer;
+  }
+
+  button:hover{
+    background-color: darkgray;
+  }
+}
+
+.Pages{
+  .pages{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.loadQuestions{
+  margin: auto;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+
+  .questions{
+    height:auto;
+    width: 75%;
+    height: auto;
+    margin: auto;
+    background-color: lightgrey;
+    padding-top:5%;
+    padding-bottom:5%;
+    border-radius:10px;
+    .question{
+        background-color: darkgray;
+        width: 85%;
+        height: auto;
+        max-height: fit-content;
+        margin: auto;
+        flex-shrink: 1;
+        flex-wrap:wrap;
+        border-radius:10px;
+
+        .PromptAndTask{
+          justify-content: center;
+          align-items: center;
+          margin:auto;
+
+          .taskLetter{
+            background-color: lightgrey;
+            border: 20px solid darkgray;
+            padding: 20px;
+            font-size:2vw;
+            font-weight:normal;
+            height:1px;
+            border-radius:50px;
+          }
+
+          .prompt{
+            background-color: lightgrey;
+            border: 20px solid darkgray;
+            padding: 20px;
+            word-wrap:break-word;
+            max-width:20%;
+            flex-shrink: 1;
+            flex-wrap:wrap;
+            font-size:2vw;
+            font-weight:normal;
+            border-radius:50px;
+
+          }
+        }
+
+        .questionNum{
+          display:flex;
+          font-size:3vw;
+          border-radius:10px;
+        }
+
+        .wrongAnswers{
+          float: left;
+          padding-right: 5%;
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 20px;
+          word-wrap:break-word;
+          max-width:20%;
+          flex-shrink: 1;
+          flex-wrap:wrap;
+          margin: auto;
+          font-size:1vw;
+          font-weight:normal;
+        }
+
+        .correctAnswer{
+          float: left;
+          padding-right: 5%;
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 20px;
+          word-wrap:break-word;
+          max-width:25%;
+          font-size:1vw;
+          font-weight:normal;
+        }
+
+        .justification{
+          float: left;
+          padding-right: 5%;
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 20px;
+          word-wrap:break-word;
+          max-width:20%;
+          font-size:1vw;
+          font-weight:normal;
+        }
+
+        .image{
+          float: left;
+          background-color: lightgrey;
+          border:20px solid darkgrey;
+          padding: 20px;
+          word-wrap:break-word;
+          max-width:30%;
+          font-size:1vw;
+          font-weight:normal;
+
+          img{
+            max-width: 400px;
+          }
+        }
+
+        .Buttons{
+          width:50%;
+          margin:auto;
+          align-items: center;
+          clear:left;
+
+          .Delete{
+            align-items: center;
+            margin: auto;
+            padding-right: 5%;
+            background-color: lightgrey;
+            border: 20px solid darkgray;
+            padding: 20px;
+            word-wrap:break-word;
+            width: 50%;
+            border-radius:50px;
+          }
+
+          .Delete:hover{
+            background-color: gray;
+            cursor: pointer;
+          }
+
+          .Edit{
+            align-items: center;
+            margin: auto;
+            padding-right: 5%;
+            background-color: lightgrey;
+            border: 20px solid darkgray;
+            padding: 20px;
+            word-wrap:break-word;
+            width: 50%;
+            border-radius:50px;
+          }
+
+          .Edit:hover{
+            background-color: gray;
+            cursor:pointer;
+          }
+        }
+
+        
+        .afterQuestion{
+          height:50px;
+          width:100%;
+          background-color: lightgray;
+          margin:auto;
+        }
+
+        .editTaskLetter{
+          font-size: 1vw;
+        }
+
+        .editPrompt{
+          font-size: 1vw;
+        }
+
+        .editWrongAnswer{
+          font-size: 1vw;
+        }
+
+        .editCorrectAnswer{
+          font-size: 1vw;
+        }
+
+        .deleteWrongAnswer{
+          font-size: 1vw;
+        }
+
+        .editJustification{
+          font-size: 1vw;
+        }
+
+        .addImage{
+          font-size: 1vw;
+        }
+
+        .deleteImage{
+          font-size: 1vw;
+        }
+
+        .addWrongAnswer{
+          font-size: 1vw;
+        }
+
+        .submit{
+          font-size: 1vw;
+        }
+    }
+  }
+ 
+}
+
+.question{
+        background-color: darkgray;
+        width: 85%;
+        height: auto;
+        max-height: fit-content;
+        margin: auto;
+        flex-shrink: 1;
+        flex-wrap:wrap;
+        border-radius:10px;
+
+        .taskLetter{
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 20px;
+          font-size:1vw;
+          font-weight:normal;
+          height:1px;
+          border-radius:50px;
+        }
+
+        .prompt{
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 20px;
+          word-wrap:break-word;
+          max-width:20%;
+          flex-shrink: 1;
+          flex-wrap:wrap;
+          font-size:1vw;
+          font-weight:normal;
+          border-radius:50px;
+
+        }
+
+        .questionNum{
+          display:flex;
+          font-size:3vw;
+          border-radius:10px;
+        }
+
+        .wrongAnswers{
+          float: left;
+          padding-right: 5%;
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 20px;
+          word-wrap:break-word;
+          max-width:20%;
+          flex-shrink: 1;
+          flex-wrap:wrap;
+          margin: auto;
+          font-size:1vw;
+          font-weight:normal;
+        }
+
+        .correctAnswer{
+          float: left;
+          padding-right: 5%;
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 20px;
+          word-wrap:break-word;
+          max-width:25%;
+          font-size:1vw;
+          font-weight:normal;
+        }
+
+        .justification{
+          float: left;
+          padding-right: 5%;
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 20px;
+          word-wrap:break-word;
+          max-width:20%;
+          font-size:1vw;
+          font-weight:normal;
+        }
+
+        .image{
+          float: left;
+          background-color: lightgrey;
+          border:20px solid darkgrey;
+          padding: 20px;
+          word-wrap:break-word;
+          width: 40px;
+          font-size:20px;
+          font-weight:normal;
+
+          img{
+            max-width: 400px;
+          }
+        }
+
+        .Buttons{
+          width:50%;
+          margin:auto;
+          align-items: center;
+          clear:left;
+
+          .Delete{
+            align-items: center;
+            margin: auto;
+            padding-right: 5%;
+            background-color: lightgrey;
+            border: 20px solid darkgray;
+            padding: 20px;
+            word-wrap:break-word;
+            width: 50%;
+            border-radius:50px;
+          }
+
+          .Delete:hover{
+            background-color: gray;
+            cursor: pointer;
+          }
+
+          .Edit{
+            align-items: center;
+            margin: auto;
+            padding-right: 5%;
+            background-color: lightgrey;
+            border: 20px solid darkgray;
+            padding: 20px;
+            word-wrap:break-word;
+            width: 50%;
+            border-radius:50px;
+          }
+
+          .Edit:hover{
+            background-color: gray;
+            cursor:pointer;
+          }
+        }
+
+        
+        .afterQuestion{
+          height:50px;
+          width:100%;
+          background-color: lightgray;
+          margin:auto;
+        }
+
+        .editTaskLetter{
+          font-size: 1vw;
+        }
+
+        .editPrompt{
+          font-size: 1vw;
+        }
+
+        .editWrongAnswer{
+          font-size: 1vw;
+        }
+
+        .editCorrectAnswer{
+          font-size: 1vw;
+        }
+
+        .deleteWrongAnswer{
+          font-size: 1vw;
+        }
+
+        .editJustification{
+          font-size: 1vw;
+        }
+
+        .addImage{
+          font-size: 1vw;
+        }
+
+        .deleteImage{
+          font-size: 1vw;
+        }
+
+        .addWrongAnswer{
+          font-size: 1vw;
+        }
+
+        .submit{
+          font-size: 1vw;
+        }
+    }
+
+.correct{
+    background-color: green;
+    text-align: center;
+    color:white;
+    font-size:4cqw;
+
+    margin:auto;
+    padding-bottom: 50%;
+
+    .nextButton{
+      width:20%;
+      height:auto;
+      font-size:50px;
+    }
+
+    .nextButton:hover{
+      cursor:pointer;
+      background-color: darkgray;
+    }
+}
+
+.wrong{
+  background-color: red;
+    text-align: center;
+    color:white;
+    font-size:4cqw;
+    margin:auto;
+    padding-bottom: 50%;
+
+    .tryAgainButton{
+      width:20%;
+      height:auto;
+      font-size:50px;
+    }
+
+    .tryAgainButton:hover{
+      cursor:pointer;
+      background-color: darkgray;
+
+    }
+}
+
+.finishedQuiz{
+  font-size:4cqw;
+  text-align: center;
+  font-weight: bold;
+}
+
+.quiz{
+  text-align: center;
+  margin:auto;
+  background-color: #818181;
+  margin:auto;
+  width:75%;
+  padding-top:20px;
+
+  .navBar{
+    width:100%;
+  }
+
+  .quizHeader{
+    font-size:20px;
+    background-color: #D9D9D9;
+    width:20%;
+    margin:auto;
+  }
+
+  .quizSection{
+    text-align: center;
+    display:block;
+
+    .quizQuestion{
+      background-color: #D9D9D9;
+      width: 70%;
+      margin:auto;
+      font-size: 15px;
+    }
+
+    .quizAnswers{
+      .quizAnswer{
+        background-color: #D9D9D9;
+        width: 70%;
+        margin:auto;
+        font-size:20px;
+      }
+
+      .quizAnswer:hover{
+        background-color: #818181;
+        cursor:pointer;
+      }
+
+      .timer{
+        display:flex;
+        font-size:4cqw;
+        text-align: left;
+        margin:auto;
+        color:#B3FF9C;
+        white-space: pre;
+        background-color: #818181;
+      }
+    }
+  }
+}
+
+
+img{
+  width:100%;
+}
+}
+
+@media (max-width: 767px){
+  .App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: darkgray;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 40px;
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.correct {
+  background-color:green;
+}
+
+.LandingPage{
+  background-image: url('./test.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 100vh;
+  text-align: center;
+  margin:auto;
+
+  .loginButton{
+    width: 200px;
+    height:50px;
+    size: 100px;
+
+    text-align: center;
+    margin: auto;
+  }
+}
+
+.navBar{
+  background-color: #FFCC8E;
+  text-align: center;
+  margin: auto;
+  overflow: auto;
+  display:flex;
+  
+  .title{
+    margin-top: 0;
+    height:100%;
+    color: #1000A5;
+    font-size:25px;
+    width:100%;
+    margin:auto;
+  }
+  
+  img{
+    width:20px;
+    height: auto;
+    margin:auto;
+  }
+
+  button{
+    background-color: #FFCC8E;
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover{
+    background-color: grey;
+  }
+
+  .hamburgerMenu{
+    float:left;
+    margin:auto;
+    top:0;
+  }
+
+  .settings{
+    float: right;
+    margin:auto;
+    top:0;
+    display:none;
+  }
+
+  .landingPage{
+    float: left;
+    display:none;
+  }
+
+  .home{
+    float: left;
+    display:none;
+  }
+
+  .exit{
+    float: left;
+    font-size:3vw;
+    background-color: lightgray;
+    color:red;
+  }
+
+  .exit:hover{
+    background-color: gray;
+  }
+}
+
+.Settings{
+  text-align: center;
+
+  .settings{
+    background-color: #C8C8C8;
+    width: 75%;
+    margin: auto;
+    padding:5%;
+    border-radius: 10px;
+  }
+
+  .numQuestionsSetting{
+    font:bold;
+    font-size:20px;
+    margin-bottom:60px;
+    font-size:2vw;
+  }
+
+  .timeSetting{
+    font:bold;
+    font-size:20px;
+    margin-bottom: 500px;
+    font-size:2vw;
+
+    .time{
+      width:2vw;
+      height:fit-content;
+    }
+  }
+}
+
+.MainPage{
+  text-align: center;
+
+  .greeting{
+    background-color: #D9D9D9;
+    width: 200px;
+    margin: auto;
+    margin-bottom: 100px;
+    border-radius: 10px;
+    font-size:30px;
+  }
+
+  .takeQuiz{
+    width: 50%;
+    height:50px;
+    margin-bottom: 50px;
+    background-color: #D9D9D9;
+    border-radius: 10px;
+    font-size:30px;
+  }
+
+  .editQuestions{
+    width: 50%;
+    height:50px;
+    background-color: #D9D9D9;
+    border-radius:10px;
+    font-size:30px;
+  }
+  
+  button{
+    cursor: pointer;
+  }
+
+  button:hover{
+    background-color: darkgray;
+  }
+}
+
+.Pages{
+  .pages{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.loadQuestions{
+  margin: auto;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+
+  .questions{
+    height:auto;
+    width: 75%;
+    height: auto;
+    margin: auto;
+    background-color: lightgrey;
+    padding-top:5%;
+    padding-bottom:5%;
+    border-radius:10px;
+    .question{
+        background-color: darkgray;
+        width: 85%;
+        height: auto;
+        max-height: fit-content;
+        margin: auto;
+        flex-shrink: 1;
+        flex-wrap:wrap;
+        border-radius:10px;
+
+        .PromptAndTask{
+          justify-content: center;
+          align-items: center;
+          margin:auto;
+
+          .taskLetter{
+            background-color: lightgrey;
+            border: 20px solid darkgray;
+            padding: 5px;
+            font-size:10px;
+            font-weight:normal;
+            height:1px;
+            border-radius:30px;
+          }
+
+          .prompt{
+            background-color: lightgrey;
+            border: 20px solid darkgray;
+            padding: 5px;
+            word-wrap:break-word;
+            max-width:20%;
+            flex-shrink: 1;
+            flex-wrap:wrap;
+            font-size:10px;
+            font-weight:normal;
+            border-radius:30px;
+
+          }
+        }
+
+        .questionNum{
+          display:flex;
+          font-size:3vw;
+          border-radius:10px;
+        }
+
+        .wrongAnswers{
+          float: left;
+          padding-right: 5%;
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 20px;
+          word-wrap:break-word;
+          max-width:20%;
+          flex-shrink: 1;
+          flex-wrap:wrap;
+          margin: auto;
+          font-size:1vw;
+          font-weight:normal;
+        }
+
+        .correctAnswer{
+          float: left;
+          padding-right: 5%;
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 20px;
+          word-wrap:break-word;
+          max-width:25%;
+          font-size:1vw;
+          font-weight:normal;
+        }
+
+        .justification{
+          float: left;
+          padding-right: 5%;
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 20px;
+          word-wrap:break-word;
+          max-width:20%;
+          font-size:1vw;
+          font-weight:normal;
+        }
+
+        .image{
+          float: left;
+          background-color: lightgrey;
+          border:20px solid darkgrey;
+          padding: 20px;
+          word-wrap:break-word;
+          max-width:30%;
+          font-size:1vw;
+          font-weight:normal;
+
+          img{
+            max-width: 400px;
+          }
+        }
+
+        .Buttons{
+          width:50%;
+          margin:auto;
+          align-items: center;
+          clear:left;
+
+          .Delete{
+            align-items: center;
+            margin: auto;
+            padding-right: 5%;
+            background-color: lightgrey;
+            border: 20px solid darkgray;
+            padding: 20px;
+            word-wrap:break-word;
+            width: 100%;
+            border-radius:50px;
+            font-size:10px;
+          }
+
+          .Delete:hover{
+            background-color: gray;
+            cursor: pointer;
+          }
+
+          .Edit{
+            align-items: center;
+            margin: auto;
+            padding-right: 5%;
+            background-color: lightgrey;
+            border: 20px solid darkgray;
+            padding: 20px;
+            word-wrap:break-word;
+            width: 100%;
+            border-radius:50px;
+            font-size:10px;
+          }
+
+          .Edit:hover{
+            background-color: gray;
+            cursor:pointer;
+          }
+        }
+
+        
+        .afterQuestion{
+          height:50px;
+          width:100%;
+          background-color: lightgray;
+          margin:auto;
+        }
+
+        .editTaskLetter{
+          font-size: 1vw;
+        }
+
+        .editPrompt{
+          font-size: 1vw;
+        }
+
+        .editWrongAnswer{
+          font-size: 1vw;
+        }
+
+        .editCorrectAnswer{
+          font-size: 1vw;
+        }
+
+        .deleteWrongAnswer{
+          font-size: 1vw;
+        }
+
+        .editJustification{
+          font-size: 1vw;
+        }
+
+        .addImage{
+          font-size: 1vw;
+        }
+
+        .deleteImage{
+          font-size: 1vw;
+        }
+
+        .addWrongAnswer{
+          font-size: 1vw;
+        }
+
+        .submit{
+          font-size: 1vw;
+        }
+    }
+  }
+ 
+}
+
+.question{
+        background-color: darkgray;
+        width: 85%;
+        height: auto;
+        max-height: fit-content;
+        margin: auto;
+        flex-shrink: 1;
+        flex-wrap:wrap;
+        border-radius:10px;
+        display:block;
+
+        .taskLetter{
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 15px;
+          font-size:10px;
+          font-weight:normal;
+          height:1px;
+          border-radius:50px;
+        }
+
+        .prompt{
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 15px;
+          font-size:10px;
+          word-wrap:break-word;
+          max-width:20%;
+          flex-shrink: 1;
+          flex-wrap:wrap;
+          font-weight:normal;
+          border-radius:50px;
+
+        }
+
+        .questionNum{
+          display:flex;
+          font-size:10px;
+          border-radius:10px;
+        }
+
+        .wrongAnswers{
+          float: left;
+          padding-right: 5%;
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 15px;
+          font-size:10px;
+          word-wrap:break-word;
+          max-width:20%;
+          flex-shrink: 1;
+          flex-wrap:wrap;
+          margin: auto;
+          font-weight:normal;
+        }
+
+        .correctAnswer{
+          float: left;
+          padding-right: 5%;
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 15px;
+          font-size:10px;
+          word-wrap:break-word;
+          max-width:25%;
+          font-weight:normal;
+        }
+
+        .justification{
+          float: left;
+          padding-right: 5%;
+          background-color: lightgrey;
+          border: 20px solid darkgray;
+          padding: 15px;
+          font-size:10px;
+          word-wrap:break-word;
+          max-width:20%;
+          font-weight:normal;
+        }
+
+        .image{
+          float: left;
+          background-color: lightgrey;
+          border:20px solid darkgrey;
+          word-wrap:break-word;
+          max-width:30%;
+          padding: 15px;
+          font-size:10px;
+          font-weight:normal;
+
+          img{
+            max-width: 400px;
+          }
+        }
+
+        .Buttons{
+          width:50%;
+          margin:auto;
+          align-items: center;
+          clear:left;
+
+          .Delete{
+            align-items: center;
+            margin: auto;
+            padding-right: 5%;
+            background-color: lightgrey;
+            border: 20px solid darkgray;
+            padding: 15px;
+            font-size:10px;
+            word-wrap:break-word;
+            width: 50%;
+            border-radius:50px;
+          }
+
+          .Delete:hover{
+            background-color: gray;
+            cursor: pointer;
+          }
+
+          .Edit{
+            align-items: center;
+            margin: auto;
+            padding-right: 5%;
+            background-color: lightgrey;
+            border: 20px solid darkgray;
+            padding: 15px;
+            font-size:10px;
+            word-wrap:break-word;
+            width: 50%;
+            border-radius:50px;
+          }
+
+          .Edit:hover{
+            background-color: gray;
+            cursor:pointer;
+          }
+        }
+
+        
+        .afterQuestion{
+          height:50px;
+          width:100%;
+          background-color: lightgray;
+          margin:auto;
+        }
+
+        .editTaskLetter{
+          font-size:10px;
+        }
+
+        .editPrompt{
+          font-size:10px;
+        }
+
+        .editWrongAnswer{
+          font-size:10px;
+        }
+
+        .editCorrectAnswer{
+          font-size:10px;
+        }
+
+        .deleteWrongAnswer{
+          font-size:10px;
+        }
+
+        .editJustification{
+          font-size:10px;
+        }
+
+        .addImage{
+          font-size:10px;
+        }
+
+        .deleteImage{
+          font-size:10px;
+        }
+
+        .addWrongAnswer{
+          font-size:10px;
+        }
+
+        .submit{
+          font-size:10px;
+        }
+    }
+
+.correct{
+    background-color: green;
+    text-align: center;
+    color:white;
+    font-size:25px;
+
+    margin:auto;
+    padding-bottom: 50%;
+
+    .nextButton{
+      width:20%;
+      height:auto;
+      font-size:15px;
+    }
+
+    .nextButton:hover{
+      cursor:pointer;
+      background-color: darkgray;
+    }
+}
+
+.wrong{
+  background-color: red;
+    text-align: center;
+    color:white;
+    font-size:25px;
+    margin:auto;
+    padding-bottom: 50%;
+
+    .tryAgainButton{
+      width:20%;
+      height:auto;
+      font-size:15px;
+    }
+
+    .tryAgainButton:hover{
+      cursor:pointer;
+      background-color: darkgray;
+
+    }
+}
+
+.finishedQuiz{
+  font-size:30px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.quiz{
+  text-align: center;
+  margin:auto;
+  background-color: #818181;
+  margin:auto;
+  width:75%;
+  padding-top:20px;
+
+  .navBar{
+    width:100%;
+  }
+
+  .quizHeader{
+    font-size:10px;
+    background-color: #D9D9D9;
+    width:100px;
+    margin:auto;
+  }
+
+  .quizSection{
+    text-align: center;
+    display:block;
+
+    .quizQuestion{
+      background-color: #D9D9D9;
+      width: 70%;
+      font-weight: normal;
+      margin:auto;
+      font-size: 10px;
+    }
+
+    .quizAnswers{
+      .quizAnswer{
+        background-color: #D9D9D9;
+        width: 70%;
+        margin:auto;
+        font-size:10px;
+      }
+
+      .quizAnswer:hover{
+        background-color: #818181;
+        cursor:pointer;
+      }
+
+      .timer{
+        display:flex;
+        font-size:10px;
+        text-align: left;
+        margin:auto;
+        color:#B3FF9C;
+        white-space: pre;
+        background-color: #818181;
+      }
+    }
+  }
+}
+
+
+img{
+  width:100%;
+}
+}
