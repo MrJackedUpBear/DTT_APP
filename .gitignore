@@ -1,1 +1,6 @@
+<<<<<<< HEAD
 /node_modules/*
+=======
+/target/
+/build/
+>>>>>>> b6a1851d43ca0b0c157771fc55d303b6a6ee77fd
