@@ -150,15 +150,12 @@ export function LoginPage(){
 
   return (<div className="MainPage">
     <div className="navBar">
-      <div className="landingPage">
+      <div className="landingPageLogin">
         <button onClick={() => navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
       </div>
       <h1 className="title">
         DTT Quiz App - Login
       </h1>
-    </div>
-    <div className="hamburgerMenu">
-      <button><img src={hamburger} alt="Hamburger"/></button>
     </div>
     
     <div className="login">

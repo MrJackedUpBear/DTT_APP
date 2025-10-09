@@ -12,7 +12,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import hamburger from './burger-menu-svgrepo-com.svg';
 
 let page = 1;
-let numOnPage = 15;
+const numOnPage = 15;
+const numPageButtons = 3;
 let end = 0;
 let start = 0;
 let questionPrompt = "";
@@ -290,11 +291,45 @@ function addPageNums(){
 
     return (
         <div className="pages" id="pages">
+            {page != 1? 
+                <button onClick={() => router.navigate('Back')}>Prev</button>:
+                <div></div>
+            }
+
+            {page - numPageButtons > 1?
+                <div>
+                    <button onClick={() => handleClick(1)}>{1}</button>
+                    ...
+                </div>:
+                <div></div>
+            }
+
             {pages.map((item, index) =>(
                 <span key={index}>
-                    <button onClick={() => handleClick(item)}>{item}</button>
+                    {item <= (numPageButtons + page) && item >= (page - numPageButtons)?
+                    <span>
+                        {item != page? 
+                        <button onClick={() => handleClick(item)}>{item}</button>:
+                        <span>{item}</span>
+                        }
+                    </span>:
+                        <div>
+                        </div>
+                    }
                 </span>
             ))}
+
+            {page + numPageButtons < numPages?
+                <div>...
+                    <button onClick={() => handleClick(numPages)}>{numPages}</button>
+                </div>:
+                <div></div>
+            }
+
+            {page != numPages?
+                <button onClick={() => router.navigate('Next')}>Next</button>:
+                <div></div>
+            }
         </div>
     );
 }
