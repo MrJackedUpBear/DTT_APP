@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {user, Setting} from './User.js';
+import * as User from './User.js';
 import router from './index.js';
 
 //Creates an user class that can be used to handle multiple users in the database
@@ -361,12 +362,16 @@ export async function addQuestions(questionsToAdd, iteration = 0){
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await addQuestions(questionsToAdd, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		console.log(response.status);
@@ -393,13 +398,17 @@ export async function getQuestions(numQuest, iteration = 0){
 		});
 
 		let responseCode = response.status;
+		
+		let u = await User.getUser();
 
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await getQuestions(numQuest, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -434,12 +443,16 @@ export async function getNumberQuestions(iteration = 0){
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await getNumberQuestions(1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -481,12 +494,16 @@ export async function getQuestionsFrom(start, end, iteration = 0){
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await getQuestionsFrom(start, end, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -524,12 +541,16 @@ export async function deleteQuestion(prompt, iteration = 0){
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await deleteQuestion(prompt, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		console.log(response.status);
@@ -555,12 +576,16 @@ export async function updatePrompt(oldPrompt, newPrompt, iteration = 0){
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await updatePrompt(oldPrompt, newPrompt, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -590,12 +615,16 @@ export async function updateCorrectAnswer(prompt, newCorrectAnswer, iteration = 
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await updateCorrectAnswer(prompt, newCorrectAnswer, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -627,12 +656,16 @@ export async function updateWrongAnswer(prompt, answerId, wrongAnswer, iteration
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await updateWrongAnswer(prompt, answerId, wrongAnswer, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -663,12 +696,16 @@ export async function deleteWrongAnswer(prompt, wrongAnswer, iteration = 0){
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await deleteWrongAnswer(prompt, wrongAnswer, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -699,12 +736,16 @@ export async function deleteImage(imageName, iteration = 0){
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await deleteImage(imageName, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -735,12 +776,16 @@ export async function addWrongAnswer(prompt, wrongAnswer, iteration = 0){
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await getNumberQuestions(prompt, wrongAnswer, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -774,12 +819,16 @@ export async function addImage(prompt, image, imageType, iteration = 0){
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await addImage(prompt, image, imageType, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -810,12 +859,16 @@ export async function updateTaskLetter(prompt, taskLetter, iteration = 0){
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await updateTaskLetter(prompt, taskLetter, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -847,12 +900,16 @@ export async function updateJustification(prompt, justification, iteration = 0){
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await updateJustification(prompt, justification, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -883,12 +940,16 @@ export async function uploadFile(formData, iteration = 0){
 
 		let responseCode = resp.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await uploadFile(formData, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!resp.ok){
@@ -923,17 +984,23 @@ export async function getImage(imageName, iteration = 0){
 
 		let responseCode = resp.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await getImage(imageName, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!resp.ok){
 			console.error("Error fetching...");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		const blob = await resp.blob();
@@ -965,6 +1032,8 @@ export async function getUser(iteration = 0){
 		}else if (responseCode === 401 && iteration === 1){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -1010,12 +1079,16 @@ export async function changePassword(password, iteration = 0){
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await changePassword(password, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
@@ -1078,12 +1151,16 @@ export async function updateSettings(s, iteration = 0){
 
 		let responseCode = response.status;
 
+		let u = await User.getUser();
+
 		if (responseCode === 401 && iteration === 0){
 			await refreshAccessToken();
 			return await updateSettings(s, 1);
-		}else if (responseCode === 401 && iteration === 1){
+		}else if (responseCode === 401 && iteration === 1 && u === undefined){
 			router.navigate("/Login");
 			return;
+		}else if (responseCode === 401){
+			router.navigate('/MainPage');
 		}
 
 		if (!response.ok){
