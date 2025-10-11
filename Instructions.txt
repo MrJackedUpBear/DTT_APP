@@ -1,0 +1,18 @@
+Below are the instructions to deploy the API to a Tomcat server from Eclipse.
+
+Right-click on your project and choose Export > WAR file. 
+Specify the destination and filename for the WAR file. 
+To deploy the WAR file, copy it to the webapps directory of your standalone Tomcat installation. 
+
+Set Environment Variables:
+	1. DB_USER
+	2. DB_PASSWORD
+	3. UPLOAD_LOCATION
+	4. EMAIL_HOST
+	5. EMAIL_PORT
+	6. EMAIL_RECIPIENT
+	7. EMAIL_SENDER
+	8. EMAIL_PASSWORD
+	9. DTT_LOGS
+
+Restart the Tomcat server to deploy the application
