@@ -22,6 +22,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Optional;
+
+import org.apache.catalina.filters.ExpiresFilter.XHttpServletResponse;
 
 import database.Database;
 import mail.Mail;
@@ -29,7 +32,12 @@ import questions.QuestionGenerator;
 import token.TokenGenerator;
 import questions.Question;
 import database.Image;
+import database.Permission;
+import database.PermissionDB;
 import database.User;
+import database.UserDB;
+import database.UserRolesDB;
+import database.RolePermissionsDB;
 
 
 /**
@@ -188,6 +196,18 @@ public class QuizServlet extends HttpServlet {
 			int start = Integer.parseInt(temp1);
 			int end = Integer.parseInt(temp2);
 			
+			Optional<User> currentUser = UserDB.getInstance().getUserByEmail(user, logInfo);
+			
+			if (!currentUser.isPresent()) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+			
+			if (!checkPermission("View Questions", currentUser, logInfo)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+			
 			response.getWriter().print(Database.getInstance().getQuestionsFrom(start, end, logInfo));
 			
 			logInfo.log();
@@ -340,6 +360,14 @@ public class QuizServlet extends HttpServlet {
 			
 			
 			logInfo.addLog(logInfo);
+			
+			Optional<User> currentUser = UserDB.getInstance().getUserByEmail(user, logInfo);
+			
+			if (!checkPermission("Add Questions", currentUser, logInfo)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+			
 			if (!Database.getInstance().addQuestions(questionJson, pathUpload, logInfo)) {
 				logInfo.log();
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -375,6 +403,13 @@ public class QuizServlet extends HttpServlet {
 			
 			
 			logInfo.addLog(logInfo);
+			
+			Optional<User> currentUser = UserDB.getInstance().getUserByEmail(user, logInfo);
+			
+			if (!checkPermission("Update Questions", currentUser, logInfo)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
 			
 			if (!Database.getInstance().updateQuestionPrompt(oldPrompt, newPrompt, logInfo)) {
 				logInfo.log();
@@ -412,6 +447,13 @@ public class QuizServlet extends HttpServlet {
 			
 			
 			logInfo.addLog(logInfo);
+			
+			Optional<User> currentUser = UserDB.getInstance().getUserByEmail(user, logInfo);
+			
+			if (!checkPermission("Update Questions", currentUser, logInfo)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
 			
 			if (!Database.getInstance().updateQuestionAnswer(prompt, answer, logInfo)) {
 				logInfo.log();
@@ -455,6 +497,13 @@ public class QuizServlet extends HttpServlet {
 			
 			logInfo.addLog(logInfo);
 			
+			Optional<User> currentUser = UserDB.getInstance().getUserByEmail(user, logInfo);
+			
+			if (!checkPermission("Delete Questions", currentUser, logInfo)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+			
 			if (!Database.getInstance().deleteQuestion(prompt, pathUpload, logInfo)) {
 				logInfo.log();
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -496,6 +545,13 @@ public class QuizServlet extends HttpServlet {
 			
 			
 			logInfo.addLog(logInfo);
+			
+			Optional<User> currentUser = UserDB.getInstance().getUserByEmail(user, logInfo);
+			
+			if (!checkPermission("Update Questions", currentUser, logInfo)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
 			
 			if (!Database.getInstance().updateWrongAnswer(prompt, newWrongAnswer, wrongAnswer, logInfo)) {
 				logInfo.log();
@@ -569,6 +625,13 @@ public class QuizServlet extends HttpServlet {
 				logInfo.setLogInfo("Formatting as Json...");
 				logInfo.addLog(logInfo);
 				
+				Optional<User> currentUser = UserDB.getInstance().getUserByEmail(user, logInfo);
+				
+				if (!checkPermission("View Questions", currentUser, logInfo)) {
+					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+					return;
+				}
+				
 				String json = Database.getInstance().formatQuestionsAsJson(questions, logInfo);
 				
 				logInfo.log();
@@ -618,6 +681,13 @@ public class QuizServlet extends HttpServlet {
 			
 			logInfo.addLog(logInfo);
 			
+			Optional<User> currentUser = UserDB.getInstance().getUserByEmail(user, logInfo);
+			
+			if (!checkPermission("Update Questions", currentUser, logInfo)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+			
 			if (!Database.getInstance().updateQuestionJustification(prompt, justification, logInfo)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			}
@@ -652,6 +722,13 @@ public class QuizServlet extends HttpServlet {
 			
 			
 			logInfo.addLog(logInfo);
+			
+			Optional<User> currentUser = UserDB.getInstance().getUserByEmail(user, logInfo);
+			
+			if (!checkPermission("Update Questions", currentUser, logInfo)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
 			
 			if (!Database.getInstance().updateQuestionTaskLetter(prompt, taskLetter, logInfo)){
 				logInfo.log();
@@ -688,6 +765,12 @@ public class QuizServlet extends HttpServlet {
 			
 			logInfo.addLog(logInfo);
 			
+			Optional<User> currentUser = UserDB.getInstance().getUserByEmail(user, logInfo);
+			
+			if (!checkPermission("Update Questions", currentUser, logInfo)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
 			
 			if (!Database.getInstance().deleteWrongAnswer(wrongAnswer, prompt, logInfo)) {
 				logInfo.log();
@@ -724,6 +807,13 @@ public class QuizServlet extends HttpServlet {
 			
 			
 			logInfo.addLog(logInfo);
+			
+			Optional<User> currentUser = UserDB.getInstance().getUserByEmail(user, logInfo);
+			
+			if (!checkPermission("Update Questions", currentUser, logInfo)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
 			
 			if (!Database.getInstance().addWrongAnswer(wrongAnswer, prompt, logInfo)) {
 				logInfo.log();
@@ -764,6 +854,13 @@ public class QuizServlet extends HttpServlet {
 			
 			logInfo.addLog(logInfo);
 			
+			Optional<User> currentUser = UserDB.getInstance().getUserByEmail(user, logInfo);
+			
+			if (!checkPermission("Update Questions", currentUser, logInfo)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+			
 			Database.getInstance().addImage(req, pathUpload, logInfo);
 			
 			logInfo.log();
@@ -802,6 +899,13 @@ public class QuizServlet extends HttpServlet {
 			
 			String typeOfImage = image.getImageLoc().substring(image.getImageLoc().lastIndexOf('.') + 1);
 			
+			Optional<User> currentUser = UserDB.getInstance().getUserByEmail(user, logInfo);
+			
+			if (!checkPermission("Update Questions", currentUser, logInfo)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+			
 			if (!Database.getInstance().deleteImage(image, typeOfImage, logInfo)) {
 				logInfo.log();
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST);
@@ -827,5 +931,58 @@ public class QuizServlet extends HttpServlet {
 			return false;
 		}
 	
+	}
+	
+	private boolean checkPermission(String pe, Optional<User> currentUser, LogInfo logInfo) {
+		ArrayList<Integer> roles = UserRolesDB.getInstance().getRolesForUser(currentUser.get().getUserId(), logInfo);
+		
+		boolean hasPermission = false;
+		
+		for (int role : roles) {
+			ArrayList<Integer> permissions = RolePermissionsDB.getInstance().getPermissionsForRole(role, logInfo);
+			int totalPermissions = PermissionDB.getInstance().getTotalPermissions(logInfo);
+			
+			if (totalPermissions == -1) {
+				return false;
+			}
+			
+			if (permissions.size() == totalPermissions) {
+				hasPermission = true;
+				break;
+			}
+			
+			for (int permission : permissions) {
+				Permission perm = new Permission();
+				perm = PermissionDB.getInstance().getPermission(permission, perm, logInfo);
+				
+				if (pe.equals("View Questions")) {
+					if (perm.getViewQuestions()) {
+						hasPermission = true;
+						break;
+					}
+				}else if (pe.equals("Update Questions")) {
+					if (perm.getUpdateQuestions()) {
+						hasPermission = true;
+						break;
+					}
+				}else if (pe.equals("Delete Questions")) {
+					if (perm.getDeleteQuestions()) {
+						hasPermission = true;
+						break;
+					}
+				}else if (pe.equals("Add Questions")) {
+					if (perm.getAddQuestions()) {
+						hasPermission = true;
+						break;
+					}
+				}
+			}
+			
+			if (hasPermission) {
+				break;
+			}
+		}
+		
+		return hasPermission;
 	}
 }
