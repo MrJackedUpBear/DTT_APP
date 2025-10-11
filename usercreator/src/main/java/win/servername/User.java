@@ -8,8 +8,12 @@ public class User {
     private byte[] password;
     private byte[] salt;
     private int settingId;
+    private int userType;
 
     // Getters and setters
+    public int getUserType(){return userType;}
+    public void setUserType(int userType){this.userType = userType;}
+
     public int getUserId() { return userId; }
     public void setUserId(int userId) { this.userId = userId; }
 

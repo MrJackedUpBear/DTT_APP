@@ -35,6 +35,8 @@ public class Main {
         user.setSettingId(setting.getSettingId());
 
         UserDB.getInstance().createUser(user);
+
+        UserRolesDB.getInstance().addUserRole(user.getUserId(), user.getUserType());
     }
 
     private static User getInfo(){
@@ -50,6 +52,31 @@ public class Main {
 
         System.out.println("Enter new user's email address");
         user.setEmail(scanner.nextLine());
+
+        boolean isValid = false;
+
+        int role = 0;
+
+        while (!isValid){
+            System.out.println("Here are the available user roles: ");
+            System.out.println("\t1. Admin");
+            System.out.println("\t2. General User");
+            System.out.println("\t3. Elevated User");
+            System.out.println("Please enter the number corresponding to the user type you would like this user to have.");
+            String tempVal = scanner.nextLine();
+
+            try{
+                role = Integer.parseInt(tempVal);
+
+                if (role > 0 && role < 4){
+                    isValid = true;
+                }
+            }catch (Exception e){
+                System.out.println("Not an integer. Try again.");
+                isValid = false;
+            }
+        }
+        user.setUserType(role);
 
         scanner.close();
 
