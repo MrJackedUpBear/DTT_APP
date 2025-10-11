@@ -7,6 +7,8 @@ async function getCurrentUser(){
 }
 
 export async function getUser(){
+	console.trace("Called from: ");
+
 	if (currentUser === undefined){
 		currentUser = await getCurrentUser();
 	}
