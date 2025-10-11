@@ -8,8 +8,12 @@ public class User {
     private byte[] password;
     private byte[] salt;
     private int settingId;
+    private Permission permissions;
 
     // Getters and setters
+    public Permission getPermissions() {return permissions;}
+    public void setPermissions(Permission permissions) {this.permissions = permissions;}
+    
     public int getUserId() { return userId; }
     public void setUserId(int userId) { this.userId = userId; }
 

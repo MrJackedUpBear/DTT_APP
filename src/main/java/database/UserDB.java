@@ -10,8 +10,18 @@ import java.util.Optional;
 import logging.LogInfo;
 
 public class UserDB {
-	private static String createUserDB = "CREATE TABLE IF NOT EXISTS User (UserId INT NOT NULL AUTO_INCREMENT, FirstName VARCHAR(255) NOT NULL, LastName VARCHAR(255), Email VARCHAR(255) NOT NULL, Password VARBINARY(255), "
-			+ "SettingId INT NOT NULL, Salt VARBINARY(255), RefreshToken VARCHAR(255), PRIMARY KEY(UserId), UNIQUE(Email), UNIQUE(RefreshToken));";
+	private static String createUserDB = "CREATE TABLE IF NOT EXISTS User "
+			+ "(UserId INT NOT NULL AUTO_INCREMENT, "
+			+ "FirstName VARCHAR(255) NOT NULL, "
+			+ "LastName VARCHAR(255), "
+			+ "Email VARCHAR(255) NOT NULL, "
+			+ "Password VARBINARY(255), "
+			+ "SettingId INT NOT NULL, "
+			+ "Salt VARBINARY(255), "
+			+ "RefreshToken VARCHAR(255), "
+			+ "PRIMARY KEY(UserId), "
+			+ "UNIQUE(Email), "
+			+ "UNIQUE(RefreshToken));";
 
 	private static UserDB user = new UserDB();
 	

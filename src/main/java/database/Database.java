@@ -66,6 +66,20 @@ public class Database {
 			return null;
 		}
 		
+		ArrayList<Integer> roles = UserRolesDB.getInstance().getRolesForUser(user.get().getUserId(), logInfo);
+		
+		Permission permissions = new Permission();
+		
+		for (int role : roles) {
+			ArrayList<Integer> p = RolePermissionsDB.getInstance().getPermissionsForRole(role, logInfo);
+			
+			for (int permId : p) {
+				permissions = PermissionDB.getInstance().getPermission(permId, permissions, logInfo);
+			}
+		}
+		
+		user.get().setPermissions(permissions);
+		
 		return user.get();
 	}
 	
