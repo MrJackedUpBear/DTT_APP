@@ -1052,7 +1052,11 @@ export async function getUser(iteration = 0){
 		let s = new Setting(settingsJson["numQuestions"], settingsJson["timeLimit"]);
 		s.setSettingId(settingsJson["settingId"]);
 
-		currentUser = new user(json["firstName"], json["lastName"], json["email"], s, permissions);	
+		currentUser = new user(json["firstName"], json["lastName"], json["email"], s);
+		currentUser.getPermissions().setAddQuestions(json["permissions"]["addQuestions"]);
+		currentUser.getPermissions().setDeleteQuestions(json["permissions"]["deleteQuestions"]);
+		currentUser.getPermissions().setUpdateQuestions(json["permissions"]["updateQuestions"]);
+		currentUser.getPermissions().setViewQuestions(json["permissions"]["viewQuestions"]);
 
 		return currentUser;
 	}catch (e){
