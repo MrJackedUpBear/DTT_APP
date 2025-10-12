@@ -77,6 +77,10 @@ import * as settings from './Settings';
     {
       path: 'MainPage/Questions/Edit',
       element: <qfend.EditQuestions/>
+    },
+    {
+      path: 'MainPage/Quiz/FinishedQuiz',
+      element: <quiz.FinishedQuiz/>
     }
   ]);
 

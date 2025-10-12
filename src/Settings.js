@@ -7,9 +7,6 @@ import * as User from './User.js';
 import { toast, ToastContainer } from 'react-toastify';
 import hamburger from './burger-menu-svgrepo-com.svg';
 
-let totalQuestions;
-let totalTime;
-
 function GetUserSettings(){
 
     const [numQuestions, setNumQuestions] = useState(null);
@@ -123,12 +120,6 @@ const showTimedMessage = (settingUpdated) => {
         progress: undefined,
     });
 };
-
-async function verifyTokens(){
-  if (!await db.verifyTokens()){
-    router.navigate("/Login");
-  }
-}
 
 export function Settings(){
     const changePassword = async (e) =>{

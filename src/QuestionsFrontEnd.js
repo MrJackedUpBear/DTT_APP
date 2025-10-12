@@ -2,7 +2,6 @@ import router from './index.js';
 import * as questions from './Questions.js';
 import {useEffect, useState} from 'react';
 import {Form, useNavigate} from 'react-router-dom';
-import { Text, View } from 'react-native';
 import * as db from './Database.js';
 import settings from './settings-svgrepo-com.svg';
 import landingPage from './landing-page-web-design-svgrepo-com.svg';
@@ -130,10 +129,6 @@ export async function QuestionsSubmittedPage(formData){
         });
     };
 
-    let prompts = [];
-    let wrongAnswers = [];
-    let correctAnswers = [];
-
     let prompt = formData.get("prompt").trim();
     let correctAnswer = formData.get("correctAnswer").trim();
     let wrongAnswer1 = formData.get("wrongAnswer1").trim();
@@ -160,7 +155,6 @@ export async function QuestionsSubmittedPage(formData){
     question.setJustification(description);
     question.setTaskLetter(taskLetter);
 
-    const reader = new FileReader();
     let fileData = await readFile(image);
 
     let typeOfPhoto = fileData.substring(0, fileData.indexOf(";base64"));
@@ -183,9 +177,6 @@ export function VerifyQuestions(){
     questionToEdit = questionsFromFile;
 
     const handleClick = async (event) => {
-        let prompts = [];
-        let answers = [];
-        let wrongAnswers = [];
         let que = [];
 
         for (let i = 0; i < questionToEdit.length; i++){
@@ -195,7 +186,6 @@ export function VerifyQuestions(){
 
             let wrongLen = questionToEdit[i].getWrongAnswers().length;
 
-            let temp = [];
             for (let j = 0; j < wrongLen; j++){
                 question.addWrongAnswer(questionToEdit[i].getWrongAnswers()[j]);
             }
@@ -268,13 +258,6 @@ function LoadAddQuestions(){
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const navigate = useNavigate();
-
-    const handleClick = () => {
-        setPage(1);
-        navigate("/MainPage/Questions");
-    }
-
     useEffect(() =>{
         const fetchData = async () =>{
         try{
@@ -332,7 +315,7 @@ function addPageNums(){
 
     return (
         <div className="pages" id="pages">
-            {page != 1? 
+            {page !== 1? 
                 <button onClick={() => router.navigate('Back')}>Prev</button>:
                 <div></div>
             }
@@ -349,7 +332,7 @@ function addPageNums(){
                 <span key={index}>
                     {item <= (numPageButtons + page) && item >= (page - numPageButtons)?
                     <span>
-                        {item != page? 
+                        {item !== page? 
                         <button onClick={() => handleClick(item)}>{item}</button>:
                         <span>{item}</span>
                         }
@@ -367,7 +350,7 @@ function addPageNums(){
                 <div></div>
             }
 
-            {page != numPages?
+            {page !== numPages?
                 <button onClick={() => router.navigate('Next')}>Next</button>:
                 <div></div>
             }
@@ -420,7 +403,7 @@ function LoadQuestions(){
         if (data === null){
             fetchData();
         }
-    }, []);
+    }, [data]);
 
     const handleClick = async (event, prompt, index, wrongAnswer = '', wrongAnswerInput = '', imageName = '') => {
         allQuestions = " ";
@@ -751,7 +734,6 @@ export function EditQuestions(){
                 });
             };
             let newImage = formData.get("newImage");
-            const reader = new FileReader();
             let fileData = await readFile(newImage);
             let img = fileData;
 
