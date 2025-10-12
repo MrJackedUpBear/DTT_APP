@@ -1,7 +1,7 @@
 import router from './index.js';
 import * as questions from './Questions.js';
 import {useEffect, useState} from 'react';
-import {Form} from 'react-router-dom';
+import {Form, useNavigate} from 'react-router-dom';
 import { Text, View } from 'react-native';
 import * as db from './Database.js';
 import settings from './settings-svgrepo-com.svg';
@@ -10,6 +10,7 @@ import home from './home-svgrepo-com.svg';
 import back from './back-svgrepo-com.svg';
 import { toast, ToastContainer } from 'react-toastify';
 import hamburger from './burger-menu-svgrepo-com.svg';
+import * as User from './User.js';
 
 let page = 1;
 const numOnPage = 15;
@@ -24,6 +25,7 @@ let questionToEdit = [];
 let qTotal = 0;
 let numPages = 0;
 let currentQuestion;
+let u;
 
 async function verifyTokens(){
   if (!await db.verifyTokens()){
@@ -251,7 +253,7 @@ export function ViewAndUpdate(){
             </div>
         </div>
         <div className="Pages">{addPageNums()}</div>
-        <button onClick={() => router.navigate('Add')}>Add Questions</button>
+        <LoadAddQuestions/>
         <div className="loadQuestions">
             <h1>All Questions</h1>
             Total Questions: {qTotal}
@@ -259,6 +261,45 @@ export function ViewAndUpdate(){
         </div>
         <footer className="Pages">{addPageNums()}</footer>
     </div>);
+}
+
+function LoadAddQuestions(){
+    const [user, setUser] = useState(null);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        setPage(1);
+        navigate("/MainPage/Questions");
+    }
+
+    useEffect(() =>{
+        const fetchData = async () =>{
+        try{
+            u = await User.getUser();
+            setUser(u);
+        }catch(e){
+            setError(e);
+        }finally{
+            setLoading(false);
+        }
+        };
+
+        fetchData();
+    }, []);
+
+    return (
+        <span>
+        {loading && <span></span>}
+        {error && <span>Error: {error.message}</span>}
+        {user && user.getPermissions().getAddQuestions()?
+            <button onClick={() => router.navigate('Add')}>Add Questions</button>:
+            <div></div>
+        }
+        </span>
+    );
 }
 
 function toggleHamburgerMenu(){
@@ -438,8 +479,11 @@ function LoadQuestions(){
                     </div>
                     <br/>
                     <div className="Buttons">
-                        <button className='Edit' onClick={(e) => handleClick(e, item, index)}>Edit</button>                    
-                        <button className='Delete' onClick={(e) => handleClick(e, item.getQuestion(), index)}>Delete Question?</button>
+                        <button className='Edit' onClick={(e) => handleClick(e, item, index)}>View Question</button>
+                        {u.getPermissions().getDeleteQuestions()?
+                            <button className='Delete' onClick={(e) => handleClick(e, item.getQuestion(), index)}>Delete Question?</button>:
+                            <div></div>
+                        }                    
                     </div>
                 
                 <div className="afterQuestion"> </div>
@@ -814,7 +858,13 @@ export function EditQuestions(){
                             </form>
                             <button className="editTaskLetter" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Cancel</button> 
                         </div>:
-                        <button className="editTaskLetter" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Edit Task Letter</button>}
+                        <div>
+                            {u.getPermissions().getUpdateQuestions()?
+                                <button className="editTaskLetter" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Edit Task Letter</button>:
+                                <div></div>
+                            }
+                        </div>
+                        }
                     </td>
 
                     <td className="prompt">
@@ -831,7 +881,13 @@ export function EditQuestions(){
                             </form>
                             <button className="editPrompt" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Cancel</button>
                         </div> : 
-                        <button className="editPrompt" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Edit Prompt</button>}
+                        <div>
+                            {u.getPermissions().getUpdateQuestions()?
+                                <button className="editPrompt" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Edit Prompt</button>:
+                                <div></div>
+                            }
+                        </div>
+                        }
                     </td>
                 </tr>
 
@@ -852,8 +908,17 @@ export function EditQuestions(){
                                     </form>
                                     <button className="editWrongAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), wrongAnswerIndex)}>Cancel</button>
                                 </div> : 
-                                <button className="editWrongAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), wrongAnswerIndex)}>Edit Wrong Answer {wrongAnswerIndex + 1}</button>}
-                                <button className="deleteWrongAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), wrongAnswerIndex, wrongAnswer)}>Delete Wrong Answer?</button>
+                                <div>
+                                    {u.getPermissions().getUpdateQuestions()?
+                                    <div>
+                                        <button className="editWrongAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), wrongAnswerIndex)}>Edit Wrong Answer {wrongAnswerIndex + 1}</button>
+                                        <button className="deleteWrongAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), wrongAnswerIndex, wrongAnswer)}>Delete Wrong Answer?</button>
+                                    </div>:
+                                <div></div>
+                                    }
+                                    
+                                </div>
+                                }
                             </div>
                         ))}
                         {addWrongAnswer ? 
@@ -866,7 +931,13 @@ export function EditQuestions(){
                             </form>
                             <button className="addWrongAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Cancel</button>
                         </div>:
-                        <button className="addWrongAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Add Wrong Answer</button>}
+                        <div>
+                            {u.getPermissions().getUpdateQuestions()?
+                                <button className="addWrongAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Add Wrong Answer</button>:
+                                <div></div>
+                            }
+                        </div>
+                        }
                     </td>
 
                     <td className="correctAnswer">
@@ -883,7 +954,13 @@ export function EditQuestions(){
                             </form>
                             <button className="editCorrectAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Cancel</button>
                         </div> : 
-                        <button className="editCorrectAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Edit Correct Answer</button>}
+                        <div>
+                            {u.getPermissions().getUpdateQuestions()?
+                                <button className="editCorrectAnswer" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Edit Correct Answer</button>:
+                                <div></div>
+                            }
+                        </div>
+                        }
                     </td>
 
                     <td className="justification">
@@ -900,7 +977,13 @@ export function EditQuestions(){
                             </form>
                             <button className="editJustification" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Cancel</button>
                         </div> : 
-                        <button className="editJustification" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Edit Justification</button>}
+                        <div>
+                            {u.getPermissions().getUpdateQuestions()?
+                                <button className="editJustification" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Edit Justification</button>:
+                                <div></div>
+                            }
+                        </div>
+                        }
                     </td>
 
                     <td className="image">
@@ -908,7 +991,10 @@ export function EditQuestions(){
                         {images.map((image, imageIndex) => (
                             <div>
                                 <img src={image[0]} alt=""/>
-                                <button className="deleteImage" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), '', '', currentQuestion.getImageNames()[imageIndex], imageIndex)}>Delete Image?</button>
+                                {u.getPermissions().getUpdateQuestions()?
+                                    <button className="deleteImage" onClick={(e) => handleClick(e, currentQuestion.getQuestion(), '', '', currentQuestion.getImageNames()[imageIndex], imageIndex)}>Delete Image?</button>:
+                                    <div></div>
+                                }
                                 <br/>
                                 <br/>
                             </div>
@@ -923,7 +1009,13 @@ export function EditQuestions(){
                             </form>
                             <button className="addImage" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Cancel</button>
                         </div> : 
-                        <button className="addImage" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Add Image</button>}
+                        <div>
+                            {u.getPermissions().getUpdateQuestions()?
+                                <button className="addImage" onClick={(e) => handleClick(e, currentQuestion.getQuestion())}>Add Image</button>:
+                                <div></div>
+                            }
+                        </div>
+                        }
                     </td>
                 </tr>
             </table>

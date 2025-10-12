@@ -48,13 +48,54 @@ export class Setting{
 	}
 }
 
+export class Permission{
+	constructor(){
+		this.addQuestions = false;
+		this.deleteQuestions = false;
+		this.updateQuestions = false;
+		this.viewQuestions = false;
+	}
+
+	setAddQuestions(addQuestions){
+		this.addQuestions = addQuestions;
+	}
+	
+	getAddQuestions(){
+		return this.addQuestions;
+	}
+
+	setDeleteQuestions(deleteQuestions){
+		this.deleteQuestions = deleteQuestions;
+	}
+	
+	getDeleteQuestions(){
+		return this.deleteQuestions;
+	}
+
+	setUpdateQuestions(updateQuestions){
+		this.updateQuestions = updateQuestions;
+	}
+
+	getUpdateQuestions(){
+		return this.updateQuestions;
+	}
+
+	setViewQuestions(viewQuestions){
+		this.viewQuestions = viewQuestions;
+	}
+
+	getViewQuestions(){
+		return this.viewQuestions;
+	}
+}
+
 export class user{
-	constructor(fName, lName, uName, sett, perm){
+	constructor(fName, lName, uName, sett){
 		this.firstName = fName;
 		this.lastName = lName;
 		this.username = uName;
 		this.settings = sett;
-		this.permissions = perm;
+		this.permissions = new Permission();
 	}
 
 	getFirstName(){

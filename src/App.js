@@ -10,13 +10,11 @@ import * as User from './User.js';
 import { useNavigate } from 'react-router-dom';
 import hamburger from './burger-menu-svgrepo-com.svg'
 
+let u;
+
 export function MainPage(){
   console.log("Rendering main page...");
   const navigate = useNavigate();
-  const handleClick = () => {
-    setPage(1);
-    navigate("/MainPage/Questions");
-  }
   document.body.style = 'background: white;';
 
    useEffect(() => {
@@ -49,7 +47,7 @@ export function MainPage(){
     </h1>
     <button onClick={() => quiz.getInfo()} className="takeQuiz">Take Quiz</button>
     <br/>
-    <button onClick={handleClick} className="editQuestions">View Questions</button>
+    <LoadQuestions/>
   </div>);
 }
 
@@ -65,6 +63,45 @@ function toggleHamburgerMenu(){
   }
 }
 
+function LoadQuestions(){
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    setPage(1);
+    navigate("/MainPage/Questions");
+  }
+
+  useEffect(() =>{
+    const fetchData = async () =>{
+      try{
+        u = await User.getUser();
+        setUser(u);
+      }catch(e){
+        setError(e);
+      }finally{
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+  
+  return (
+    <span>
+      {loading && <span></span>}
+      {error && <span>Error: {error.message}</span>}
+      {user && user.getPermissions().getViewQuestions()?
+        <button onClick={handleClick} className="editQuestions">View Questions</button>:
+        <div></div>
+      }
+    </span>
+  );
+}
+
 function GetUserName(){
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
@@ -73,7 +110,7 @@ function GetUserName(){
   useEffect(() =>{
     const fetchData = async () =>{
       try{
-        let u = await User.getUser();
+        u = await User.getUser();
         setUser(u);
       }catch(e){
         setError(e);
