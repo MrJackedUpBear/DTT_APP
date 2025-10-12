@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import {user, Setting} from './User.js';
 import * as User from './User.js';
 import router from './index.js';
@@ -151,6 +150,7 @@ const updateSettingsURL = "Update";
 
 const questionURL = baseURL + "Quiz/";
 const getRandomQuestionsURL = "RandomQuestions";
+// eslint-disable-next-line
 const getSpecificQuestionURL = "SpecificQuestion";
 const getQuestionTotalURL = "QuestionTotal";
 const getQuestionsFromURL = "QuestionsFrom";
@@ -171,12 +171,6 @@ const addQuestionsURL = "AddQuestions";
 
 let currentUser;
 let questions = [];
-
-let permissions = new Map();
-let settings = new Map();
-
-permissions.set('Users', 'T');
-permissions.set('Questions', 'T');
 
 export function getQuestionInfo(userQuestion){
 	let questionInfo = new question();
@@ -246,7 +240,7 @@ export async function getToken(username, password){
 
 export async function verifyEmailAuth(code){
 	const myHeaders = new Headers();
-	let combined = 'dummy' + ":" + code;
+	let combined = "dummy:" + code;
 	myHeaders.append("Content-Type", "application/json");
 	combined = btoa(combined);
 	myHeaders.append("Authorization", "Email " + combined);

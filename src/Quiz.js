@@ -1,19 +1,17 @@
 import './App.css';
-import * as user from './User.js';
 import * as questions from './Questions.js';
 import * as db from './Database.js';
 import router from './index.js';
 import React, { useState, useEffect } from 'react';
-import { Text, View } from 'react-native';
-import * as settings from './Settings.js';
-import settingsMenu from './settings-svgrepo-com.svg';
+import * as Settings from './Settings.js';
+import hamburger from './burger-menu-svgrepo-com.svg';
 import landingPage from './landing-page-web-design-svgrepo-com.svg';
 import home from './home-svgrepo-com.svg';
-import hamburger from './burger-menu-svgrepo-com.svg';
+import settings from './settings-svgrepo-com.svg';
 
-
-let correctAnswerVoice = null;
-let wrongAnswerVoice = null;
+/*
+Might set up answer voices on this later on...
+*/
 let currentQuestion = new db.question();
 let currentQuestionNum = 1;
 let totalQuestions;
@@ -22,6 +20,12 @@ let wrongChoice = false;
 let correctChoice = false;
 let totalCorrect = 0;
 let correctLetter = '';
+let correctlyAnswered = [];
+let correctAnswers = [];
+let incorrectlyAnswered = [];
+let incorrectAnswers = [];
+let trueAnswers = [];
+let answer = "";
 
 async function verifyTokens(){
   if (!await db.verifyTokens()){
@@ -30,12 +34,17 @@ async function verifyTokens(){
 }
 
 export async function getInfo(){
-  totalQuestions = await settings.getNumQuestions();
-  totalTime = await settings.getTime();
+  totalQuestions = await Settings.getNumQuestions();
+  totalTime = await Settings.getTime();
   wrongChoice = false;
   correctChoice = false;
   currentQuestionNum = 1;
   totalCorrect = 0;
+  correctlyAnswered = [];
+  incorrectlyAnswered = [];
+  correctAnswers = [];
+  trueAnswers = [];
+  answer = "";
 
   router.navigate("/MainPage/Quiz");
 }
@@ -46,7 +55,7 @@ function confirmExit(){
   if (!response){
     return;
   }
-  router.navigate('/MainPage')
+  router.navigate("/MainPage/Quiz/FinishedQuiz");
 }
 
 export function StartQuiz() {
@@ -124,6 +133,8 @@ export function CorrectAnswer(){
 
   if (!wrongChoice && correctChoice){
     totalCorrect++;
+    correctlyAnswered.push(currentQuestion);
+    correctAnswers.push(answer);
   }
 
   wrongChoice = false;
@@ -133,17 +144,7 @@ export function CorrectAnswer(){
     currentQuestionNum = 1;
     wrongChoice = false;
     correctChoice = false;
-    return (<div>
-      <h1 className="navBar">
-          <button onClick={confirmExit} className="exit">EXIT</button>
-          <h1 className="title">
-            DTT Quiz App - Quiz
-          </h1>
-      </h1>
-      <div className="finishedQuiz">
-        Well done! You got {totalCorrect} out of {totalQuestions}<br />
-      </div>
-    </div>)
+    router.navigate("/MainPage/Quiz/FinishedQuiz");
   }
 
   return (<div>
@@ -177,6 +178,9 @@ export function WrongAnswer(){
     </h1>);
   }
 
+  incorrectlyAnswered.push(currentQuestion);
+  incorrectAnswers.push(answer);
+
   return (<div>
     <div className="navBar">
         <button onClick={confirmExit} className="exit">EXIT</button>
@@ -195,6 +199,160 @@ export function WrongAnswer(){
       <button onClick={() => router.navigate('/MainPage/Quiz')} className='tryAgainButton'>Try Again... Try {correctLetter}</button>
     </div>
   </div>);
+}
+
+export function FinishedQuiz(){
+  let q = questions.getQuizQuestions();
+
+  let results = [];
+
+  for (let i = 0; i < q.length; i++){
+    if (results.length === 0){
+      let r = new Result(q[i].getTaskLetter());
+
+      if (correctlyAnswered.includes(q[i])){
+        r.addCorrectlyAnswered();
+      }else{
+        r.addIncorrectlyAnswered();
+      }
+      results.push(r);
+    }else{
+      let resultContains = false;
+      for (let j = 0; j < results.length; j++){
+        if (q[i].getTaskLetter() === results[j].getTaskLetter()){
+          resultContains = true;
+          if (correctlyAnswered.includes(q[i])){
+            results[j].addCorrectlyAnswered();
+          }else{
+            results[j].addIncorrectlyAnswered();
+          }
+        }
+      }
+
+      if (!resultContains){
+        let r = new Result(q[i].getTaskLetter());
+
+        if (correctlyAnswered.includes(q[i])){
+          r.addCorrectlyAnswered();
+        }else{
+          r.addIncorrectlyAnswered();
+        }
+        results.push(r);
+      }
+    }
+  }
+
+  return (<div>
+      <div className="navBar">
+            <div className="hamburgerMenu">
+                <button onClick={toggleHamburgerMenu}><img src={hamburger} alt="Hamburger"/></button>
+            </div>
+
+            <div className="landingPage" id="landingPage">
+                <button onClick={() => router.navigate('/')}><img src={landingPage} alt="Landing Page"/></button>
+            </div>
+            <div className="home" id="home">
+                <button onClick={() => router.navigate("/MainPage")}><img src={home} alt="Home"/></button>
+            </div>
+            <h1 className="title">
+                DTT Quiz App - Questions
+            </h1>
+            <div className="settings" id="settings">
+                <button onClick={() => router.navigate('/MainPage/Settings')}><img src={settings} alt="Settings"/></button>
+            </div>
+      </div>
+      <div className="finishedQuiz">
+        Well done! You got {totalCorrect} out of {totalQuestions}<br />
+      </div>
+      <div className="questions">
+
+      Correctly Answered Questions:
+      <ol>
+        {correctlyAnswered.map((item, index) => (
+          <div>
+            <li>
+              <span key={index}>{item.getTaskLetter()} {item.getQuestion()}</span>
+              <br/>
+              <span key={index}>Answer given: {correctAnswers[index]}</span>
+            </li>
+          </div>
+          
+        ))}
+      </ol>
+
+        <br/>
+        Incorrectly Answered Questions:
+        <ol>
+          {incorrectlyAnswered.map((item, index) => (
+            <div>
+              <li>
+                <span key={index}>{item.getTaskLetter()} {item.getQuestion()}</span>
+                <br/>
+                <span key={index}>Answer given: {incorrectAnswers[index]}</span>
+                <br/>
+                <span>Answer should have been:  {trueAnswers[index]}</span>
+              </li>
+              <br/>
+            </div>
+          ))}
+        </ol>
+
+        <br/>
+
+        Score by Task Letter:
+        <ol>
+          {results.map((item, index) =>(
+            <div>
+              <li key={index}>
+                Task Letter: {item.getTaskLetter()}
+                <br/>
+                {(item.getCorrectlyAnswered() / (item.getCorrectlyAnswered() + item.getIncorrectlyAnswered())) * 100}%
+              </li>
+            </div>
+          ))}
+        </ol>
+
+        <br/>
+
+        All Questions:
+
+        <ol>
+          {q.map((item, index) => (
+            <li key={index}>{item.getTaskLetter()} {item.getQuestion()}</li>
+          ))}
+        </ol>
+      </div>
+    </div>);
+}
+
+class Result{
+  constructor(taskLetter){
+    this.taskLetter = taskLetter;
+    this.correctlyAnswered = 0;
+    this.incorrectlyAnswered = 0;
+  }
+
+  getTaskLetter(){return this.taskLetter;}
+  getCorrectlyAnswered(){return this.correctlyAnswered;}
+  getIncorrectlyAnswered(){return this.incorrectlyAnswered;}
+
+  addCorrectlyAnswered(){this.correctlyAnswered++;}
+  addIncorrectlyAnswered(){this.incorrectlyAnswered++;}
+}
+
+function toggleHamburgerMenu(){
+  const landingButton = document.getElementById("landingPage");
+  const settingButton = document.getElementById("Settings");
+  const homeButton = document.getElementById("home");
+  if (landingButton.style.display === 'none' || landingButton.style.display === ''){
+    landingButton.style.display = 'block';
+    settingButton.style.display = 'block';
+    homeButton.style.display = 'block';
+  }else{
+    landingButton.style.display = 'none';
+    settingButton.style.display = 'none';
+    homeButton.style.display = 'none';
+  }
 }
 
 async function getCurrentQuestion(numQuestions){
@@ -300,6 +458,15 @@ function letterAt(index, value){
     case 5:
       letter = 'F';
       break;
+    case 6:
+      letter = 'G';
+      break;
+    case 7:
+      letter = 'H';
+      break;
+    default:
+      letter = 'Z';
+      break;
   }
 
   if (isCorrect){
@@ -325,46 +492,15 @@ function shuffleArray(array){
   return array;
 }
 
-function isNum(input){
-  let len = input.length;
-
-  for (let i = 0; i < len; i++){
-    switch(input[i]){
-      case '0':
-        break;
-      case '1':
-        break;
-      case '2':
-        break;
-      case '3':
-        break;
-      case '4':
-        break;
-      case '5':
-        break;
-      case '6':
-        break;
-      case '7':
-        break;
-      case '8':
-        break;
-      case '9':
-        break;
-      default:
-        return false;
-    }
-  }
-
-  return true;
-}
-
-export function CheckAnswer(answer){
+export function CheckAnswer(ans){
+  answer = ans;
   window.scrollTo(0, 0);
-  if (answer === currentQuestion.getCorrectAnswer()){
+  if (ans === currentQuestion.getCorrectAnswer()){
     correctChoice = true;
     router.navigate('CorrectAnswer');
   }else{
     wrongChoice = true;
+    trueAnswers.push(currentQuestion.getCorrectAnswer());
     router.navigate('SameQuestion');
   }
 }

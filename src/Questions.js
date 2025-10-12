@@ -15,6 +15,10 @@ async function getQuestions(numQ){
 	numQuest = questions.length;
 }
 
+export function getQuizQuestions(){
+	return questions;
+}
+
 export async function getQuestion(questionNum, totalQuestions, wrongChoice){
 	if (questionNum === 0 && !wrongChoice){
 		await getQuestions(totalQuestions);
