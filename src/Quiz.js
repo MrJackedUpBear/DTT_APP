@@ -8,6 +8,8 @@ import hamburger from './burger-menu-svgrepo-com.svg';
 import landingPage from './landing-page-web-design-svgrepo-com.svg';
 import home from './home-svgrepo-com.svg';
 import settings from './settings-svgrepo-com.svg';
+import correctRecording from './recordings/CorrectLow.m4a';
+import incorrectRecording from './recordings/IncorrectLow.m4a';
 
 /*
 Might set up answer voices on this later on...
@@ -155,6 +157,7 @@ export function CorrectAnswer(){
         </h1>
     </h1>
     <div className="correct">
+      <audio src={correctRecording} autoPlay/>
       Correct!
       <br/>
       {(currentQuestion.getJustification() !== '') ? <div>Justification: {currentQuestion.getJustification()}</div> :
@@ -189,6 +192,7 @@ export function WrongAnswer(){
         </h1>
     </div>
     <div className="wrong">
+      <audio src={incorrectRecording} autoPlay/>
       Incorrect!
       <br/>
       {(currentQuestion.getJustification() !== '') ? <div>Justification: {currentQuestion.getJustification()}</div> :
@@ -262,6 +266,7 @@ export function FinishedQuiz(){
             </div>
       </div>
       <div className="finishedQuiz">
+        <audio src={correctRecording} autoPlay/>
         Well done! You got {totalCorrect} out of {totalQuestions}<br />
       </div>
       <div className="questions">
